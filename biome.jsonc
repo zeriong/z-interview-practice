@@ -1,0 +1,173 @@
+{
+  "$schema": "https://biomejs.dev/schemas/2.3.11/schema.json",
+  // ======================
+  // VCS(버전 관리 시스템) 설정
+  // ======================
+  "vcs": {
+    // VCS 통합 기능 활성화 - Git과 통합하여 변경된 파일만 검사
+    "enabled": true,
+    // VCS 클라이언트 종류 - "git" 또는 "hg"(Mercurial) 중 선택
+    "clientKind": "git",
+    // .gitignore 파일 사용 여부 - Git ignore 규칙을 Biome에도 적용
+    "useIgnoreFile": true,
+    // Git에서 무시할 파일 목록 (useIgnoreFile이 true일 때는 .gitignore가 우선)
+    "defaultBranch": "main"
+  },
+  // ======================
+  // 파일 처리 설정
+  // ======================
+  "files": {
+    // 알 수 없는 파일 무시 여부 - Biome이 인식하지 못하는 파일 형식 무시
+    "ignoreUnknown": true,
+    // 포함할 파일 패턴 - Biome이 처리할 파일 확장자 지정
+    // ⚠️ include → includes (복수형)
+    "includes": ["**/*.ts", "**/*.tsx", "**/*.js", "**/*.jsx", "**/*.json"]
+    // ⚠️ "ignore" 키는 files 섹션에서 제거됨
+    // Git ignore를 사용하려면 vcs.useIgnoreFile: true로 충분
+    // 또는 CLI에서 --ignore 플래그 사용
+  },
+  // ======================
+  // 포매터(코드 자동 정렬) 설정
+  // ======================
+  "formatter": {
+    // 포매터 기능 활성화 - 코드 자동 포맷팅 기능 사용 여부
+    "enabled": true,
+    // 에러가 있는 코드 포맷팅 여부 - 문법 오류가 있어도 포맷팅 시도
+    "formatWithErrors": false,
+    // 들여쓰기 스타일 - "space"(스페이스) 또는 "tab"(탭) 중 선택
+    "indentStyle": "space",
+    // 들여쓰기 너비 - 몇 개의 공백 문자를 사용할지 지정
+    "indentWidth": 2,
+    // 줄 끝 문자 유형 - "lf"(Unix), "crlf"(Windows), "cr"(Mac) 중 선택
+    "lineEnding": "lf",
+    // 한 줄 최대 문자 수 - 줄 바꿈의 기준이 되는 문자 수
+    "lineWidth": 80
+  },
+  // ======================
+  // JavaScript/TypeScript 언어별 특화 설정
+  // ======================
+  "javascript": {
+    // JavaScript 포매터 설정
+    "formatter": {
+      // 문자열 따옴표 스타일 - "single"(작은따옴표) 또는 "double"(큰따옴표) 중 선택
+      "quoteStyle": "double",
+      // JSX 속성 따옴표 스타일 - JSX 요소의 속성값에 사용할 따옴표 스타일
+      "jsxQuoteStyle": "double",
+      // 객체 속성 따옴표 규칙 - "asNeeded"(필요시만) 또는 "preserve"(보존) 중 선택
+      "quoteProperties": "asNeeded",
+      // 후행 쉼표 규칙 - "all"(모든 곳), "es5"(ES5 지원), "none"(사용 안 함) 중 선택
+      "trailingCommas": "all",
+      // 세미콜론 사용 규칙 - "always"(항상) 또는 "asNeeded"(필요시만) 중 선택
+      "semicolons": "always",
+      // 화살표 함수 괄호 규칙 - "always"(항상) 또는 "asNeeded"(필요시만) 중 선택
+      "arrowParentheses": "always",
+      // JSX 요소 닫는 괄호 위치 - 같은 줄에 배치할지 여부
+      "bracketSameLine": false,
+      // 중괄호 내부 공백 여부 - JavaScript 객체와 배열의 중괄호 내부 공백 처리
+      "bracketSpacing": true
+    }
+  },
+
+  // ======================
+  // 린터(코드 품질 검사) 설정
+  // ======================
+  "linter": {
+    // 린터 기능 활성화 - 코드 품질 검사 기능 사용 여부
+    "enabled": true,
+    "rules": {
+      // 권장 규칙 활성화 - Biome에서 권장하는 모든 규칙 적용
+      "recommended": true,
+      // ======================
+      // 의심스러운 코드 패턴 검사 규칙
+      // ======================
+      "suspicious": {
+        // any 타입 사용 검사 - TypeScript의 any 타입 사용 허용
+        "noExplicitAny": "off",
+        // 빈 블록문 검사 - 빈 중괄호 {} 사용 시 경고만 표시
+        "noEmptyBlockStatements": "warn",
+        // 이중 등호 사용 검사 - 이중 등호 사용 허용
+        "noDoubleEquals": "off"
+      },
+      // ======================
+      // 정확성 검사 규칙
+      // ======================
+      "correctness": {
+        // 사용하지 않는 변수 검사 - 선언만 하고 사용하지 않는 변수 감지
+        "noUnusedVariables": "warn",
+        // React Hooks 의존성 배열 완전성 검사 - useEffect 등의 deps 검증
+        "useExhaustiveDependencies": "off"
+      },
+      // ======================
+      // 코드 스타일 규칙
+      // ======================
+      "style": {
+        // Non-null assertion(!) 연산자 사용 허용 - TypeScript의 ! 연산자 사용 가능
+        "noNonNullAssertion": "off",
+        // import type 사용 권장 - TypeScript의 타입 전용 import 사용 권장
+        "useImportType": "off"
+      },
+      // ======================
+      // 복잡도 관련 규칙
+      // ======================
+      "complexity": {
+        // 금지된 타입 사용 검사 - Object, String 등의 래퍼 타입 사용 허용
+        "noBannedTypes": "off",
+        // 불필요한 catch 블록 검사 - catch에서 단순 재throw만 하는 경우 허용
+        "noUselessCatch": "off"
+      },
+      // ======================
+      // 실험적 규칙 (nursery)
+      // ======================
+      "nursery": {
+        // Tailwind CSS 클래스 정렬 검사 - 클래스 순서 자동 정렬 비활성화
+        "useSortedClasses": "off"
+      }
+    }
+  },
+  "assist": {
+    "actions": {
+      "source": {
+        "organizeImports": "on"
+      }
+    }
+  },
+
+  // ⚠️ organizeImports는 최상위 레벨에서 제거됨
+  // Biome 2.x에서는 import 정렬이 기본적으로 포맷팅에 포함됨
+  // ======================
+  // 파일별 규칙 재정의 (Overrides)
+  // ======================
+  "overrides": [
+    {
+      // React 컴포넌트 파일에 대한 특별 규칙
+      // ⚠️ include → includes (복수형)
+      "includes": ["**/*.tsx", "**/*.jsx"],
+      "linter": {
+        "rules": {
+          "style": {
+            // 파일명 규칙 검사 비활성화 - React 컴포넌트 파일명 규칙 자유롭게 허용
+            "useFilenamingConvention": "off"
+          },
+          "complexity": {
+            // 불필요한 프래그먼트 사용 허용
+            "noUselessFragments": "off"
+          },
+          "a11y": {
+            // 키 이벤트와 클릭 이벤트 사용 허용
+            "useKeyWithClickEvents": "off",
+            // 시멘틱 요소 사용 허용
+            "useSemanticElements": "off",
+            // 양수 tabindex 사용 허용
+            "noPositiveTabindex": "off"
+          },
+          "suspicious": {
+            // 배열 인덱스 키 사용 허용
+            "noArrayIndexKey": "off",
+            // isNaN 사용 허용
+            "noGlobalIsNan": "off"
+          }
+        }
+      }
+    }
+  ]
+}

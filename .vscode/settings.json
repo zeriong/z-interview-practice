@@ -1,0 +1,24 @@
+{
+	"editor.defaultFormatter": "biomejs.biome",
+	"editor.formatOnSave": true,
+
+	"editor.codeActionsOnSave": {
+		"source.organizeImports.biome": "explicit",
+		"source.fixAll.biome": "explicit"
+	},
+
+	// CSS 파일은 별도 포매터 사용
+	"[css]": {
+		"editor.defaultFormatter": "vscode.css-language-features",
+		"editor.formatOnSave": true
+	},
+
+	// Tailwind CSS IntelliSense 최적화
+	"tailwindCSS.experimental.classRegex": [
+		["class:\\s*?[\"'`]([^\"'`]*).*?[\"'`]", "[\"'`]([^\"'`]*).*?[\"'`]"]
+	],
+
+	"files.associations": {
+		"*.css": "tailwindcss"
+	}
+}

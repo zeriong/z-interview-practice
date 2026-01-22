@@ -3,6 +3,7 @@
 @theme {
   --color-primary: #468cff;
   --color-secondary: #003285;
+  --color-pr-orange: #f9ab00;
 }
 
 * {

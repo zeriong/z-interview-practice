@@ -2,10 +2,12 @@ export default function SideBar() {
   return (
     <aside className="flex h-full w-[400px] flex-col shadow-lg p-[30px]">
       <div className="text-[32px] font-bold">
-        <p>Preparing</p>
-        <p className="text-gray-500 ml-10">for interview</p>
+        <p className="text-primary text-[40px]">Preparing</p>
+        <p className="text-gray-500 ml-10">
+          for <span className="text-pr-orange text-[40px]">interview</span>
+        </p>
       </div>
-      <p className="text-gray-500 mt-10">{"< Interview List />"}</p>
+      <p className="text-gray-500 mt-10 font-bold">{"< Interview List />"}</p>
 
       <ul className=" flex-1 overflow-auto flex flex-col gap-4 mt-4">
         {Array.from({ length: 100 }).map((_, index) => (

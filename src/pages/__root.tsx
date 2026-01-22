@@ -4,9 +4,11 @@ import SideBar from "@/widgets/side-bar/SideBar";
 
 const RootLayout = () => (
   <>
-    <main className="flex">
+    <main className="flex h-screen w-full overflow-hidden bg-white">
       <SideBar />
-      <Outlet />
+      <div className="min-w-0 flex-1 overflow-auto">
+        <Outlet />
+      </div>
     </main>
 
     <TanStackRouterDevtools />

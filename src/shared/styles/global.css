@@ -4,3 +4,7 @@
   --color-primary: #468cff;
   --color-secondary: #003285;
 }
+
+* {
+  box-sizing: border-box;
+}

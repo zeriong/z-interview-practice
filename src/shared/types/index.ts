@@ -1,1 +1,1 @@
-export type { InterviewChild, InterviewItem } from './interview';
+export type { InterviewChild, InterviewItem } from "./interview";

@@ -1,1 +1,1 @@
-export { INTERVIEW_DATA } from './interview-data';
+export { INTERVIEW_DATA } from "./interview-data";

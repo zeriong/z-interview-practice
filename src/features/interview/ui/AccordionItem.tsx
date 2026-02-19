@@ -39,7 +39,7 @@ export default function AccordionItem({
         }`}
       >
         <div className="overflow-hidden">
-          <p className="pb-4 text-[15px] leading-relaxed text-gray-700 bg-gray-100/80 rounded-2xl p-4">
+          <p className="p-3 text-[14px] leading-relaxed text-gray-700 bg-gray-100/80 rounded-xl md:p-4 md:text-[15px] md:rounded-2xl">
             {answer}
           </p>
           {children}

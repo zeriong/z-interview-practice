@@ -1,4 +1,5 @@
 import { type ReactNode, useState } from "react";
+import { twMerge } from "tailwind-merge";
 
 interface Props {
   question: string;
@@ -39,7 +40,13 @@ export default function AccordionItem({
         }`}
       >
         <div className="overflow-hidden">
-          <p className="p-3 text-[14px] leading-relaxed text-gray-700 bg-gray-100/80 rounded-xl md:p-4 md:text-[15px] md:rounded-2xl">
+          <p
+            className={twMerge(
+              "p-3 text-[14px] leading-relaxed text-gray-700",
+              "bg-gray-100/80 rounded-xl",
+              "md:p-4 md:text-[15px] md:rounded-2xl",
+            )}
+          >
             {answer}
           </p>
           {children}

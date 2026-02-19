@@ -6,8 +6,8 @@ const RootLayout = () => (
   <>
     <main className="flex h-screen w-full overflow-hidden bg-white">
       <SideBar />
-      <div className="flex justify-center grow">
-        <div className="min-w-0 flex-1 overflow-auto pt-16 md:pt-0 max-w-[900px] flex justify-center grow">
+      <div className="flex justify-center grow overflow-auto">
+        <div className="min-w-0 flex-1 pt-16 md:pt-0 max-w-[900px] flex justify-center grow">
           <Outlet />
         </div>
       </div>

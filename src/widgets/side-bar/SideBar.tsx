@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { twMerge } from "tailwind-merge";
 import { INTERVIEW_DATA } from "@/shared/constants";
 
 export default function SideBar() {
@@ -22,42 +23,42 @@ export default function SideBar() {
         type="button"
         aria-label="메뉴 열기"
         onClick={() => setIsOpen(true)}
-        className={[
+        className={twMerge(
           "fixed left-4 top-4 z-30 md:hidden",
           "flex h-11 w-11 items-center justify-center",
           "rounded-xl bg-white shadow-md",
-        ].join(" ")}
+        )}
       >
         <HamburgerIcon />
       </button>
 
       {/* 모바일: 오버레이 */}
       <div
-        className={[
+        className={twMerge(
           "fixed inset-0 z-40 md:hidden",
           isOpen ? "pointer-events-auto" : "pointer-events-none",
-        ].join(" ")}
+        )}
       >
         {/* 백드롭 */}
         <button
           type="button"
           aria-label="메뉴 닫기"
-          className={[
+          className={twMerge(
             "absolute inset-0 bg-black/50",
             "transition-opacity duration-300",
             isOpen ? "opacity-100" : "opacity-0",
-          ].join(" ")}
+          )}
           onClick={() => setIsOpen(false)}
         />
 
         {/* 사이드바 패널 */}
         <aside
-          className={[
+          className={twMerge(
             "absolute left-0 top-0 flex h-full w-[300px] flex-col",
             "overflow-y-auto bg-white p-6 shadow-xl",
             "transition-transform duration-300",
             isOpen ? "translate-x-0" : "-translate-x-full",
-          ].join(" ")}
+          )}
         >
           <div className="mb-6 flex items-start justify-between">
             <SidebarHeading />
@@ -102,7 +103,7 @@ function NavList({
   compact?: boolean;
 }) {
   return (
-    <ul className="mt-6 md:mt-14 flex flex-col gap-3">
+    <ul className="mt-0 md:mt-10 flex flex-col gap-3">
       {INTERVIEW_DATA.map((item, index) => (
         <li key={index}>
           <button

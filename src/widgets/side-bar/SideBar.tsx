@@ -1,9 +1,9 @@
-import { INTERVIEW_DATA } from '@/shared/constants';
+import { INTERVIEW_DATA } from "@/shared/constants";
 
 export default function SideBar() {
   const handleScrollTo = (index: number) => {
     const element = document.getElementById(`interview-q-${index}`);
-    element?.scrollIntoView({ behavior: 'smooth' });
+    element?.scrollIntoView({ behavior: "smooth" });
   };
 
   return (
@@ -14,9 +14,8 @@ export default function SideBar() {
           for <span className="text-[40px] text-pr-orange">interview</span>
         </p>
       </div>
-      <p className="mt-10 font-bold text-gray-500">{"< Interview List />"}</p>
 
-      <ul className="mt-4 flex flex-1 flex-col gap-3 overflow-auto">
+      <ul className="flex flex-1 flex-col gap-3 overflow-auto mt-20">
         {INTERVIEW_DATA.map((item, index) => (
           <li key={index}>
             <button
@@ -25,7 +24,7 @@ export default function SideBar() {
               className="w-full rounded-lg bg-gray-100 p-4 text-left"
             >
               <span className="wrap-break-word text-[16px] leading-snug text-gray-700">
-                {index + 1}. {item.question}
+                {item.question}
               </span>
             </button>
           </li>

@@ -102,7 +102,7 @@ function NavList({
   compact?: boolean;
 }) {
   return (
-    <ul className="mt-6 flex flex-col gap-3">
+    <ul className="mt-6 md:mt-14 flex flex-col gap-3">
       {INTERVIEW_DATA.map((item, index) => (
         <li key={index}>
           <button

@@ -1,18 +1,33 @@
+import { INTERVIEW_DATA } from '@/shared/constants';
+
 export default function SideBar() {
+  const handleScrollTo = (index: number) => {
+    const element = document.getElementById(`interview-q-${index}`);
+    element?.scrollIntoView({ behavior: 'smooth' });
+  };
+
   return (
-    <aside className="flex h-full w-[400px] flex-col shadow-lg p-[30px]">
+    <aside className="flex h-full w-[400px] flex-col p-[30px] shadow-lg">
       <div className="text-[32px] font-bold">
-        <p className="text-primary text-[40px]">Preparing</p>
-        <p className="text-gray-500 ml-10">
-          for <span className="text-pr-orange text-[40px]">interview</span>
+        <p className="text-[40px] text-primary">Preparing</p>
+        <p className="ml-10 text-gray-500">
+          for <span className="text-[40px] text-pr-orange">interview</span>
         </p>
       </div>
-      <p className="text-gray-500 mt-10 font-bold">{"< Interview List />"}</p>
+      <p className="mt-10 font-bold text-gray-500">{"< Interview List />"}</p>
 
-      <ul className=" flex-1 overflow-auto flex flex-col gap-4 mt-4">
-        {Array.from({ length: 100 }).map((_, index) => (
-          <li key={index} className=" w-full rounded-lg bg-gray-100 p-4">
-            {index + 1} 사이드바 콘텐츠 (테스트용 5000px)
+      <ul className="mt-4 flex flex-1 flex-col gap-3 overflow-auto">
+        {INTERVIEW_DATA.map((item, index) => (
+          <li key={index}>
+            <button
+              type="button"
+              onClick={() => handleScrollTo(index)}
+              className="w-full rounded-lg bg-gray-100 p-4 text-left"
+            >
+              <span className="wrap-break-word text-[16px] leading-snug text-gray-700">
+                {index + 1}. {item.question}
+              </span>
+            </button>
           </li>
         ))}
       </ul>

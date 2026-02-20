@@ -15,20 +15,7 @@ export default function InterviewSection() {
             id={`interview-q-${index}`}
             className="rounded-lg border border-gray-200 p-4 shadow-sm md:rounded-xl md:p-6"
           >
-            <AccordionItem question={item.question} answer={item.answer}>
-              {item.children.length > 0 && (
-                <div className="flex flex-col gap-1 border-t border-gray-100 pt-2">
-                  {item.children.map((child, childIndex) => (
-                    <AccordionItem
-                      key={childIndex}
-                      question={child.question}
-                      answer={child.answer}
-                      isChild
-                    />
-                  ))}
-                </div>
-              )}
-            </AccordionItem>
+            <AccordionItem question={item.question} answer={item.answer} />
           </div>
         ))}
       </div>

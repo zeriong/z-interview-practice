@@ -1,23 +1,16 @@
-import { type ReactNode, useState } from "react";
+import { useState } from "react";
 import { twMerge } from "tailwind-merge";
 
 interface Props {
   question: string;
   answer: string;
-  isChild?: boolean;
-  children?: ReactNode;
 }
 
-export default function AccordionItem({
-  question,
-  answer,
-  isChild = false,
-  children,
-}: Props) {
+export default function AccordionItem({ question, answer }: Props) {
   const [isOpen, setIsOpen] = useState(false);
 
   return (
-    <div className={isChild ? "border-l-2 border-gray-100 pl-4" : ""}>
+    <div>
       <button
         type="button"
         onClick={() => setIsOpen((prev) => !prev)}
@@ -49,7 +42,6 @@ export default function AccordionItem({
           >
             {answer}
           </p>
-          {children}
         </div>
       </div>
     </div>

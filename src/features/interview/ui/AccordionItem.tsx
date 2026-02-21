@@ -1,13 +1,9 @@
 import { useState } from "react";
 import { twMerge } from "tailwind-merge";
+import type { InterviewItem } from "@/shared/types";
 import { ChevronIcon } from "@/shared/ui/icons";
 
-interface Props {
-  question: string;
-  answer: string;
-}
-
-export default function AccordionItem({ question, answer }: Props) {
+export default function AccordionItem({ question, answer }: InterviewItem) {
   const [isOpen, setIsOpen] = useState(false);
 
   return (
@@ -21,17 +17,19 @@ export default function AccordionItem({ question, answer }: Props) {
           {question}
         </span>
         <span
-          className={`mt-1 shrink-0 text-gray-400 transition-transform duration-500 ${
-            isOpen ? "rotate-180" : "rotate-0"
-          }`}
+          className={twMerge(
+            "mt-1 shrink-0 text-gray-400 transition-transform duration-500",
+            isOpen ? "rotate-180" : "rotate-0",
+          )}
         >
           <ChevronIcon />
         </span>
       </button>
       <div
-        className={`grid transition-all duration-500 ${
-          isOpen ? "grid-rows-[1fr]" : "grid-rows-[0fr]"
-        }`}
+        className={twMerge(
+          "grid transition-all duration-500",
+          isOpen ? "grid-rows-[1fr]" : "grid-rows-[0fr]",
+        )}
       >
         <div className="overflow-hidden">
           <p

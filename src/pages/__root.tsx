@@ -1,6 +1,7 @@
 import { createRootRoute, Outlet } from "@tanstack/react-router";
 import { TanStackRouterDevtools } from "@tanstack/react-router-devtools";
-import Header from "@/widgets/header";
+import { twMerge } from "tailwind-merge";
+import { Header } from "@/widgets/header";
 import SideBar from "@/widgets/side-bar";
 
 const RootLayout = () => (
@@ -11,7 +12,13 @@ const RootLayout = () => (
 
       <div className="flex min-w-0 grow flex-col">
         <Header />
-        <div className="flex-1 overflow-auto w-full flex justify-center [scrollbar-gutter:stable]">
+        <div
+          className={twMerge(
+            "flex-1 overflow-auto w-full",
+            "flex justify-center",
+            "[scrollbar-gutter:stable]",
+          )}
+        >
           <div className="w-full max-w-[900px]">
             <Outlet />
           </div>

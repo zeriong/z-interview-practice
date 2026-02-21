@@ -1,8 +1,6 @@
 import { twMerge } from "tailwind-merge";
 import { useSidebarStore } from "@/entities/sidebar/model";
-import { CloseIcon } from "@/shared/ui/icons";
-import NavList from "./NavList";
-import SidebarHeading from "./SidebarHeading";
+import SidebarContent from "./SidebarContent";
 
 export default function SideBar() {
   const { isOpen, close, toggle } = useSidebarStore();
@@ -35,18 +33,7 @@ export default function SideBar() {
             isOpen ? "opacity-100" : "opacity-0",
           )}
         >
-          <div className="mb-6 flex items-start justify-between">
-            <SidebarHeading />
-            <button
-              type="button"
-              aria-label="메뉴 닫기"
-              onClick={close}
-              className="p-1 text-gray-400"
-            >
-              <CloseIcon />
-            </button>
-          </div>
-          <NavList onItemClick={handleItemClick} />
+          <SidebarContent onClose={close} onItemClick={handleItemClick} />
         </div>
       </aside>
 
@@ -76,18 +63,7 @@ export default function SideBar() {
             isOpen ? "translate-x-0" : "-translate-x-full",
           )}
         >
-          <div className="mb-6 flex items-start justify-between">
-            <SidebarHeading />
-            <button
-              type="button"
-              aria-label="메뉴 닫기"
-              onClick={close}
-              className="p-1 text-gray-400"
-            >
-              <CloseIcon />
-            </button>
-          </div>
-          <NavList onItemClick={handleItemClick} />
+          <SidebarContent onClose={close} onItemClick={handleItemClick} />
         </aside>
       </div>
     </>

@@ -1,3 +1,4 @@
+import { twMerge } from "tailwind-merge";
 import { AccordionItem } from "@/features/interview";
 import { INTERVIEW_DATA } from "@/shared/constants";
 
@@ -8,7 +9,11 @@ export default function InterviewSection() {
         <div
           key={index}
           id={`interview-q-${index}`}
-          className="rounded-lg border border-gray-200 p-4 shadow-sm md:rounded-xl md:p-6"
+          className={twMerge(
+            "rounded-lg border border-gray-200",
+            "p-4 shadow-sm",
+            "md:rounded-xl md:p-6",
+          )}
         >
           <AccordionItem question={item.question} answer={item.answer} />
         </div>

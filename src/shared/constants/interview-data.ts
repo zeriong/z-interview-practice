@@ -1,4 +1,4 @@
-import type { InterviewItem } from "@/shared/types/interview";
+import type { InterviewItem } from "@/shared/types";
 
 export const INTERVIEW_DATA: InterviewItem[] = [
   {

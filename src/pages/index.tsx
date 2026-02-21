@@ -1,10 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
-import InterviewSection from "@/widgets/interview-section/InterviewSection";
+import InterviewSection from "@/widgets/interview-section";
 
 export const Route = createFileRoute("/")({
-  component: Index,
+  component: () => <InterviewSection />,
 });
-
-function Index() {
-  return <InterviewSection />;
-}

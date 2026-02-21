@@ -1,14 +1,20 @@
 import { createRootRoute, Outlet } from "@tanstack/react-router";
 import { TanStackRouterDevtools } from "@tanstack/react-router-devtools";
-import SideBar from "@/widgets/side-bar/SideBar";
+import Header from "@/widgets/header";
+import SideBar from "@/widgets/side-bar";
 
 const RootLayout = () => (
   <>
     <main className="flex h-screen w-full overflow-hidden bg-white">
+      {/* 데스크톱 슬라이드 패널 + 모바일 오버레이 */}
       <SideBar />
-      <div className="flex justify-center grow overflow-auto [scrollbar-gutter:stable]">
-        <div className="min-w-0 flex-1 pt-16 md:pt-0 max-w-[900px] flex justify-center grow">
-          <Outlet />
+
+      <div className="flex min-w-0 grow flex-col">
+        <Header />
+        <div className="flex-1 overflow-auto w-full flex justify-center [scrollbar-gutter:stable]">
+          <div className="w-full max-w-[900px]">
+            <Outlet />
+          </div>
         </div>
       </div>
     </main>

@@ -171,6 +171,10 @@
             "noArrayIndexKey": "off",
             // isNaN 사용 허용
             "noGlobalIsNan": "off"
+          },
+          "security": {
+            // DOMPurify로 정화 후 dangerouslySetInnerHTML 사용 허용
+            "noDangerouslySetInnerHtml": "off"
           }
         }
       }

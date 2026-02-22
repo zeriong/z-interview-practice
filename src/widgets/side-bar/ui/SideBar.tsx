@@ -3,32 +3,24 @@ import { useSidebarStore } from "@/entities/sidebar/model";
 import SidebarContent from "./SidebarContent";
 
 export default function SideBar() {
-  const { isOpen, close, toggle, scrollTo } = useSidebarStore();
+  const { isOpen, close, scrollTo } = useSidebarStore();
 
   const handleItemClick = (index: number) => {
     scrollTo(index);
-    toggle();
+    close();
   };
 
   return (
     <>
-      {/* 데스크톱: 콘텐츠를 밀어내는 슬라이드 패널 */}
+      {/* 데스크톱: 항상 열린 사이드 패널 */}
       <aside
         className={twMerge(
-          "hidden md:flex h-full shrink-0 flex-col",
+          "hidden md:flex h-full w-[300px] shrink-0 flex-col",
           "overflow-hidden bg-white p-6 shadow-xl",
-          "transition-[width,padding] duration-300",
-          isOpen ? "w-[300px]" : "w-0 p-0",
         )}
       >
-        <div
-          className={twMerge(
-            "min-w-[252px] flex-1 min-h-0 flex flex-col",
-            "transition-opacity duration-300",
-            isOpen ? "opacity-100" : "opacity-0",
-          )}
-        >
-          <SidebarContent onClose={close} onItemClick={handleItemClick} />
+        <div className="min-w-[252px] flex-1 min-h-0 flex flex-col">
+          <SidebarContent onItemClick={(i) => scrollTo(i)} />
         </div>
       </aside>
 

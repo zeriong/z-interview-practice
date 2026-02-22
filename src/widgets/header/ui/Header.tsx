@@ -1,9 +1,13 @@
+import { Link, useRouterState } from "@tanstack/react-router";
 import { twMerge } from "tailwind-merge";
 import { useSidebarStore } from "@/entities/sidebar/model";
-import { HamburgerIcon, QuizIcon } from "@/shared/ui/icons";
+import { HamburgerIcon } from "@/shared/ui/icons";
 
 export default function Header() {
   const { toggle } = useSidebarStore();
+  const isQuizPage = useRouterState({
+    select: (s) => s.location.pathname === "/quiz",
+  });
 
   return (
     <header className="sticky top-0 z-20 bg-white shadow-md">
@@ -13,13 +17,13 @@ export default function Header() {
           "px-4 py-2",
         )}
       >
-        {/* 좌측: 메뉴 버튼 */}
+        {/* 좌측: 메뉴 버튼 (모바일 전용) */}
         <button
           type="button"
           aria-label="메뉴 열기"
           onClick={toggle}
           className={twMerge(
-            "flex h-10 w-10 items-center justify-center",
+            "flex h-10 w-10 items-center justify-center md:hidden",
             "rounded-lg text-gray-600 hover:bg-gray-100",
             "transition-colors",
           )}
@@ -32,19 +36,19 @@ export default function Header() {
           Frontend Questions!
         </h1>
 
-        {/* 우측: Quiz 버튼 (미구현) */}
-        <button
-          type="button"
-          aria-label="퀴즈 모드 (준비 중)"
-          disabled
+        {/* 우측: Quiz / Show All 토글 */}
+        <Link
+          to={isQuizPage ? "/" : "/quiz"}
           className={twMerge(
-            "flex h-10 w-10 items-center justify-center",
-            "rounded-lg text-gray-600",
-            "opacity-50 cursor-not-allowed",
+            "rounded-lg px-4 py-2 text-sm font-semibold",
+            "transition-colors",
+            isQuizPage
+              ? "bg-gray-200 text-gray-700 hover:bg-gray-300"
+              : "bg-primary text-white hover:bg-primary/90",
           )}
         >
-          <QuizIcon />
-        </button>
+          {isQuizPage ? "Show All" : "Quiz"}
+        </Link>
       </div>
     </header>
   );

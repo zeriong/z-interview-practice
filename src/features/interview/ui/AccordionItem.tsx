@@ -3,7 +3,7 @@ import { twMerge } from "tailwind-merge";
 import type { InterviewItem } from "@/shared/types";
 import { ChevronIcon } from "@/shared/ui/icons";
 
-interface AccordionItemProps extends InterviewItem {
+interface AccordionItemProps extends Omit<InterviewItem, "id"> {
   isOpen: boolean;
   onToggle: () => void;
 }

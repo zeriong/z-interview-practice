@@ -5,6 +5,7 @@ export const INTERVIEW_DATA: InterviewItem[] = [
   // 기존 항목 (가상 DOM, 이벤트 루프, Flexbox/Grid, 상태관리, 렌더링)
   // ─────────────────────────────────────────────
   {
+    id: 1,
     question: "가상 DOM(Virtual DOM)이란 무엇이며, 왜 사용하나요?",
     answer:
       "<p>가상 DOM은 실제 DOM의 메모리 내 자바스크립트 표현입니다. React는 상태가 변경되면 새로운 가상 DOM 트리를 생성하고, 이전 트리와 비교(Diffing)하여 변경된 부분만 실제 DOM에 반영합니다. 실제 DOM 조작은 비용이 크기 때문에, 변경이 필요한 최소한의 노드만 업데이트하여 성능을 최적화합니다.</p>" +
@@ -19,6 +20,7 @@ export const INTERVIEW_DATA: InterviewItem[] = [
       "<p>기존 Stack Reconciler는 재귀적으로 트리를 탐색하며 동기적으로 모든 작업을 완료해야 했기 때문에, 큰 트리를 업데이트할 때 메인 스레드가 장시간 블로킹되어 사용자 입력이 끊기는 문제가 있었습니다. Fiber 아키텍처는 각 컴포넌트를 'fiber'라는 작업 단위(unit of work)로 분할하여 렌더링을 중단·재개할 수 있게 합니다. 이를 통해 우선순위 기반 스케줄링이 가능해져, 사용자 인터랙션 같은 긴급한 업데이트를 먼저 처리하고 덜 중요한 업데이트는 유휴 시간에 처리합니다. React 18의 Concurrent Features(startTransition, useDeferredValue 등)는 이 Fiber 아키텍처 위에 구현된 것입니다.</p>",
   },
   {
+    id: 2,
     question: "JavaScript의 이벤트 루프(Event Loop)에 대해 설명해주세요.",
     answer:
       "<p>자바스크립트는 싱글 스레드 언어지만 이벤트 루프를 통해 비동기 작업을 처리합니다. 콜 스택에서 현재 코드 실행이 끝나면, 이벤트 루프가 마이크로태스크 큐(Promise, MutationObserver)를 먼저 비우고, 그 다음 매크로태스크 큐(setTimeout, setInterval, I/O)에서 하나씩 가져와 실행합니다. 이 사이클이 반복되며 비동기 작업을 처리합니다.</p>" +
@@ -33,6 +35,7 @@ export const INTERVIEW_DATA: InterviewItem[] = [
       "<p>requestAnimationFrame(rAF)은 매크로태스크도 마이크로태스크도 아닌 별도의 단계에서 실행됩니다. 이벤트 루프의 한 사이클에서 매크로태스크 하나 실행 → 마이크로태스크 큐 비우기 → 렌더링 필요 여부 판단 → (렌더링이 필요하면) rAF 콜백 실행 → 레이아웃·페인트 순서로 진행됩니다. rAF는 브라우저의 실제 화면 갱신 주기(보통 60fps, 약 16.6ms)에 맞춰 호출되므로, 애니메이션 로직에 최적화되어 있습니다. 반면 requestIdleCallback은 프레임에 여유 시간이 있을 때 실행되어, 우선순위가 낮은 작업에 적합합니다.</p>",
   },
   {
+    id: 3,
     question:
       "CSS Flexbox와 Grid의 차이점과 각각 언제 사용하는지 설명해주세요.",
     answer:
@@ -48,6 +51,7 @@ export const INTERVIEW_DATA: InterviewItem[] = [
       "<p>미디어 쿼리는 뷰포트(전체 화면) 크기에 반응하지만, 컨테이너 쿼리는 부모 컨테이너의 크기에 반응합니다. 이는 컴포넌트 기반 설계에서 핵심적인 차이입니다. <code>container-type: inline-size</code>를 선언하고 <code>@container (min-width: 400px)</code>로 조건을 걸면, Grid의 <code>grid-template-columns</code>를 컨테이너 크기에 따라 동적으로 변경할 수 있어 진정한 컴포넌트 단위의 반응형 설계가 가능합니다.</p>",
   },
   {
+    id: 4,
     question: "React의 상태 관리 방법들을 비교해서 설명해주세요.",
     answer:
       "<p>React의 상태 관리는 목적에 따라 구분합니다. 컴포넌트 내부 상태는 useState나 useReducer를, 전역 상태는 Context API, Zustand, Redux 등을 사용합니다. 서버 상태(데이터 페칭, 캐싱)는 TanStack Query나 SWR 같은 전용 라이브러리로 분리하는 것이 현재 트렌드입니다. 상태의 범위와 복잡도에 맞는 도구를 선택하는 것이 중요합니다.</p>" +
@@ -62,6 +66,7 @@ export const INTERVIEW_DATA: InterviewItem[] = [
       "<p>서버 상태는 원격에 저장되어 있어 항상 최신 상태를 보장할 수 없고, 다른 사용자에 의해 변경될 수 있으며, 캐싱·재검증·동기화·백그라운드 갱신 같은 고유한 문제를 가집니다. TanStack Query는 stale-while-revalidate 전략, 자동 백그라운드 갱신, 옵티미스틱 업데이트 등 서버 상태에 특화된 기능을 제공합니다. 결과적으로 전역 스토어에는 UI 상태(모달 열림, 테마 설정 등)만 남게 되어 코드가 훨씬 단순해집니다.</p>",
   },
   {
+    id: 5,
     question: "브라우저의 렌더링 과정에 대해 설명해주세요.",
     answer:
       "<p>브라우저의 렌더링은 다음 순서로 진행됩니다. ① HTML 파싱 → DOM 트리 생성 ② CSS 파싱 → CSSOM 트리 생성 ③ DOM + CSSOM 결합 → 렌더 트리 생성 ④ 레이아웃(Reflow): 요소의 크기와 위치 계산 ⑤ 페인트(Repaint): 픽셀 채우기 ⑥ 합성(Compositing): 레이어 합성. JavaScript는 파싱을 차단하므로 defer나 async 속성을 활용해 최적화합니다.</p>" +
@@ -79,6 +84,7 @@ export const INTERVIEW_DATA: InterviewItem[] = [
   // JavaScript 기초
   // ─────────────────────────────────────────────
   {
+    id: 6,
     question: "==과 ===의 차이점은 무엇인가요?",
     answer:
       "<p><code>==</code>(동등 연산자)는 비교 전에 타입 변환(type coercion)을 수행하여 두 값을 같은 타입으로 맞춘 뒤 비교합니다. 반면 <code>===</code>(일치 연산자)는 타입 변환 없이 값과 타입 모두 동일해야 true를 반환합니다. 예를 들어 <code>'1' == 1</code>은 true이지만 <code>'1' === 1</code>은 false입니다. 실무에서는 예측 가능성을 위해 항상 <code>===</code>를 사용하는 것이 권장됩니다.</p>" +
@@ -93,6 +99,7 @@ export const INTERVIEW_DATA: InterviewItem[] = [
       "<p>ESLint/Biome의 eqeqeq 규칙은 암묵적 타입 변환으로 인한 버그를 예방합니다. 유일하게 <code>== null</code>은 관용적으로 허용되는데, <code>value == null</code>은 <code>value === null || value === undefined</code>와 동일하여 null/undefined 동시 체크의 축약형으로 유용합니다. TypeScript에서는 strictNullChecks와 함께 optional chaining(<code>?.</code>)과 nullish coalescing(<code>??</code>)이 더 안전한 대안입니다.</p>",
   },
   {
+    id: 7,
     question: "const, let, var의 차이점은 무엇인가요?",
     answer:
       "<p><code>var</code>는 함수 스코프를 가지며 호이스팅 시 undefined로 초기화됩니다. <code>let</code>과 <code>const</code>는 블록 스코프를 가지며 호이스팅되지만 TDZ(Temporal Dead Zone)로 인해 선언 전 접근 시 ReferenceError가 발생합니다. <code>const</code>는 재할당이 불가하지만 객체의 내부 프로퍼티 변경은 가능합니다. ES6 이후 <code>const</code>를 기본으로, 재할당이 필요한 경우에만 <code>let</code>을 사용하는 것이 관례입니다.</p>" +
@@ -107,6 +114,7 @@ export const INTERVIEW_DATA: InterviewItem[] = [
       "<p>var의 대표적 문제는 for 루프 클로저 이슈입니다. <code>for (var i = 0; i < 5; i++) { setTimeout(() => console.log(i), 0) }</code>는 모두 5를 출력하는데, var가 함수 스코프이므로 하나의 i를 공유하기 때문입니다. <code>let</code>으로 바꾸면 각 반복이 독립 스코프를 가져 0,1,2,3,4가 출력됩니다. 마이그레이션은 ESLint의 <code>no-var</code> 규칙과 <code>--fix</code> 옵션으로 자동화할 수 있습니다.</p>",
   },
   {
+    id: 8,
     question: "왜 let과 var는 다르게 쓰이는가?",
     answer:
       "<p>let과 var의 핵심 차이는 스코프입니다. var는 함수 레벨 스코프로, if문이나 for문 블록 안에서 선언해도 함수 전체에서 접근 가능합니다. let은 블록 레벨 스코프로, 선언된 블록 내에서만 유효합니다. 이 차이 때문에 var는 의도치 않은 변수 공유와 오염 문제를 일으킬 수 있어, ES6부터 let과 const가 도입되어 더 안전한 스코프 관리가 가능해졌습니다.</p>" +
@@ -124,6 +132,7 @@ export const INTERVIEW_DATA: InterviewItem[] = [
   // JavaScript 비동기 / 이벤트 / 메모리
   // ─────────────────────────────────────────────
   {
+    id: 9,
     question: "자바스크립트가 어떻게 비동기적으로 실행될 수 있는지?",
     answer:
       "<p>자바스크립트는 싱글 스레드 언어임에도 비동기 실행이 가능한 이유는, 실제 비동기 작업(네트워크 요청, 타이머, I/O)을 브라우저 또는 Node.js의 Web API/libuv가 별도 스레드에서 처리하기 때문입니다. 자바스크립트 엔진(V8)은 콜 스택 하나만 가지고 있지만, 비동기 작업을 위임한 뒤 그 결과물인 콜백·Promise 핸들러가 태스크 큐에 적재되고, 이벤트 루프가 콜 스택이 비어있는 시점에 꺼내 실행하는 구조를 통해 블로킹 없이 여러 작업을 처리합니다.</p>" +
@@ -138,6 +147,7 @@ export const INTERVIEW_DATA: InterviewItem[] = [
       "<p>async/await은 제너레이터(Generator)와 Promise를 기반으로 한 문법 설탕입니다. <code>await</code>을 만나면 현재 함수의 실행이 일시 중단되고, 해당 Promise가 마이크로태스크 큐를 통해 처리됩니다. 중요한 점은 <code>await</code> 이후 코드는 항상 마이크로태스크로 스케줄링되므로, 동기 코드보다 늦게 실행되며, 같은 async 함수 내에서도 <code>await</code> 개수만큼 마이크로태스크 큐를 거칩니다.</p>",
   },
   {
+    id: 10,
     question:
       "왜 자바스크립트를 실행하는 구조가 마이크로 큐, 매크로 큐, 콜스택 아키텍팅을 가지고 있는지?",
     answer:
@@ -153,6 +163,7 @@ export const INTERVIEW_DATA: InterviewItem[] = [
       "<p><code>requestAnimationFrame</code>은 렌더링 직전에 실행되는 별도 단계입니다. <code>requestIdleCallback</code>은 프레임에 여유 시간이 있을 때 실행됩니다. 최신 Scheduling API(<code>scheduler.postTask()</code>)는 태스크에 우선순위(user-blocking, user-visible, background)를 부여할 수 있습니다. React 18의 Concurrent 기능도 이 스케줄링 개념을 React 렌더링 내부에 적용한 것입니다.</p>",
   },
   {
+    id: 11,
     question: "이벤트 버블링은 무엇인가?",
     answer:
       "<p>이벤트 버블링은 특정 DOM 요소에서 이벤트가 발생했을 때, 해당 이벤트가 부모 요소를 거쳐 최상위(window)까지 순차적으로 전파되는 현상입니다. 예를 들어 <code>&lt;button&gt;</code>을 클릭하면 button → div → body → html → document → window 순서로 click 이벤트가 전파됩니다. <code>event.stopPropagation()</code>으로 버블링을 중단할 수 있으며, focus, blur, scroll 같은 일부 이벤트는 버블링되지 않습니다.</p>" +
@@ -167,6 +178,7 @@ export const INTERVIEW_DATA: InterviewItem[] = [
       "<p>React 17 이전에는 모든 이벤트가 document에 위임되었기 때문에, 자식의 네이티브 addEventListener에서 stopPropagation을 호출하면 React 이벤트가 아예 동작하지 않는 문제가 있었습니다. React 17부터는 루트 컨테이너에 이벤트를 위임하여 이 문제를 개선했습니다. 그럼에도 네이티브와 합성 이벤트 시스템이 혼재하면 예상치 못한 동작이 발생할 수 있으므로 경계를 명확히 이해해야 합니다.</p>",
   },
   {
+    id: 12,
     question: "이벤트 캡쳐링은 무엇인가?",
     answer:
       "<p>이벤트 캡처링은 이벤트가 최상위(window)에서 시작하여 실제 이벤트가 발생한 요소(target)까지 DOM 트리를 따라 내려오는 단계입니다. 기본적으로 이벤트 리스너는 버블링 단계에서 실행되지만, <code>addEventListener</code>의 세 번째 인자를 <code>true</code>로 설정하거나 <code>{ capture: true }</code> 옵션을 주면 캡처링 단계에서 실행됩니다.</p>" +
@@ -181,6 +193,7 @@ export const INTERVIEW_DATA: InterviewItem[] = [
       "<p><code>preventDefault()</code>는 브라우저 기본 동작(링크 이동, 폼 제출)만 막고 전파는 막지 않습니다. <code>stopPropagation()</code>은 이후 전파를 막지만 기본 동작은 막지 않습니다. 두 메서드는 독립적입니다. 전파를 막는 것이 바람직하지 않은 이유는, 전역 이벤트 핸들러(애널리틱스 추적, 접근성 리스너)가 해당 이벤트를 수신하지 못하게 만들기 때문입니다.</p>",
   },
   {
+    id: 13,
     question:
       "두가지를 모두(버블링/캡쳐링) 가지고 있는 요소에서 이벤트가 발생하면 어느 것이 먼저 실행되는가?",
     answer:
@@ -196,6 +209,7 @@ export const INTERVIEW_DATA: InterviewItem[] = [
       "<p>일반적으로 버블링 단계에서 구현합니다. 버블링이 기본값이어서 코드가 직관적이고, 대부분의 DOM 이벤트가 버블링을 지원합니다. 캡처링 위임은 내부 핸들러의 stopPropagation을 우회해야 할 때나, 버블링되지 않는 focus/blur 이벤트를 위임할 때 사용합니다. 단, 캡처링은 남용하면 하위 컴포넌트의 이벤트 처리를 의도치 않게 방해할 수 있습니다.</p>",
   },
   {
+    id: 14,
     question: "event.target과 event.currentTarget의 차이점은 무엇인가요?",
     answer:
       "<p><code>event.target</code>은 이벤트가 실제로 발생한 요소(클릭된 요소 자체)를 가리키며, 이벤트 전파 과정에서 변하지 않습니다. <code>event.currentTarget</code>은 현재 이벤트 핸들러가 등록된 요소로, 이벤트가 전파되면서 각 핸들러마다 달라집니다. 예를 들어 ul에 클릭 핸들러를 등록했을 때, li를 클릭하면 <code>event.target</code>은 li이고 <code>event.currentTarget</code>은 ul입니다.</p>" +
@@ -210,6 +224,7 @@ export const INTERVIEW_DATA: InterviewItem[] = [
       "<p>일반 함수로 핸들러를 작성하면 <code>this</code>는 <code>event.currentTarget</code>과 동일합니다. 그러나 화살표 함수는 렉시컬 스코프의 this를 따르므로 다를 수 있습니다. React 클래스 컴포넌트에서는 메서드를 JSX에 전달하면 this가 undefined가 되므로, 생성자에서 bind하거나 화살표 함수를 사용해야 합니다.</p>",
   },
   {
+    id: 15,
     question:
       "자바스크립트는 싱글 스레드 언어인데, 어떻게 동시에 여러 작업들을 수행하나요?",
     answer:
@@ -225,6 +240,7 @@ export const INTERVIEW_DATA: InterviewItem[] = [
       "<p>Web Worker를 사용하여 별도 스레드에서 실행하고 결과만 postMessage로 받습니다. 또는 작업을 작은 청크로 분할하여 <code>setTimeout(processChunk, 0)</code>으로 이벤트 루프가 중간에 렌더링할 기회를 줍니다. <code>requestIdleCallback</code>으로 유휴 시간에 분산 처리하는 방법도 있습니다. React 18의 <code>startTransition</code>도 유사한 원리로 렌더링을 분할합니다.</p>",
   },
   {
+    id: 16,
     question: "Javascript의 Promise에 대해서 아는대로 설명해주세요.",
     answer:
       "<p>Promise는 비동기 작업의 최종 완료 또는 실패를 나타내는 객체입니다. 세 가지 상태(pending → fulfilled/rejected)를 가지며, 한 번 settled되면 변경되지 않습니다. <code>.then()</code>으로 이행/거부 핸들러를 등록하고, <code>.catch()</code>로 에러를, <code>.finally()</code>로 정리 로직을 처리합니다. Promise 체이닝은 각 <code>.then()</code>이 새로운 Promise를 반환하여 콜백 지옥을 해결합니다. <code>Promise.all</code>, <code>Promise.race</code>, <code>Promise.any</code>, <code>Promise.allSettled</code> 등의 정적 메서드로 여러 Promise를 조합합니다.</p>" +
@@ -242,6 +258,7 @@ export const INTERVIEW_DATA: InterviewItem[] = [
   // JavaScript 기초 (계속)
   // ─────────────────────────────────────────────
   {
+    id: 17,
     question: "프로토타입(Prototype)이란 무엇인가요?",
     answer:
       "<p>프로토타입은 자바스크립트 객체가 다른 객체로부터 메서드와 프로퍼티를 상속받는 메커니즘입니다. 모든 자바스크립트 객체는 <code>[[Prototype]]</code>이라는 내부 슬롯을 가지며, 이를 통해 부모 객체(프로토타입)에 연결됩니다. 프로퍼티를 찾을 때 객체 자신에 없으면 프로토타입 체인을 따라 올라가며 검색합니다. <code>Object.getPrototypeOf()</code>로 접근하거나, 비표준이지만 <code>__proto__</code>로 접근할 수 있습니다.</p>" +
@@ -256,6 +273,7 @@ export const INTERVIEW_DATA: InterviewItem[] = [
       "<p><code>Object.create(null)</code>은 프로토타입이 null인 순수 사전(dictionary) 객체를 생성합니다. <code>toString</code>, <code>hasOwnProperty</code> 같은 Object.prototype의 메서드가 없어 프로토타입 오염(prototype pollution) 공격에 안전합니다. Map 등장 전에 순수 해시맵 용도로 사용되었으며, 현재는 <code>Map</code>이나 <code>Object.hasOwn()</code> 사용이 권장됩니다.</p>",
   },
   {
+    id: 18,
     question: "프로토타입과 클래스의 차이는 무엇인가요?",
     answer:
       "<p>자바스크립트의 <code>class</code>는 프로토타입 기반 상속의 문법적 설탕(syntactic sugar)입니다. 내부적으로 프로토타입 체인을 사용하지만, 클래스 구문으로 더 직관적으로 작성할 수 있습니다. 차이점으로는: ① class는 호이스팅되지 않고 TDZ가 적용됩니다 ② class 내 메서드는 자동으로 non-enumerable입니다 ③ class는 항상 strict mode로 실행됩니다 ④ new 없이 호출하면 TypeError가 발생합니다.</p>" +
@@ -270,6 +288,7 @@ export const INTERVIEW_DATA: InterviewItem[] = [
       "<p>클래스 기반 언어에서 클래스는 인스턴스의 '설계도(blueprint)'이며 런타임에 변경할 수 없습니다. 프로토타입 기반 언어에서는 '클래스'도 실제 객체이므로 런타임에 메서드를 추가·삭제·수정할 수 있습니다. 자바스크립트에서 <code>Array.prototype.myMethod = ...</code>으로 모든 배열에 메서드를 추가할 수 있는 것이 이 유연성의 예이며, 동시에 프로토타입 오염 위험의 원인이기도 합니다.</p>",
   },
   {
+    id: 19,
     question: "프로토타입 상속은 어떻게 동작하나요?",
     answer:
       "<p>프로토타입 상속은 객체가 다른 객체의 프로퍼티와 메서드를 직접 참조하여 사용하는 메커니즘입니다. 객체에서 프로퍼티를 읽을 때 자신에게 없으면 <code>[[Prototype]]</code>을 따라 올라가며 탐색합니다. 쓰기는 항상 자체 프로퍼티에 수행되어 프로토타입을 오염시키지 않습니다. <code>Object.create(proto)</code>로 특정 객체를 프로토타입으로 하는 새 객체를 생성하거나, 생성자 함수의 <code>prototype</code> 프로퍼티를 통해 상속 관계를 설정합니다.</p>" +
@@ -284,6 +303,7 @@ export const INTERVIEW_DATA: InterviewItem[] = [
       "<p>'상속보다 합성을 선호하라(Favor composition over inheritance)'는 객체지향 설계 원칙입니다. 프로토타입 상속은 is-a 관계에 적합하지만, 깊은 상속 체인은 유지보수가 어렵고 부모 변경이 모든 자식에 영향을 줍니다. 컴포지션은 has-a 관계로 기능을 조립하여 유연성이 높습니다. React도 클래스 상속 대신 컴포지션(props, children, 커스텀 훅)을 권장합니다.</p>",
   },
   {
+    id: 20,
     question: "함수 선언식과 함수 표현식의 차이는 무엇인가요?",
     answer:
       "<p>함수 선언식(<code>function foo() {}</code>)은 호이스팅되어 선언 전에 호출 가능합니다. 함수 표현식(<code>const foo = function() {}</code>)은 변수 호이스팅 규칙을 따라, var는 undefined로 초기화되고 const/let은 TDZ가 적용됩니다. 화살표 함수(<code>() => {}</code>)는 항상 표현식이며, 자체 this/arguments/super/new.target 바인딩이 없습니다.</p>" +
@@ -298,6 +318,7 @@ export const INTERVIEW_DATA: InterviewItem[] = [
       "<p>조건문 안의 함수 선언은 브라우저마다 동작이 달랐으며, ES2015 이후 strict mode에서는 블록 스코프로 제한됩니다. <code>if (true) { function foo() { return 1; } }</code>에서 strict mode에서는 foo가 블록 밖에서 접근 불가합니다. 이런 혼란 때문에 조건부 함수 정의에는 함수 표현식을 사용하는 것이 안전하며, 린터도 이를 경고합니다.</p>",
   },
   {
+    id: 21,
     question:
       "접근제어자(public, private, protected)를 JavaScript에서 어떻게 구현하나요?",
     answer:
@@ -313,6 +334,7 @@ export const INTERVIEW_DATA: InterviewItem[] = [
       "<p>클로저 방식은 <code>function createCounter() { let count = 0; return { increment() { count++; }, getCount() { return count; } }; }</code>처럼 외부에서 count에 직접 접근할 수 없게 합니다. 이 방식은 인스턴스마다 메서드 복사본이 생겨 메모리 효율이 낮지만, 프로토타입 체인 없이도 정보 은닉이 가능합니다. 클래스의 <code>#</code>은 프로토타입 메서드에서도 private 필드에 접근 가능하여 메모리 효율과 캡슐화를 모두 만족합니다.</p>",
   },
   {
+    id: 22,
     question: "실행 컨텍스트(Execution Context)란 무엇인가요?",
     answer:
       "<p>실행 컨텍스트는 자바스크립트 코드가 실행되는 환경을 추상화한 개념입니다. 세 가지 종류가 있습니다: ① 전역 실행 컨텍스트(Global) ② 함수 실행 컨텍스트 ③ eval 실행 컨텍스트. 각 컨텍스트는 변수 환경(Variable Environment), 렉시컬 환경(Lexical Environment), this 바인딩을 포함합니다. 함수가 호출될 때마다 새 실행 컨텍스트가 생성되어 콜 스택에 쌓이고, 실행이 끝나면 제거됩니다.</p>" +
@@ -327,6 +349,7 @@ export const INTERVIEW_DATA: InterviewItem[] = [
       "<p>재귀 함수가 종료 조건 없이 반복 호출되면 콜 스택이 가득 차서 'Maximum call stack size exceeded' 에러가 발생합니다. 해결 방법으로는: ① 꼬리 재귀 최적화(TCO, Safari만 지원) ② 트램폴린(trampoline) 패턴으로 재귀를 반복문으로 변환 ③ 반복문(while/for)으로 알고리즘 재작성 ④ <code>setTimeout(fn, 0)</code>으로 콜 스택을 비우고 재개하는 비동기 재귀가 있습니다.</p>",
   },
   {
+    id: 23,
     question: "클로저(Closure)란 무엇이며, 왜 사용하나요?",
     answer:
       "<p>클로저는 함수가 선언된 렉시컬 스코프 밖에서 실행되더라도, 선언 당시의 렉시컬 환경에 대한 참조를 유지하는 것을 말합니다. 내부 함수가 외부 함수의 변수에 접근할 수 있는 현상입니다. 클로저는 데이터 캡슐화(private 변수), 상태 유지(카운터, 캐시), 콜백/이벤트 핸들러에서 컨텍스트 보존, 함수 팩토리 패턴에 활용됩니다.</p>" +
@@ -341,6 +364,7 @@ export const INTERVIEW_DATA: InterviewItem[] = [
       "<p>Stale closure는 클로저가 업데이트 이전의 값을 계속 참조하는 문제입니다. <code>useEffect(() => { setInterval(() => console.log(count), 1000) }, [])</code>에서 count는 항상 초기값입니다. 해결 방법: ① useEffect 의존성 배열에 count 추가 ② setState의 함수형 업데이트(<code>setCount(prev => prev + 1)</code>) ③ useRef로 최신 값 유지 ④ useEffect 내에서 cleanup으로 이전 타이머 정리가 있습니다.</p>",
   },
   {
+    id: 24,
     question: "커링(Currying)이란 무엇인가요?",
     answer:
       "<p>커링은 여러 인자를 받는 함수를 하나의 인자만 받는 함수들의 체인으로 변환하는 기법입니다. <code>f(a, b, c)</code>를 <code>f(a)(b)(c)</code>로 변환합니다. 부분 적용(Partial Application)과 유사하지만, 커링은 항상 단항 함수로 변환하는 반면 부분 적용은 일부 인자만 고정합니다. 이벤트 핸들러 팩토리, 설정 함수, 로깅 미들웨어 등에서 유용합니다.</p>" +
@@ -355,6 +379,7 @@ export const INTERVIEW_DATA: InterviewItem[] = [
       "<p>① 이벤트 핸들러 팩토리: <code>const handleChange = (field) => (e) => setState({[field]: e.target.value})</code> ② 미들웨어 패턴: Redux의 <code>store => next => action</code> ③ 로깅: <code>const log = (level) => (module) => (msg) => console.log(level, module, msg)</code> ④ API 클라이언트: <code>const api = (baseUrl) => (endpoint) => (params) => fetch(baseUrl + endpoint, params)</code>. React에서 HOC 패턴도 커링의 응용입니다.</p>",
   },
   {
+    id: 25,
     question: "this 키워드는 어떻게 동작하나요?",
     answer:
       "<p><code>this</code>는 함수가 호출되는 방식에 따라 동적으로 결정됩니다. ① 전역 컨텍스트: window(브라우저) 또는 global(Node.js) ② 메서드 호출: 해당 객체 ③ 일반 함수 호출: window(non-strict) 또는 undefined(strict) ④ 생성자(new): 새로 생성된 인스턴스 ⑤ call/apply/bind: 명시적으로 지정된 객체 ⑥ 화살표 함수: 렉시컬 스코프의 this. 우선순위는 new > call/apply/bind > 메서드 > 일반 함수 순입니다.</p>" +
@@ -369,6 +394,7 @@ export const INTERVIEW_DATA: InterviewItem[] = [
       "<p>클래스 필드 화살표 함수(<code>handleClick = () => {}</code>)는 인스턴스마다 새 함수가 생성되어 메모리를 더 사용하지만, this가 항상 인스턴스에 바인딩됩니다. 생성자에서 bind(<code>this.handleClick = this.handleClick.bind(this)</code>)도 인스턴스당 함수를 생성하지만 프로토타입 메서드를 바인딩하는 것입니다. React에서는 함수 컴포넌트와 훅의 도입으로 두 패턴 모두 사용 빈도가 크게 줄었습니다.</p>",
   },
   {
+    id: 26,
     question: "불변성(Immutability)이란 무엇이며, 왜 중요한가요?",
     answer:
       "<p>불변성은 데이터가 생성된 후 변경되지 않는 성질입니다. 자바스크립트에서 원시값(string, number 등)은 불변이지만, 객체와 배열은 기본적으로 가변(mutable)입니다. 불변성이 중요한 이유는: ① 예측 가능한 상태 변화 ② 변경 감지의 효율성(참조 비교만으로 충분) ③ 동시성 문제 방지 ④ 디버깅 용이(상태 히스토리 추적). React에서 상태 불변성은 리렌더링 최적화의 핵심입니다.</p>" +
@@ -383,6 +409,7 @@ export const INTERVIEW_DATA: InterviewItem[] = [
       "<p>구조적 공유는 변경되지 않은 부분의 참조를 재사용하는 기법입니다. 깊은 객체에서 하나의 값만 변경할 때, 변경된 경로의 노드만 새로 생성하고 나머지는 기존 객체를 그대로 참조합니다. Immer가 이 전략을 사용하며, Immutable.js는 HAMT(Hash Array Mapped Trie) 자료구조로 이를 구현합니다. TanStack Query도 서버 응답의 구조적 공유로 불필요한 리렌더링을 최소화합니다.</p>",
   },
   {
+    id: 27,
     question:
       "제너레이터(Generator)와 이터레이터(Iterator)에 대해 설명해주세요.",
     answer:
@@ -401,6 +428,7 @@ export const INTERVIEW_DATA: InterviewItem[] = [
   // React 핵심
   // ─────────────────────────────────────────────
   {
+    id: 28,
     question:
       "지도(Map) 렌더링에서 requestAnimationFrame을 사용하는 이유는 무엇인가요?",
     answer:
@@ -416,6 +444,7 @@ export const INTERVIEW_DATA: InterviewItem[] = [
       "<p>지도 라이브러리는 자체적으로 DOM을 직접 조작하므로 React의 가상 DOM과 충돌할 수 있습니다. 지도 컨테이너를 <code>useRef</code>로 관리하고, 지도 인스턴스 생성/소멸을 <code>useEffect</code>에서 처리해야 합니다. 마커 업데이트 시 React 상태와 지도 상태를 동기화하는 것이 핵심이며, <code>react-map-gl</code> 같은 래퍼 라이브러리가 이를 선언적으로 처리합니다.</p>",
   },
   {
+    id: 29,
     question: "setTimeout과 requestAnimationFrame의 차이점은 무엇인가요?",
     answer:
       "<p><code>setTimeout</code>은 지정한 시간 후 콜백을 매크로태스크 큐에 넣어 실행하며, 정확한 시간 보장이 없습니다. <code>requestAnimationFrame</code>은 브라우저의 다음 화면 갱신(repaint) 직전에 콜백을 실행하여 디스플레이 주사율과 동기화됩니다. setTimeout은 범용 지연 실행에, rAF는 시각적 애니메이션과 DOM 업데이트에 최적화되어 있습니다. 비활성 탭에서 rAF는 일시 중지되어 리소스를 절약합니다.</p>" +
@@ -430,6 +459,7 @@ export const INTERVIEW_DATA: InterviewItem[] = [
       "<p><code>rAF</code>는 매 프레임 렌더링 전에 호출되어 시각적 업데이트에 적합합니다. <code>requestIdleCallback</code>은 브라우저가 유휴(idle) 상태일 때 호출되어 우선순위 낮은 작업(분석 데이터 전송, 프리페칭, lazy 초기화)에 적합합니다. deadline 파라미터로 남은 유휴 시간을 확인할 수 있습니다. React의 Concurrent Mode도 유사한 우선순위 스케줄링 개념을 내부적으로 구현합니다.</p>",
   },
   {
+    id: 30,
     question: "setState 이후 리렌더링 과정을 설명해주세요.",
     answer:
       "<p>setState가 호출되면: ① React는 업데이트를 스케줄링합니다 ② 같은 이벤트 핸들러 내 여러 setState는 자동으로 배치(batch)됩니다 ③ React가 컴포넌트 함수를 다시 호출하여 새로운 React Element 트리(가상 DOM)를 생성합니다 ④ 이전 트리와 비교(Reconciliation/Diffing)하여 변경 사항을 계산합니다 ⑤ 계산된 변경 사항만 실제 DOM에 커밋(Commit Phase)합니다. 이 과정은 Render Phase(순수, 중단 가능)와 Commit Phase(DOM 변경, 동기적)로 나뉩니다.</p>" +
@@ -444,6 +474,7 @@ export const INTERVIEW_DATA: InterviewItem[] = [
       "<p>React 17까지는 React 이벤트 핸들러 내에서만 배치가 적용되었고, setTimeout, fetch.then, 네이티브 이벤트 핸들러에서는 setState마다 리렌더링이 발생했습니다. React 18의 <code>createRoot</code>부터는 모든 컨텍스트에서 자동으로 배치됩니다. 배치를 강제로 해제하려면 <code>flushSync()</code>를 사용합니다. 이로 인해 불필요한 리렌더링이 크게 감소합니다.</p>",
   },
   {
+    id: 31,
     question: "React Fiber 아키텍처란 무엇인가요?",
     answer:
       "<p>Fiber는 React 16에서 도입된 새로운 재조정(Reconciliation) 엔진입니다. 각 컴포넌트를 'fiber' 노드라는 작업 단위로 표현하여, 렌더링 작업을 작은 조각으로 분할하고 우선순위에 따라 스케줄링할 수 있게 합니다. 기존 Stack Reconciler의 동기적, 재귀적 렌더링을 대체하여 중단·재개·폐기가 가능한 증분(incremental) 렌더링을 구현합니다. React 18의 Concurrent Features는 이 Fiber 위에 구축되었습니다.</p>" +
@@ -458,6 +489,7 @@ export const INTERVIEW_DATA: InterviewItem[] = [
       "<p>React는 업데이트에 'Lane'이라는 우선순위 비트마스크를 부여합니다. 사용자 입력(SyncLane)은 가장 높은 우선순위, <code>startTransition</code> 내 업데이트(TransitionLane)는 낮은 우선순위를 가집니다. 높은 우선순위 업데이트가 들어오면 낮은 우선순위 렌더링을 중단하고 긴급한 업데이트를 먼저 처리합니다. 이것이 타이핑 시 입력이 즉시 반응하면서 검색 결과 목록은 나중에 갱신되는 패턴의 원리입니다.</p>",
   },
   {
+    id: 32,
     question: "Fiber가 해결한 기존 문제는 무엇인가요?",
     answer:
       "<p>기존 Stack Reconciler는 트리를 재귀적으로 동기 탐색했기 때문에, 대규모 컴포넌트 트리의 업데이트가 시작되면 완료될 때까지 메인 스레드를 블로킹했습니다. 이로 인해 사용자 입력 지연, 애니메이션 끊김, 높은 TTI(Time to Interactive)가 발생했습니다. Fiber는 렌더링을 작은 단위로 분할하여 각 프레임 사이에 브라우저가 사용자 입력과 페인팅을 처리할 수 있게 하여 이 문제를 해결했습니다.</p>" +
@@ -472,6 +504,7 @@ export const INTERVIEW_DATA: InterviewItem[] = [
       "<p>네. Fiber 아키텍처 자체는 React 16부터 적용되어, Concurrent Mode 없이도 ① Effect 리스트를 통한 효율적인 커밋 단계 ② Error Boundary의 안정적 구현 ③ Suspense의 기본 동작 ④ 개선된 메모리 관리(더블 버퍼링)를 제공합니다. Concurrent 기능은 Fiber의 '중단 가능한 렌더링' 특성을 활성화한 것이며, Legacy Mode에서는 여전히 동기적으로 완료합니다.</p>",
   },
   {
+    id: 33,
     question: "Fiber의 작업 단위(Unit of Work)란 무엇인가요?",
     answer:
       "<p>Fiber에서 각 컴포넌트는 하나의 'fiber 노드'로 표현되며, 이것이 곧 작업 단위입니다. React는 이 단위를 하나씩 처리하면서 자식→형제→부모 순서로 트리를 순회합니다. 각 작업 단위를 처리한 후 '다음 작업이 있는지, 시간이 남았는지'를 확인하여, 브라우저에게 제어권을 양보할 수 있습니다. 이것이 Fiber가 렌더링을 '중단 가능'하게 만드는 핵심 메커니즘입니다.</p>" +
@@ -486,6 +519,7 @@ export const INTERVIEW_DATA: InterviewItem[] = [
       "<p>Suspense 컴포넌트가 데이터를 기다리며 Promise를 throw하면, React는 해당 fiber 서브트리의 렌더링을 '일시 중단'하고 fallback UI를 보여줍니다. 데이터가 도착하면 중단된 지점부터 렌더링을 '재개'합니다. 이 중단/재개가 가능한 이유가 바로 fiber의 작업 단위 모델입니다. Stack Reconciler에서는 콜 스택을 중간에 멈출 수 없었으므로 이 패턴이 불가능했습니다.</p>",
   },
   {
+    id: 34,
     question: "Fiber와 Concurrent Mode의 관계는 무엇인가요?",
     answer:
       "<p>Fiber는 React의 내부 재조정 엔진(아키텍처)이고, Concurrent Mode(현재는 Concurrent Features)는 이 Fiber 위에 구축된 기능 집합입니다. Fiber가 렌더링을 '분할 가능'하게 만들었고, Concurrent Features가 이를 활성화하여 우선순위 기반 렌더링, 중단 가능한 렌더링을 실제로 사용할 수 있게 합니다. <code>createRoot</code>를 사용하면 Concurrent Features가 활성화됩니다.</p>" +
@@ -500,6 +534,7 @@ export const INTERVIEW_DATA: InterviewItem[] = [
       "<p>React 19의 <code>use()</code>는 Promise나 Context를 읽을 수 있는 새로운 훅입니다. <code>use(fetchData())</code>는 Promise가 미결이면 가장 가까운 Suspense boundary에 fallback을 표시하고, 이행되면 값을 반환합니다. 기존 useEffect + useState 패턴을 대체하여 데이터 페칭을 더 선언적으로 만듭니다. 조건문/반복문 안에서도 호출 가능한 유일한 훅입니다.</p>",
   },
   {
+    id: 35,
     question: "useEffect의 이름은 왜 useEffect인가요?",
     answer:
       "<p>'Effect'는 함수형 프로그래밍에서 '사이드이펙트(Side Effect)'를 의미합니다. 순수 함수의 관점에서 React 컴포넌트의 렌더링(JSX 반환)은 순수해야 하며, DOM 조작, 데이터 페칭, 구독 설정, 타이머 등 '외부 세계와의 상호작용'은 사이드이펙트입니다. <code>useEffect</code>는 이러한 사이드이펙트를 렌더링과 분리하여 관리하는 훅이라는 의미에서 'Effect'라는 이름이 붙었습니다.</p>" +
@@ -514,6 +549,7 @@ export const INTERVIEW_DATA: InterviewItem[] = [
       "<p>많은 경우 useEffect가 과용됩니다. ① props/state에서 파생 가능한 값은 렌더링 중 계산(또는 useMemo) ② 이벤트에 의한 작업은 이벤트 핸들러에서 처리 ③ 외부 스토어 동기화는 useSyncExternalStore ④ 데이터 페칭은 프레임워크의 데이터 로딩 메커니즘 사용. useEffect는 '외부 시스템과의 동기화'가 진정으로 필요한 경우에만 사용해야 합니다.</p>",
   },
   {
+    id: 36,
     question: "React Hooks에 use 접두사를 쓰는 이유는 무엇인가요?",
     answer:
       "<p><code>use</code> 접두사는 두 가지 목적을 가집니다. ① 린터/정적 분석이 훅의 규칙(Rules of Hooks) 위반을 자동 감지할 수 있게 합니다(조건문/반복문 내 호출 금지, 최상위에서만 호출). ② 개발자에게 '이 함수는 훅이며, 훅의 규칙을 따라야 한다'는 시각적 신호를 줍니다. 커스텀 훅도 use 접두사를 붙여야 React가 내부 훅 호출을 추적할 수 있습니다.</p>" +
@@ -528,6 +564,7 @@ export const INTERVIEW_DATA: InterviewItem[] = [
       "<p><code>use()</code>는 조건문이나 반복문 안에서도 호출 가능한 유일한 훅입니다. 이는 <code>use()</code>가 내부적으로 다른 훅처럼 호출 순서에 의존하지 않고, Promise/Context의 참조 자체로 상태를 관리하기 때문입니다. 조건부 데이터 페칭(<code>if (shouldFetch) use(promise)</code>)이 가능해져 코드가 더 자연스러워집니다.</p>",
   },
   {
+    id: 37,
     question: "useRef는 어떤 경우에 사용하나요?",
     answer:
       "<p><code>useRef</code>는 두 가지 주요 용도로 사용됩니다. ① DOM 요소에 직접 접근: <code>ref={inputRef}</code>로 DOM 노드를 참조하여 포커스, 스크롤, 측정 등을 수행합니다. ② 렌더링 사이에 값을 유지하되 리렌더링을 트리거하지 않는 '변수': 이전 값 저장, 타이머 ID 보관, 마운트 여부 추적 등. <code>ref.current</code>는 변경해도 리렌더링이 발생하지 않습니다.</p>" +
@@ -542,6 +579,7 @@ export const INTERVIEW_DATA: InterviewItem[] = [
       "<p>ref prop에 함수를 전달하는 패턴입니다: <code>&lt;div ref={(node) => { ... }}&gt;</code>. 요소가 마운트되면 DOM 노드가 전달되고, 언마운트되면 null이 전달됩니다. 조건부로 렌더링되는 요소의 마운트/언마운트를 감지하거나, IntersectionObserver를 연결할 때 유용합니다. useRef와 달리 DOM이 실제로 연결/해제되는 시점을 콜백으로 알 수 있어 더 세밀한 제어가 가능합니다.</p>",
   },
   {
+    id: 38,
     question: "Error Boundary란 무엇인가요?",
     answer:
       "<p>Error Boundary는 자식 컴포넌트 트리에서 발생하는 JavaScript 에러를 포착하여, 깨진 UI 대신 대체(fallback) UI를 보여주는 React 컴포넌트입니다. 클래스 컴포넌트에서 <code>static getDerivedStateFromError()</code>와 <code>componentDidCatch()</code> 라이프사이클 메서드를 구현하여 만듭니다. 에러가 전체 앱을 크래시시키는 것을 방지하고, 영향 범위를 해당 boundary 내로 격리합니다.</p>" +
@@ -556,6 +594,7 @@ export const INTERVIEW_DATA: InterviewItem[] = [
       "<p>현재 <code>getDerivedStateFromError</code>와 <code>componentDidCatch</code>에 대응하는 훅이 존재하지 않아 함수 컴포넌트로는 구현이 불가합니다. 대안으로 <code>react-error-boundary</code> 라이브러리가 널리 사용되며, 함수 컴포넌트 친화적인 API(<code>useErrorBoundary</code> 훅, <code>ErrorBoundary</code> 컴포넌트)를 제공합니다. React 팀은 향후 함수 컴포넌트용 에러 처리 훅을 도입할 가능성을 시사하고 있습니다.</p>",
   },
   {
+    id: 39,
     question: "Error Boundary의 한계점은 무엇인가요?",
     answer:
       "<p>Error Boundary의 주요 한계는: ① 이벤트 핸들러, 비동기 코드, SSR의 에러를 포착하지 못합니다 ② 클래스 컴포넌트로만 구현 가능합니다 ③ 에러 복구(recovery) 메커니즘이 제한적입니다. '다시 시도' 기능을 위해 key를 변경하여 리마운트하거나, 상태를 리셋해야 합니다 ④ 하위 컴포넌트의 모든 상태가 소실됩니다. 에러 발생 시 해당 boundary 내의 컴포넌트 트리가 완전히 언마운트되기 때문입니다.</p>" +
@@ -570,6 +609,7 @@ export const INTERVIEW_DATA: InterviewItem[] = [
       "<p>① componentDidCatch에서 에러 로깅 서비스(Sentry)로 에러 정보 전송 ② 사용자 친화적인 fallback UI에 '다시 시도' 버튼 제공 ③ 개발 환경에서는 에러 오버레이를 표시하고, 프로덕션에서는 graceful degradation ④ Error Boundary의 fallback에서도 에러가 발생할 수 있으므로 fallback을 최대한 단순하게 유지. react-error-boundary의 resetKeys로 특정 상태 변경 시 자동 리셋도 가능합니다.</p>",
   },
   {
+    id: 40,
     question: "Batching Update란 무엇인가요?",
     answer:
       "<p>Batching은 여러 상태 업데이트를 하나의 리렌더링으로 묶어 처리하는 React의 최적화 기법입니다. 이벤트 핸들러에서 <code>setA(1); setB(2); setC(3)</code>을 연속 호출해도 3번이 아닌 1번만 리렌더링됩니다. React 18부터는 setTimeout, Promise, 네이티브 이벤트 핸들러 등 모든 컨텍스트에서 자동 배치(Automatic Batching)가 적용됩니다.</p>" +
@@ -584,6 +624,7 @@ export const INTERVIEW_DATA: InterviewItem[] = [
       "<p>React DevTools의 Profiler로 리렌더링 횟수와 각 렌더의 소요 시간을 측정합니다. 'Highlight updates when components render' 옵션으로 시각적으로 확인할 수 있습니다. 배치가 제대로 동작하면 여러 setState 후 렌더가 한 번만 기록됩니다. <code>React.Profiler</code> 컴포넌트의 onRender 콜백으로 프로그래밍적 측정도 가능합니다. 성능 개선 효과는 불필요한 렌더 횟수 감소로 직접 확인됩니다.</p>",
   },
   {
+    id: 41,
     question: "React에서 컴포넌트란 무엇인가요?",
     answer:
       "<p>React 컴포넌트는 UI의 독립적이고 재사용 가능한 조각입니다. JavaScript 함수(또는 클래스)가 props를 받아 React Element(JSX)를 반환합니다. 컴포넌트는 자체 상태(state)를 가질 수 있고, 다른 컴포넌트를 조합하여 복잡한 UI를 구성합니다. 함수 컴포넌트가 현재 표준이며, 훅(Hooks)을 통해 상태 관리와 생명주기 기능을 사용합니다.</p>" +
@@ -598,6 +639,7 @@ export const INTERVIEW_DATA: InterviewItem[] = [
       "<p>React 팀은 상속 대신 합성을 공식적으로 권장합니다. <code>children</code> prop, render props, 커스텀 훅이 합성의 도구입니다. 상속은 is-a 관계를 강제하여 결합도가 높아지고, 다중 상속이 불가능하며, 클래스 컴포넌트에서만 사용 가능합니다. 합성은 has-a 관계로 유연하게 기능을 조합하고, 함수 컴포넌트와 훅 생태계에 자연스럽게 통합됩니다.</p>",
   },
   {
+    id: 42,
     question: "JSX란 무엇인가요?",
     answer:
       "<p>JSX(JavaScript XML)는 자바스크립트 안에서 HTML과 유사한 마크업을 작성할 수 있게 해주는 문법 확장입니다. Babel이나 TypeScript 컴파일러가 JSX를 <code>React.createElement()</code>(또는 React 17+의 자동 JSX 변환) 호출로 변환합니다. JSX는 필수가 아니지만, 컴포넌트의 구조를 시각적으로 표현하여 가독성을 높이고, HTML과 JavaScript 로직을 한 곳에서 관리할 수 있게 합니다.</p>" +
@@ -615,6 +657,7 @@ export const INTERVIEW_DATA: InterviewItem[] = [
   // CSS / HTML
   // ─────────────────────────────────────────────
   {
+    id: 43,
     question: "HTML과 CSS의 약자는 무엇인가요?",
     answer:
       "<p>HTML은 <strong>HyperText Markup Language</strong>의 약자로, 웹 페이지의 구조와 의미(시맨틱)를 정의하는 마크업 언어입니다. CSS는 <strong>Cascading Style Sheets</strong>의 약자로, HTML 요소의 시각적 표현(레이아웃, 색상, 폰트 등)을 담당합니다. 'Cascading'은 스타일 규칙이 우선순위에 따라 계단식으로 적용된다는 의미입니다.</p>" +
@@ -629,6 +672,7 @@ export const INTERVIEW_DATA: InterviewItem[] = [
       "<p>명시도는 (a, b, c) 형태로 계산됩니다. a: ID 선택자 수, b: 클래스/속성/의사클래스 수, c: 요소/의사요소 수. <code>#header .nav a:hover</code>는 (1,2,1)입니다. 인라인 스타일은 이보다 항상 우선하고, <code>!important</code>는 별도의 최상위 우선순위입니다. <code>:where()</code>는 명시도 0으로 계산되고, <code>:is()</code>는 인자 중 가장 높은 명시도로 계산됩니다.</p>",
   },
   {
+    id: 44,
     question: "DOCTYPE이란 무엇인가요?",
     answer:
       "<p><code>&lt;!DOCTYPE html&gt;</code>은 문서 형식 선언(Document Type Declaration)으로, 브라우저에게 HTML 버전을 알려줍니다. HTML5의 DOCTYPE은 간단히 <code>&lt;!DOCTYPE html&gt;</code>이며, 이를 통해 브라우저가 '표준 모드(Standards Mode)'로 렌더링하게 합니다. DOCTYPE이 없으면 '호환 모드(Quirks Mode)'로 동작하여 CSS 박스 모델 등이 비표준으로 처리됩니다.</p>" +
@@ -643,6 +687,7 @@ export const INTERVIEW_DATA: InterviewItem[] = [
       '<p>필수 메타 태그: ① <code>&lt;meta charset="UTF-8"&gt;</code>: 문자 인코딩 선언 ② <code>&lt;meta name="viewport" content="width=device-width, initial-scale=1"&gt;</code>: 모바일 반응형 필수. 추가로 <code>&lt;meta name="description"&gt;</code>은 SEO에 중요하고, <code>&lt;meta property="og:*"&gt;</code>는 소셜 미디어 공유 시 미리보기를 제어합니다. CSP(Content-Security-Policy) 메타 태그로 보안 정책도 설정 가능합니다.</p>',
   },
   {
+    id: 45,
     question: "HTML의 data 속성(data-*)이란 무엇인가요?",
     answer:
       '<p><code>data-*</code> 속성은 HTML 요소에 커스텀 데이터를 저장하는 표준 방법입니다. <code>&lt;div data-user-id="123" data-role="admin"&gt;</code>처럼 사용하며, JavaScript에서 <code>element.dataset.userId</code>로 접근합니다(kebab-case가 camelCase로 변환). CSS에서도 <code>[data-role="admin"]</code> 선택자나 <code>attr(data-user-id)</code>로 활용 가능합니다.</p>' +
@@ -657,6 +702,7 @@ export const INTERVIEW_DATA: InterviewItem[] = [
       "<p><code>data-*</code>는 JavaScript 로직에 필요한 커스텀 데이터, <code>aria-*</code>는 접근성 정보(스크린 리더), <code>class</code>는 스타일링 목적입니다. 스타일링에 data 속성을 사용하면(<code>[data-active]</code>) 상태와 스타일을 분리할 수 있지만, Tailwind CSS에서는 <code>data-[active]:bg-blue-500</code>처럼 직접 활용도 가능합니다.</p>",
   },
   {
+    id: 46,
     question: "웹에서 사용하는 이미지 포맷의 종류와 특징을 설명해주세요.",
     answer:
       "<p>주요 이미지 포맷: ① <strong>JPEG</strong>: 손실 압축, 사진에 적합, 투명도 미지원 ② <strong>PNG</strong>: 무손실 압축, 투명도 지원, 그래픽/스크린샷에 적합 ③ <strong>WebP</strong>: Google 개발, JPEG보다 25-35% 작은 크기, 투명도+애니메이션 지원 ④ <strong>AVIF</strong>: AV1 기반, WebP보다 더 높은 압축률, 점진적 브라우저 지원 ⑤ <strong>SVG</strong>: 벡터 포맷, 해상도 독립적, 아이콘/로고에 적합.</p>" +
@@ -671,6 +717,7 @@ export const INTERVIEW_DATA: InterviewItem[] = [
       '<p><code>srcset</code>은 다양한 크기의 이미지를 제공하고, <code>sizes</code>는 뷰포트 크기별 이미지 표시 크기를 명시합니다. <code>&lt;img srcset="small.jpg 400w, medium.jpg 800w, large.jpg 1200w" sizes="(max-width: 600px) 100vw, 50vw"&gt;</code>. 브라우저가 기기 DPR과 뷰포트 크기를 고려하여 최적의 이미지를 자동 선택합니다. <code>&lt;picture&gt;</code> 태그는 아트 디렉션(뷰포트별 다른 크롭)에 사용합니다.</p>',
   },
   {
+    id: 47,
     question: "이미지 최적화 방법에는 어떤 것들이 있나요?",
     answer:
       '<p>이미지 최적화 전략: ① 적절한 포맷 선택(사진→WebP/AVIF, 아이콘→SVG) ② 반응형 이미지(srcset/sizes)로 기기별 최적 크기 전달 ③ lazy loading(<code>loading="lazy"</code>)으로 뷰포트 밖 이미지 지연 로딩 ④ width/height 명시로 CLS 방지 ⑤ CDN을 통한 이미지 변환/캐싱 ⑥ CSS <code>image-rendering</code>으로 렌더링 품질 제어.</p>' +
@@ -685,6 +732,7 @@ export const INTERVIEW_DATA: InterviewItem[] = [
       '<p>LCP 이미지는 가장 큰 콘텐츠 요소이므로: ① <code>fetchpriority="high"</code>로 우선 로딩 ② <code>loading="lazy"</code>를 사용하지 않음(above-the-fold 이미지) ③ <code>&lt;link rel="preload" as="image"&gt;</code>로 프리로드 ④ CDN에서 가까운 엣지 서버로 전달 ⑤ 적절한 압축으로 파일 크기 최소화. LCP 2.5초 이내가 \'Good\' 기준입니다.</p>',
   },
   {
+    id: 48,
     question: "img 태그의 alt 속성은 왜 중요한가요?",
     answer:
       '<p><code>alt</code> 속성은 이미지의 대체 텍스트(alternative text)로, ① 스크린 리더가 시각 장애 사용자에게 이미지 내용을 전달 ② 이미지 로딩 실패 시 대체 텍스트 표시 ③ 검색 엔진이 이미지 내용을 이해하여 SEO 향상. 장식용 이미지는 <code>alt=""</code>(빈 문자열)로 스크린 리더가 건너뛰게 하고, 정보를 담은 이미지는 그 의미를 설명하는 텍스트를 작성합니다.</p>' +
@@ -699,6 +747,7 @@ export const INTERVIEW_DATA: InterviewItem[] = [
       "<p>① 자동 테스트: axe-core(브라우저 확장), Lighthouse의 접근성 감사, eslint-plugin-jsx-a11y ② 수동 테스트: 키보드만으로 네비게이션, 스크린 리더(VoiceOver, NVDA) 직접 사용 ③ CI 통합: jest-axe로 컴포넌트 단위 접근성 테스트 ④ Storybook의 a11y 애드온으로 개발 중 실시간 검사. WCAG 2.1 AA 수준이 일반적인 법적 요구사항입니다.</p>",
   },
   {
+    id: 49,
     question: "px, em, rem의 차이점은 무엇인가요?",
     answer:
       "<p><code>px</code>은 절대 단위로 고정 크기입니다. <code>em</code>은 부모 요소의 폰트 크기에 상대적입니다(중첩 시 누적됨). <code>rem</code>은 루트 요소(<code>&lt;html&gt;</code>)의 폰트 크기에 상대적입니다. 반응형 디자인에서는 rem을 기본 단위로 사용하고, 컴포넌트 내부 간격에 em을 활용합니다. 브라우저 기본 폰트 크기는 16px이므로 <code>1rem = 16px</code>입니다.</p>" +
@@ -713,6 +762,7 @@ export const INTERVIEW_DATA: InterviewItem[] = [
       "<p><code>clamp(min, preferred, max)</code>는 값의 범위를 제한합니다. <code>font-size: clamp(1rem, 2.5vw, 2rem)</code>은 뷰포트에 따라 유동적으로 변하되 1rem 미만, 2rem 초과가 되지 않습니다. 미디어 쿼리 없이 반응형 타이포그래피를 구현할 수 있어 모던 CSS에서 자주 사용됩니다. <code>clamp()</code>는 폰트뿐 아니라 간격, 너비 등 모든 CSS 값에 적용 가능합니다.</p>",
   },
   {
+    id: 50,
     question: "box-sizing 속성은 무엇이며, 왜 중요한가요?",
     answer:
       "<p><code>box-sizing</code>은 요소의 크기(width/height) 계산 방식을 결정합니다. <code>content-box</code>(기본값)는 width가 콘텐츠만 포함하여 padding과 border가 추가로 더해집니다. <code>border-box</code>는 width에 padding과 border가 포함되어 직관적입니다. 실무에서는 <code>*, *::before, *::after { box-sizing: border-box }</code>를 전역으로 설정하는 것이 표준입니다.</p>" +
@@ -727,6 +777,7 @@ export const INTERVIEW_DATA: InterviewItem[] = [
       "<p><code>margin-left</code> 대신 <code>margin-inline-start</code>, <code>padding-top</code> 대신 <code>padding-block-start</code>를 사용하는 CSS 논리적 프로퍼티는 RTL(우→좌) 언어에서 자동으로 방향이 전환됩니다. 국제화(i18n)를 지원하는 웹 앱에서 중요합니다. <code>inline</code>은 텍스트 흐름 방향(가로), <code>block</code>은 블록 쌓임 방향(세로)을 의미합니다.</p>",
   },
   {
+    id: 51,
     question: "CSS 쌓임 맥락(Stacking Context)이란 무엇인가요?",
     answer:
       "<p>쌓임 맥락은 요소가 z축에서 겹치는 순서를 결정하는 3차원 개념입니다. 새로운 쌓임 맥락은 다음 조건에서 생성됩니다: ① <code>position: relative/absolute/fixed</code> + z-index ② <code>opacity < 1</code> ③ <code>transform</code>, <code>filter</code>, <code>will-change</code> ④ <code>isolation: isolate</code>. 같은 쌓임 맥락 내에서만 z-index 비교가 이루어지며, 다른 맥락의 요소와는 부모의 순서로 결정됩니다.</p>" +
@@ -741,6 +792,7 @@ export const INTERVIEW_DATA: InterviewItem[] = [
       "<p><code>isolation: isolate</code>는 새로운 쌓임 맥락을 명시적으로 생성하여, 내부 요소의 z-index가 외부에 영향을 주지 않게 격리합니다. transform이나 opacity 같은 부작용 없이 순수하게 쌓임 맥락만 생성합니다. 컴포넌트 라이브러리에서 내부 z-index가 사용자의 레이아웃을 방해하지 않도록 할 때 유용합니다.</p>",
   },
   {
+    id: 52,
     question: "CSS 의사 요소(Pseudo-element)란 무엇인가요?",
     answer:
       "<p>의사 요소는 선택한 요소의 특정 부분에 스타일을 적용하거나 콘텐츠를 추가하는 가상 요소입니다. <code>::before</code>와 <code>::after</code>는 요소 앞/뒤에 가상 콘텐츠를 삽입하고, <code>::first-line</code>과 <code>::first-letter</code>는 텍스트의 특정 부분을 선택합니다. <code>::placeholder</code>, <code>::selection</code>, <code>::marker</code> 등도 있습니다. 의사 클래스(<code>:hover</code>)는 상태를, 의사 요소(<code>::before</code>)는 구조를 나타냅니다.</p>" +
@@ -755,6 +807,7 @@ export const INTERVIEW_DATA: InterviewItem[] = [
       "<p>Tailwind은 <code>before:</code>와 <code>after:</code> 수정자(modifier)를 제공합니다. <code>before:content-[''] before:absolute before:inset-0 before:bg-black/50</code>처럼 사용합니다. <code>content-['텍스트']</code>로 content를 설정하고, <code>content-[attr(data-label)]</code>로 동적 content도 가능합니다. Tailwind 3.x부터 의사 요소에 <code>content-['']</code>이 자동 추가되지 않으므로 명시해야 합니다.</p>",
   },
   {
+    id: 53,
     question: "CSS 전처리기(Preprocessor)란 무엇인가요?",
     answer:
       "<p>CSS 전처리기는 변수, 중첩, 믹스인, 함수 등 프로그래밍 기능을 제공하여 CSS를 효율적으로 작성하게 해주는 도구입니다. 대표적으로 Sass(SCSS), Less, Stylus가 있습니다. 작성된 전처리기 코드는 빌드 시 표준 CSS로 컴파일됩니다. CSS 네이티브 중첩(2023)과 커스텀 프로퍼티의 등장으로 전처리기의 필요성이 줄어들고 있지만, 믹스인과 루프 같은 고급 기능은 여전히 유용합니다.</p>" +
@@ -769,6 +822,7 @@ export const INTERVIEW_DATA: InterviewItem[] = [
       "<p>빌드 시 CSS를 추출하여 런타임 오버헤드를 제거하는 방식입니다. Vanilla Extract, Linaria, Panda CSS가 대표적입니다. JavaScript로 스타일을 작성하되, 빌드 시 정적 CSS 파일로 변환합니다. TypeScript 타입 안전성, 컴포넌트 스코프, 테마 시스템을 제공하면서 런타임 비용이 없습니다. SSR에서도 추가 설정 없이 작동하는 장점이 있습니다.</p>",
   },
   {
+    id: 54,
     question: "transform과 position을 이용한 이동의 차이점은 무엇인가요?",
     answer:
       "<p><code>position</code>(top/left)으로 이동하면 레이아웃(Reflow)이 발생하여 주변 요소에 영향을 미치고 비용이 큽니다. <code>transform: translate()</code>은 합성(Compositing) 단계에서 GPU가 처리하므로 Reflow/Repaint 없이 부드럽게 이동합니다. 애니메이션에는 항상 transform을 사용해야 60fps를 유지할 수 있습니다. transform은 문서 흐름에 영향을 주지 않아 주변 요소가 밀리지 않습니다.</p>" +
@@ -783,6 +837,7 @@ export const INTERVIEW_DATA: InterviewItem[] = [
       "<p>① Performance 탭에서 레코딩하여 FPS, 레이아웃/페인트/합성 소요 시간 확인 ② Rendering 탭에서 'Paint flashing'으로 리페인트 영역 시각화 ③ 'Layer borders'로 합성 레이어 확인 ④ Layers 패널에서 레이어 수와 메모리 사용량 분석. 목표는 '합성만으로 애니메이션 처리'이며, 레이아웃이나 페인트가 발생하면 해당 속성을 transform/opacity로 대체합니다.</p>",
   },
   {
+    id: 55,
     question: "브라우저의 렌더링 순서를 설명해주세요.",
     answer:
       "<p>브라우저 렌더링 파이프라인: ① <strong>파싱</strong>: HTML→DOM 트리, CSS→CSSOM 트리 ② <strong>스타일 계산</strong>: DOM + CSSOM 결합하여 각 요소의 계산된 스타일 결정 ③ <strong>레이아웃(Reflow)</strong>: 요소의 크기, 위치 계산 ④ <strong>레이어 생성</strong>: 페인트할 레이어 결정 ⑤ <strong>페인트(Repaint)</strong>: 각 레이어의 픽셀 채우기(래스터화) ⑥ <strong>합성(Compositing)</strong>: 레이어를 합쳐 최종 화면 생성. JavaScript는 이 파이프라인의 어느 단계든 다시 트리거할 수 있습니다.</p>" +
@@ -797,6 +852,7 @@ export const INTERVIEW_DATA: InterviewItem[] = [
       "<p>DOM을 수정한 직후 레이아웃 관련 속성(<code>offsetHeight</code>, <code>getBoundingClientRect()</code>)을 읽으면, 브라우저가 중간에 강제로 레이아웃을 계산합니다. 반복문 안에서 이를 수행하면 '레이아웃 스래싱(Layout Thrashing)'이 발생합니다. 방지법: ① 읽기와 쓰기를 분리(읽기 먼저, 쓰기 나중) ② <code>requestAnimationFrame</code>으로 배치 ③ <code>fastdom</code> 라이브러리로 읽기/쓰기 스케줄링.</p>",
   },
   {
+    id: 56,
     question: "Reflow(리플로우)란 무엇이며, 성능에 미치는 영향은?",
     answer:
       "<p>Reflow(Layout)는 요소의 기하학적 속성(크기, 위치, 마진 등)이 변경될 때 브라우저가 레이아웃을 다시 계산하는 과정입니다. Reflow는 해당 요소뿐 아니라 부모, 자식, 형제 요소에 연쇄적으로 영향을 미쳐 비용이 큽니다. 요소 추가/제거, 크기 변경, 폰트 변경, 윈도우 리사이즈 등에 의해 발생합니다. 반면 Repaint는 시각적 속성(색상, 그림자)만 변경될 때 발생하여 상대적으로 가볍습니다.</p>" +
@@ -814,6 +870,7 @@ export const INTERVIEW_DATA: InterviewItem[] = [
   // 네트워크 / API
   // ─────────────────────────────────────────────
   {
+    id: 57,
     question: "도메인 이름을 브라우저에 입력하면 어떤 일이 일어나나요?",
     answer:
       "<p>① DNS 조회: 도메인 → IP 주소 변환(캐시 확인 → 재귀적 DNS 쿼리) ② TCP 연결: 3-way handshake(SYN → SYN-ACK → ACK) ③ TLS 핸드셰이크(HTTPS): 인증서 교환, 세션 키 생성 ④ HTTP 요청: GET / 전송 ⑤ 서버 처리 및 응답 ⑥ HTML 파싱 → DOM 생성 ⑦ CSS/JS 로드 → CSSOM 생성 ⑧ 렌더 트리 → 레이아웃 → 페인트 → 합성 → 화면 표시.</p>" +
@@ -828,6 +885,7 @@ export const INTERVIEW_DATA: InterviewItem[] = [
       "<p>① 코드 스플리팅: 라우트 기반 동적 import ② 리소스 힌트: preload, prefetch, preconnect ③ 이미지 최적화: WebP, lazy loading, 적절한 크기 ④ Critical CSS 인라인화 ⑤ 번들 최소화: Tree Shaking, 압축(gzip/brotli) ⑥ CDN 활용 ⑦ HTTP/2 멀티플렉싱 ⑧ Service Worker 캐싱. Core Web Vitals(LCP, FID, CLS) 기준으로 성능을 측정합니다.</p>",
   },
   {
+    id: 58,
     question: "DNS 조회부터 브라우저 렌더링까지의 전체 과정을 설명해주세요.",
     answer:
       "<p>전체 과정: ① <strong>DNS</strong>: 도메인→IP 변환 ② <strong>TCP</strong>: 3-way handshake ③ <strong>TLS</strong>: 암호화 연결 ④ <strong>HTTP 요청/응답</strong>: HTML 수신 ⑤ <strong>HTML 파싱</strong>: DOM 트리 구축(script 만나면 중단) ⑥ <strong>CSS 파싱</strong>: CSSOM 구축 ⑦ <strong>렌더 트리</strong>: DOM + CSSOM 결합 ⑧ <strong>레이아웃</strong>: 크기/위치 계산 ⑨ <strong>페인트</strong>: 픽셀 채우기 ⑩ <strong>합성</strong>: GPU 레이어 합성 → 화면 표시.</p>" +
@@ -842,6 +900,7 @@ export const INTERVIEW_DATA: InterviewItem[] = [
       "<p>전통적으로 서버는 완성된 HTML을 한 번에 전송하지만, 스트리밍 렌더링은 HTML을 청크(chunk) 단위로 점진적으로 전송합니다. 브라우저는 첫 청크를 받는 즉시 파싱을 시작하여 TTFB → FCP 시간이 단축됩니다. React 18의 <code>renderToPipeableStream</code>은 Suspense와 결합하여 준비된 부분부터 스트리밍합니다. HTTP/2 Server Push와 결합하면 더욱 효과적입니다.</p>",
   },
   {
+    id: 59,
     question: "CORS(Cross-Origin Resource Sharing)란 무엇인가요?",
     answer:
       "<p>CORS는 웹 브라우저의 동일 출처 정책(Same-Origin Policy)을 안전하게 완화하여, 다른 출처(도메인, 포트, 프로토콜)의 리소스에 접근할 수 있게 하는 HTTP 헤더 기반 메커니즘입니다. 서버가 <code>Access-Control-Allow-Origin</code> 헤더로 허용할 출처를 명시하면 브라우저가 응답을 허용합니다. CORS는 브라우저에서만 적용되며, 서버 간 통신에는 영향을 주지 않습니다.</p>" +
@@ -856,6 +915,7 @@ export const INTERVIEW_DATA: InterviewItem[] = [
       "<p>SOP가 없다면 악성 사이트가 사용자의 브라우저를 통해 다른 사이트(은행, 이메일)의 API를 호출하고 응답을 읽을 수 있습니다. 사용자가 로그인한 상태라면 쿠키가 자동 전송되어 인증된 요청이 됩니다(CSRF 공격). SOP는 스크립트가 다른 출처의 응답을 읽는 것을 차단하여 이를 방지합니다. 요청 자체는 전송될 수 있어 CSRF 토큰이 추가로 필요합니다.</p>",
   },
   {
+    id: 60,
     question: "CORS의 프리플라이트 요청은 왜 필요한가요?",
     answer:
       "<p>프리플라이트(Preflight)는 실제 요청이 서버에 영향을 미치기 전에, 해당 요청이 허용되는지 미리 확인하는 안전장치입니다. PUT, DELETE 같은 요청은 서버 데이터를 변경할 수 있으므로, OPTIONS 메서드로 먼저 허용 여부를 확인하고, 서버가 승인하면 실제 요청을 전송합니다. 이는 CORS 이전에 작성된 서버가 예기치 않은 cross-origin 요청으로부터 보호되도록 합니다.</p>" +
@@ -870,6 +930,7 @@ export const INTERVIEW_DATA: InterviewItem[] = [
       "<p>CORS는 응답 읽기를 제한하지만, 요청 전송 자체는 막지 않습니다(단순 요청의 경우). CSRF(Cross-Site Request Forgery)는 인증된 사용자의 브라우저를 이용해 의도치 않은 요청을 보내는 공격입니다. CORS만으로는 CSRF를 완전히 방지할 수 없으므로, CSRF 토큰, SameSite 쿠키, 커스텀 헤더 검증 등 추가 방어가 필요합니다.</p>",
   },
   {
+    id: 61,
     question: "REST API란 무엇인가요?",
     answer:
       "<p>REST(Representational State Transfer)는 자원(Resource)을 URI로 표현하고, HTTP 메서드(GET, POST, PUT, DELETE)로 CRUD 작업을 수행하는 아키텍처 스타일입니다. 핵심 원칙: ① 클라이언트-서버 분리 ② 무상태(Stateless) ③ 캐시 가능 ④ 계층적 시스템 ⑤ 균일한 인터페이스. RESTful API는 <code>/users/123</code>처럼 리소스 중심 URL과 HTTP 메서드의 의미를 정확히 사용합니다.</p>" +
@@ -884,6 +945,7 @@ export const INTERVIEW_DATA: InterviewItem[] = [
       '<p>① 적절한 HTTP 상태 코드 사용: 400(잘못된 요청), 401(미인증), 403(권한 없음), 404(리소스 없음), 422(검증 실패), 500(서버 오류) ② 일관된 에러 응답 형식: <code>{ error: { code: "VALIDATION_ERROR", message: "이메일 형식이 올바르지 않습니다", details: [...] } }</code> ③ 민감 정보 노출 방지 ④ 요청 ID를 포함하여 디버깅 지원. RFC 7807(Problem Details)이 표준 에러 형식으로 널리 채택되고 있습니다.</p>',
   },
   {
+    id: 62,
     question: "REST API에서 멱등성(Idempotency)이란 무엇인가요?",
     answer:
       "<p>멱등성은 동일한 요청을 여러 번 보내도 결과가 같은 성질입니다. GET, PUT, DELETE는 멱등적이어야 합니다. <code>PUT /users/123 {name: 'John'}</code>을 10번 보내도 결과는 같습니다. POST는 멱등적이지 않습니다(10번 보내면 10개 생성). PATCH는 구현에 따라 다릅니다. 멱등성은 네트워크 오류로 요청이 중복 전송되었을 때 안전하게 재시도할 수 있는지를 결정합니다.</p>" +
@@ -898,6 +960,7 @@ export const INTERVIEW_DATA: InterviewItem[] = [
       "<p>안전한 메서드는 서버 상태를 변경하지 않는 메서드입니다: GET, HEAD, OPTIONS. 멱등적 메서드는 여러 번 호출해도 같은 결과인 메서드입니다: GET, PUT, DELETE, HEAD, OPTIONS. POST와 PATCH는 안전하지도 멱등적이지도 않습니다. DELETE는 멱등적이지만 안전하지 않습니다(서버 상태를 변경하므로). 이 구분은 브라우저와 프록시의 캐싱, 재시도 정책에 영향을 줍니다.</p>",
   },
   {
+    id: 63,
     question: "OPTIONS 메서드는 무엇인가요?",
     answer:
       "<p>HTTP OPTIONS 메서드는 서버가 특정 URL에 대해 허용하는 통신 옵션(메서드, 헤더 등)을 조회합니다. CORS에서 프리플라이트 요청으로 주로 사용되어, 실제 요청 전에 서버가 해당 요청을 허용하는지 확인합니다. 응답에 <code>Allow</code> 헤더(허용된 HTTP 메서드)와 CORS 관련 헤더를 포함합니다. OPTIONS는 안전하고 멱등적인 메서드입니다.</p>" +
@@ -912,6 +975,7 @@ export const INTERVIEW_DATA: InterviewItem[] = [
       "<p>인증 정보 전송 시: ① 서버에 <code>Access-Control-Allow-Credentials: true</code> 설정 ② <code>Access-Control-Allow-Origin</code>에 와일드카드(*) 사용 불가, 정확한 출처 명시 필요 ③ 클라이언트에서 <code>fetch(url, { credentials: 'include' })</code> 또는 <code>axios.defaults.withCredentials = true</code> 설정. 이 경우 프리플라이트가 발생하며, Max-Age 캐싱으로 성능 영향을 줄입니다.</p>",
   },
   {
+    id: 64,
     question: "HTTP Header에서 Access Token을 전달하는 방법은 무엇인가요?",
     answer:
       "<p>가장 표준적인 방법은 <code>Authorization</code> 헤더에 Bearer 스킴으로 전달하는 것입니다: <code>Authorization: Bearer eyJhbGciOiJIUzI1NiI...</code>. fetch에서는 <code>headers: { 'Authorization': 'Bearer ' + token }</code>으로 설정합니다. axios에서는 인터셉터로 자동 첨부하는 패턴이 일반적입니다. 쿠키에 토큰을 저장하면 자동 전송되지만 CSRF 위험이 있습니다.</p>" +
@@ -926,6 +990,7 @@ export const INTERVIEW_DATA: InterviewItem[] = [
       "<p>여러 요청이 동시에 401을 받으면 각각 토큰 갱신을 시도하여 Refresh Token이 여러 번 사용되는 문제가 발생합니다. 해결: ① 첫 갱신 요청의 Promise를 저장하고, 이후 요청은 같은 Promise를 공유 ② 큐에 대기시키고 토큰 갱신 완료 후 일괄 재시도 ③ BroadcastChannel API로 여러 탭 간 토큰 동기화. Refresh Token Rotation(사용 시마다 새 토큰 발급)으로 보안을 강화합니다.</p>",
   },
   {
+    id: 65,
     question: "GET과 POST의 차이점은 무엇인가요?",
     answer:
       "<p>GET은 리소스를 <strong>조회</strong>하는 안전하고 멱등적인 메서드입니다. 데이터를 URL 쿼리 스트링으로 전달하며, 브라우저가 캐싱합니다. POST는 리소스를 <strong>생성</strong>하는 비안전/비멱등 메서드입니다. 데이터를 요청 본문(body)에 담으며, 캐싱되지 않습니다. GET은 북마크 가능하고 브라우저 히스토리에 남지만, POST는 그렇지 않습니다. URL 길이 제한(~2048자)이 있으므로 대량 데이터는 POST를 사용합니다.</p>" +
@@ -940,6 +1005,7 @@ export const INTERVIEW_DATA: InterviewItem[] = [
       "<p>부분적으로만 맞습니다. GET은 URL에 데이터가 노출되어 브라우저 히스토리, 서버 로그, Referer 헤더에 기록됩니다. POST는 body에 데이터를 담아 URL에 노출되지 않지만, HTTPS 없이는 네트워크에서 평문으로 전송됩니다. 진정한 보안은 HTTPS(TLS) 암호화이며, GET/POST 구분은 전송 방식의 차이일 뿐 암호화 수준은 동일합니다. 민감 데이터는 항상 HTTPS + POST + 적절한 헤더로 전송해야 합니다.</p>",
   },
   {
+    id: 66,
     question: "HTTP Header와 Body의 역할과 차이점은 무엇인가요?",
     answer:
       "<p><strong>Header</strong>는 요청/응답의 메타데이터를 담습니다: Content-Type, Authorization, Cache-Control, Cookie 등. <strong>Body</strong>는 실제 전송할 데이터(JSON, HTML, 파일 등)를 담습니다. Header는 모든 요청에 있지만, Body는 GET/HEAD에서는 일반적으로 비어있습니다. Header의 총 크기는 서버 설정에 따라 제한되며(Apache 기본 8KB, Nginx 기본 4KB~8KB), Body는 Content-Length로 크기를 명시합니다.</p>" +
@@ -954,6 +1020,7 @@ export const INTERVIEW_DATA: InterviewItem[] = [
       "<p>HTTP/1.1은 매 요청마다 헤더를 평문으로 전송하여, 쿠키 등 반복 헤더가 수 KB가 될 수 있습니다. HTTP/2의 HPACK은 ① 정적 테이블: 자주 사용되는 헤더를 인덱스로 매핑 ② 동적 테이블: 연결 중 사용된 헤더를 인덱스로 추가 ③ 허프만 인코딩: 문자열을 이진 표현으로 압축합니다. 이로 인해 헤더 크기가 85-88% 감소하며, 특히 동일 연결의 반복 요청에서 효과가 큽니다.</p>",
   },
   {
+    id: 67,
     question: "Content-Type 헤더의 역할은 무엇인가요?",
     answer:
       "<p><code>Content-Type</code>은 HTTP 메시지 본문의 미디어 타입(MIME 타입)을 지정하는 헤더입니다. 서버와 클라이언트가 데이터를 올바르게 해석하는 데 필수적입니다. 요청에서는 보내는 데이터 형식을, 응답에서는 반환하는 데이터 형식을 명시합니다. 문자 인코딩도 포함할 수 있습니다: <code>Content-Type: application/json; charset=utf-8</code>.</p>" +
@@ -971,6 +1038,7 @@ export const INTERVIEW_DATA: InterviewItem[] = [
   // 보안 / 인증
   // ─────────────────────────────────────────────
   {
+    id: 68,
     question: "TLS(Transport Layer Security)란 무엇인가요?",
     answer:
       "<p>TLS는 인터넷 통신을 암호화하는 프로토콜로, HTTPS의 기반입니다. 클라이언트와 서버 간 핸드셰이크를 통해 ① 서버 인증서 검증(신원 확인) ② 대칭 키 교환(세션 키 생성) ③ 암호화된 통신 채널 수립을 수행합니다. TLS 1.3(최신)은 핸드셰이크를 1-RTT로 줄이고 불안전한 암호화 알고리즘을 제거하여 보안과 성능을 모두 개선했습니다.</p>" +
@@ -985,6 +1053,7 @@ export const INTERVIEW_DATA: InterviewItem[] = [
       "<p>① Mixed Content: HTTPS 페이지에서 HTTP 리소스 로드 차단 ② HSTS(Strict-Transport-Security): HTTP→HTTPS 자동 리다이렉트 강제 ③ 개발 환경에서 자체 서명 인증서 사용(mkcert로 로컬 HTTPS) ④ Service Worker는 HTTPS(또는 localhost)에서만 동작 ⑤ Geolocation, 카메라 등 민감한 API는 Secure Context(HTTPS) 필수.</p>",
   },
   {
+    id: 69,
     question: "User-Agent 헤더란 무엇인가요?",
     answer:
       "<p><code>User-Agent</code>는 요청을 보내는 클라이언트(브라우저, 앱)의 정보를 담은 HTTP 헤더입니다. 브라우저 이름/버전, 운영체제, 렌더링 엔진 등을 포함합니다. 서버는 이를 통해 콘텐츠를 최적화하거나 통계를 수집합니다. 그러나 역사적으로 브라우저 호환성을 위해 User-Agent 문자열이 매우 복잡해졌으며, Client Hints API가 현대적 대안으로 등장했습니다.</p>" +
@@ -999,6 +1068,7 @@ export const INTERVIEW_DATA: InterviewItem[] = [
       "<p>① Browserslist + Babel/PostCSS: <code>.browserslistrc</code>로 타깃 브라우저 정의, 자동 폴리필/트랜스파일 ② <code>@supports</code>로 CSS 기능 감지 ③ 핵심 기능은 점진적 향상(Progressive Enhancement)으로 기본 경험 보장 ④ caniuse.com으로 기능 지원 범위 확인 ⑤ Core-js + Vite의 modern/legacy 빌드 분리. UA 스니핑 없이 기능 기반으로 처리하는 것이 원칙입니다.</p>",
   },
   {
+    id: 70,
     question: "XSS(Cross-Site Scripting) 공격이란 무엇인가요?",
     answer:
       "<p>XSS는 공격자가 웹 페이지에 악성 스크립트를 삽입하여 다른 사용자의 브라우저에서 실행시키는 공격입니다. ① <strong>Stored XSS</strong>: 악성 스크립트가 서버 DB에 저장되어 다른 사용자에게 전달 ② <strong>Reflected XSS</strong>: URL 파라미터에 스크립트를 넣어 피해자가 클릭하도록 유도 ③ <strong>DOM-based XSS</strong>: 클라이언트 JavaScript가 안전하지 않은 방식으로 DOM을 조작할 때 발생.</p>" +
@@ -1013,6 +1083,7 @@ export const INTERVIEW_DATA: InterviewItem[] = [
       "<p>① CSRF: 인증된 사용자의 의도치 않은 요청 ② Clickjacking: iframe으로 UI를 덮어씌워 클릭 유도(<code>X-Frame-Options</code>으로 방어) ③ Open Redirect: URL 파라미터를 이용한 리다이렉트 악용 ④ Prototype Pollution: 객체 프로토타입 오염 ⑤ npm 패키지 공급망 공격: 악성 의존성 주입. OWASP Top 10을 기준으로 보안 점검을 수행합니다.</p>",
   },
   {
+    id: 71,
     question: "JWT(JSON Web Token)란 무엇인가요?",
     answer:
       "<p>JWT는 JSON 형식의 클레임을 안전하게 전달하기 위한 토큰 표준(RFC 7519)입니다. 세 부분으로 구성됩니다: ① <strong>Header</strong>: 알고리즘, 토큰 타입 ② <strong>Payload</strong>: 클레임(사용자 정보, 만료 시간 등) ③ <strong>Signature</strong>: 위변조 방지 서명. Base64URL로 인코딩되어 <code>header.payload.signature</code> 형태입니다. 서버가 세션을 저장하지 않아도 되는 Stateless 인증에 사용됩니다.</p>" +
@@ -1027,6 +1098,7 @@ export const INTERVIEW_DATA: InterviewItem[] = [
       "<p>세션: 서버가 세션 ID를 생성하고 서버 메모리/DB에 세션 데이터 저장, 쿠키로 세션 ID 전달. 장점: 서버에서 즉시 무효화 가능, 데이터 크기 작음. 단점: 서버 상태 유지 필요, 수평 확장 시 세션 공유 필요(Redis). JWT: 토큰 자체에 정보 포함, 서버 상태 없음. 장점: 수평 확장 용이, MSA에 적합. 단점: 토큰 크기 큼, 즉시 무효화 어려움. 현대 아키텍처에서는 JWT + Redis(블랙리스트)로 양쪽 장점을 취하기도 합니다.</p>",
   },
   {
+    id: 72,
     question: "인증(Authentication)과 인가(Authorization)의 차이는 무엇인가요?",
     answer:
       "<p><strong>인증(Authentication)</strong>은 '당신이 누구인지' 확인하는 과정입니다(로그인). <strong>인가(Authorization)</strong>는 '당신이 무엇을 할 수 있는지' 권한을 확인하는 과정입니다(접근 제어). 예를 들어 호텔에서 체크인(인증)하면 방 카드를 받고, 카드로 자신의 방에만 출입(인가)할 수 있습니다. 인증은 인가보다 항상 먼저 수행됩니다.</p>" +
@@ -1041,6 +1113,7 @@ export const INTERVIEW_DATA: InterviewItem[] = [
       "<p>프론트엔드의 인가는 UX 목적일 뿐, 실제 보안은 서버에서 수행해야 합니다. 클라이언트 코드는 수정 가능하므로 버튼 숨기기만으로는 접근을 차단할 수 없습니다. 항상 API 레벨에서 권한 검증이 필수입니다. 프론트엔드 인가 패턴: ① 라우트 가드로 페이지 접근 제어 ② 권한별 UI 렌더링(<code>{canEdit && &lt;EditButton /&gt;}</code>) ③ API 응답에 permissions 필드 포함.</p>",
   },
   {
+    id: 73,
     question: "BFF(Backend For Frontend) 패턴이란 무엇인가요?",
     answer:
       "<p>BFF는 각 프론트엔드(웹, 모바일, IoT) 전용 백엔드 레이어를 두는 아키텍처 패턴입니다. 프론트엔드가 필요한 형태로 데이터를 가공하고, 여러 마이크로서비스의 응답을 하나로 합쳐 전달합니다. 프론트엔드와 백엔드의 결합도를 낮추고, 각 클라이언트에 최적화된 API를 제공하며, 프론트엔드 팀이 자체적으로 API를 조정할 수 있게 합니다.</p>" +
@@ -1055,6 +1128,7 @@ export const INTERVIEW_DATA: InterviewItem[] = [
       "<p>단점: ① 서비스 수 증가로 운영 복잡도 증가 ② 코드 중복(여러 BFF 간 유사 로직) ③ 추가 네트워크 홉으로 지연 증가 가능. 도입 기준: ① 다양한 클라이언트(웹, 앱)에 다른 API 필요 시 ② 마이크로서비스에서 여러 서비스를 조합해야 할 때 ③ 프론트엔드 팀이 API 스키마 제어권을 원할 때. 단일 클라이언트에 간단한 API라면 과도합니다.</p>",
   },
   {
+    id: 74,
     question: "쿠키(Cookie)와 세션(Session)의 차이점은 무엇인가요?",
     answer:
       "<p><strong>쿠키</strong>는 클라이언트(브라우저)에 저장되는 작은 데이터(최대 4KB)로, 서버가 <code>Set-Cookie</code> 헤더로 전달하면 이후 요청에 자동으로 포함됩니다. <strong>세션</strong>은 서버에 저장되는 사용자별 데이터로, 세션 ID만 쿠키에 저장하여 서버가 해당 세션을 식별합니다. 쿠키는 클라이언트, 세션은 서버에 데이터가 있다는 것이 핵심 차이입니다.</p>" +
@@ -1069,6 +1143,7 @@ export const INTERVIEW_DATA: InterviewItem[] = [
       "<p>서버 메모리에 세션을 저장하면 ① 서버 재시작 시 세션 소실 ② 여러 서버(수평 확장) 간 세션 공유 불가. Redis는 인메모리 DB로 읽기/쓰기가 매우 빠르고, TTL(자동 만료)을 지원하여 세션 관리에 최적화되어 있습니다. Redis Cluster로 고가용성도 확보 가능합니다. 또는 JWT를 사용하여 서버를 완전히 Stateless로 만드는 방법도 있습니다.</p>",
   },
   {
+    id: 75,
     question:
       "로컬 스토리지(localStorage)와 세션 스토리지(sessionStorage)의 차이는?",
     answer:
@@ -1084,6 +1159,7 @@ export const INTERVIEW_DATA: InterviewItem[] = [
       "<p><code>window.addEventListener('storage', e => {...})</code>는 다른 탭에서 localStorage가 변경될 때 발생합니다(같은 탭에서는 발생하지 않음). 로그아웃 동기화에 유용합니다: 한 탭에서 로그아웃하면 다른 탭들도 감지하여 자동 로그아웃. BroadcastChannel API가 더 범용적인 탭 간 통신 수단이며, SharedWorker도 탭 간 상태 공유에 사용됩니다.</p>",
   },
   {
+    id: 76,
     question: "멀티프로세스와 멀티스레드의 차이점은 무엇인가요?",
     answer:
       "<p><strong>멀티프로세스</strong>는 독립된 메모리 공간을 가진 여러 프로세스가 병렬 실행되는 것입니다. 프로세스 간 통신(IPC)이 필요하지만 격리성이 높습니다. <strong>멀티스레드</strong>는 같은 프로세스 내에서 메모리를 공유하는 여러 스레드가 실행되는 것입니다. 통신이 빠르지만 동기화(race condition) 문제가 발생합니다. Chrome은 멀티프로세스 아키텍처를 사용하여 탭 간 격리를 보장합니다.</p>" +
@@ -1098,6 +1174,7 @@ export const INTERVIEW_DATA: InterviewItem[] = [
       "<p>Worker 간 <code>postMessage</code>는 데이터를 복사하므로 대용량 데이터 전송 시 오버헤드가 큽니다. <code>SharedArrayBuffer</code>는 여러 Worker가 같은 메모리를 직접 접근하여 복사 없이 데이터를 공유합니다. 그러나 공유 메모리는 race condition을 일으킬 수 있어, <code>Atomics.wait()</code>와 <code>Atomics.notify()</code>로 동기화합니다. Spectre 공격 이후 SharedArrayBuffer는 cross-origin isolation이 필요합니다.</p>",
   },
   {
+    id: 77,
     question: "웹 접근성(Web Accessibility)이란 무엇인가요?",
     answer:
       "<p>웹 접근성은 장애인, 고령자 등 모든 사용자가 웹 콘텐츠를 인식, 이해, 조작할 수 있도록 보장하는 것입니다. WCAG(Web Content Accessibility Guidelines)이 국제 표준이며, 4가지 원칙을 기반으로 합니다: ① 인식 가능(Perceivable) ② 조작 가능(Operable) ③ 이해 가능(Understandable) ④ 견고(Robust). 법적 요구사항이기도 하며, SEO에도 긍정적 영향을 줍니다.</p>" +
@@ -1112,6 +1189,7 @@ export const INTERVIEW_DATA: InterviewItem[] = [
       "<p>① CI에 axe-core 통합: <code>jest-axe</code>로 컴포넌트 테스트 ② Storybook의 a11y 애드온으로 개발 중 실시간 감사 ③ Lighthouse CI로 자동 접근성 점수 검사 ④ eslint-plugin-jsx-a11y로 정적 분석 ⑤ Playwright/Cypress에서 axe-core 실행. 자동 도구는 전체 문제의 30-50%만 감지하므로, 키보드 테스트와 스크린 리더 수동 테스트를 병행해야 합니다.</p>",
   },
   {
+    id: 78,
     question: "HTTP 버전별 차이(HTTP/1.1, HTTP/2, HTTP/3)를 설명해주세요.",
     answer:
       "<p><strong>HTTP/1.1</strong>: 텍스트 프로토콜, 커넥션당 하나의 요청, 파이프라이닝(비실용적), HOL 블로킹. <strong>HTTP/2</strong>: 바이너리 프로토콜, 하나의 TCP에서 멀티플렉싱, 헤더 압축(HPACK), 서버 푸시, 스트림 우선순위. <strong>HTTP/3</strong>: TCP 대신 QUIC(UDP 기반), 연결 수립 0-RTT 가능, TCP HOL 블로킹 해결, 네트워크 전환 시 연결 유지.</p>" +
@@ -1126,6 +1204,7 @@ export const INTERVIEW_DATA: InterviewItem[] = [
       "<p>HTTP/1.1: 요청 수 최소화(번들링, 스프라이트, 인라이닝), 도메인 샤딩. HTTP/2: 작은 모듈 단위 로딩이 유리(코드 스플리팅), 캐시 무효화 세분화, 서버 푸시 활용. HTTP/3: 연결 수립 비용이 낮아 prefetch/preconnect가 더 효과적. 실무에서는 CDN(Cloudflare, AWS CloudFront)이 자동으로 HTTP/2~3을 지원하므로, 프론트엔드는 번들 전략에 집중합니다.</p>",
   },
   {
+    id: 79,
     question: "Core Web Vitals란 무엇인가요?",
     answer:
       "<p>Core Web Vitals는 Google이 정의한 웹 사용자 경험의 핵심 지표입니다. ① <strong>LCP(Largest Contentful Paint)</strong>: 가장 큰 콘텐츠 요소가 표시되는 시간(2.5초 이내 Good) ② <strong>INP(Interaction to Next Paint)</strong>: 사용자 인터랙션 후 다음 페인트까지의 지연(200ms 이내 Good) ③ <strong>CLS(Cumulative Layout Shift)</strong>: 예기치 않은 레이아웃 이동 누적값(0.1 이내 Good). Google 검색 순위에 반영됩니다.</p>" +
@@ -1143,6 +1222,7 @@ export const INTERVIEW_DATA: InterviewItem[] = [
   // 빌드 도구 / SSR
   // ─────────────────────────────────────────────
   {
+    id: 80,
     question: "npm과 pnpm의 차이점은 무엇인가요?",
     answer:
       "<p><code>npm</code>은 Node.js 기본 패키지 매니저로, node_modules에 중복 패키지를 설치합니다(hoisting으로 일부 완화). <code>pnpm</code>은 하드 링크와 심볼릭 링크를 사용하여 글로벌 저장소에 패키지를 한 번만 저장하고 프로젝트에서 참조합니다. 디스크 공간 절약(최대 50%), 빠른 설치 속도, 유령 의존성(phantom dependency) 방지가 pnpm의 핵심 장점입니다.</p>" +
@@ -1157,6 +1237,7 @@ export const INTERVIEW_DATA: InterviewItem[] = [
       "<p>pnpm workspace는 <code>pnpm-workspace.yaml</code>로 모노레포를 지원합니다. 패키지 간 의존성을 <code>workspace:*</code> 프로토콜로 연결하고, 심볼릭 링크로 즉시 반영합니다. npm workspace보다 빠르고, Yarn Berry PnP보다 호환성이 좋습니다. <code>--filter</code> 옵션으로 특정 패키지만 빌드/테스트 가능하며, Turborepo/Nx와 결합하여 캐싱된 빌드 파이프라인을 구성합니다.</p>",
   },
   {
+    id: 81,
     question: "Yarn Berry(v2+)의 PnP(Plug'n'Play)란 무엇인가요?",
     answer:
       "<p>PnP는 node_modules 디렉토리를 완전히 제거하는 혁신적인 의존성 관리 방식입니다. <code>.pnp.cjs</code> 파일이 패키지 위치를 매핑하고, 패키지를 zip 파일로 <code>.yarn/cache</code>에 저장합니다. 이로써 ① 수만 개의 파일/폴더 대신 수백 개의 zip ② 의존성 설치 시간 대폭 단축(이미 캐시되어 있으므로) ③ 유령 의존성 완전 차단 ④ Git에 의존성을 커밋 가능(Zero-install)합니다.</p>" +
@@ -1171,6 +1252,7 @@ export const INTERVIEW_DATA: InterviewItem[] = [
       "<p><code>npm</code>: 가장 넓은 호환성, 초기 설정 불필요, 생태계 기본값. <code>pnpm</code>: 디스크 효율, 빠른 설치, 엄격한 의존성 관리, 모노레포에 적합. <code>Yarn Berry</code>: Zero-install, PnP의 혁신적 접근, 성숙한 모노레포 지원. 실무에서는 pnpm이 성능과 호환성의 균형이 가장 좋아 빠르게 채택이 늘고 있으며, 새 프로젝트에 권장됩니다.</p>",
   },
   {
+    id: 82,
     question: "CDN(Content Delivery Network)이란 무엇인가요?",
     answer:
       "<p>CDN은 전 세계에 분산된 서버 네트워크로, 사용자와 지리적으로 가까운 엣지 서버에서 콘텐츠를 제공하여 지연 시간을 줄입니다. 정적 자산(JS, CSS, 이미지, 폰트)을 캐싱하고, 오리진 서버의 트래픽 부하를 분산합니다. Cloudflare, AWS CloudFront, Vercel Edge Network 등이 대표적이며, 현대 웹 배포의 필수 인프라입니다.</p>" +
@@ -1185,6 +1267,7 @@ export const INTERVIEW_DATA: InterviewItem[] = [
       "<p>CDN은 첫 요청의 응답을 캐싱하는데, CORS 헤더가 없는 응답이 캐싱되면 이후 cross-origin 요청이 실패합니다. <code>Vary: Origin</code> 헤더를 포함하여 출처별로 별도 캐싱해야 합니다. 폰트 파일은 특히 CORS 설정이 필요합니다. 또한 <code>Set-Cookie</code> 헤더가 있는 응답은 캐싱하면 안 됩니다(다른 사용자에게 전달될 수 있음).</p>",
   },
   {
+    id: 83,
     question: "npm install과 npm ci의 차이점은 무엇인가요?",
     answer:
       "<p><code>npm install</code>은 package.json을 기반으로 의존성을 설치하며, 범위 내에서 최신 버전을 선택하고 lock 파일을 업데이트합니다. <code>npm ci</code>(Clean Install)는 package-lock.json을 정확히 따라 설치하며, lock 파일과 package.json이 불일치하면 에러를 발생시킵니다. CI/CD 환경에서는 재현 가능한 빌드를 위해 항상 <code>npm ci</code>를 사용해야 합니다.</p>" +
@@ -1199,6 +1282,7 @@ export const INTERVIEW_DATA: InterviewItem[] = [
       "<p>① <code>npm audit</code> / <code>pnpm audit</code>로 알려진 취약점 스캔 ② <code>npm audit fix</code>로 자동 업데이트(호환 범위 내) ③ Dependabot이나 Renovate Bot으로 자동 PR 생성 ④ <code>overrides</code>(npm) / <code>resolutions</code>(Yarn)으로 중첩 의존성 버전 강제 ⑤ Socket.dev로 공급망 공격 감지. lock 파일 리뷰도 중요합니다(악성 패키지 주입 방지).</p>",
   },
   {
+    id: 84,
     question: "SSR, CSR, SSG, ISR의 차이를 설명해주세요.",
     answer:
       "<p><strong>CSR</strong>(Client-Side Rendering): 빈 HTML + JavaScript 번들 전송, 브라우저에서 렌더링. 초기 로딩 느리지만 이후 빠른 인터랙션. <strong>SSR</strong>(Server-Side Rendering): 요청마다 서버에서 HTML 생성. 빠른 FCP, SEO 유리. <strong>SSG</strong>(Static Site Generation): 빌드 시 HTML 생성. 가장 빠른 응답, CDN 캐싱 용이. <strong>ISR</strong>(Incremental Static Regeneration): SSG + 백그라운드 재생성. 정적 속도 + 동적 데이터.</p>" +
@@ -1213,6 +1297,7 @@ export const INTERVIEW_DATA: InterviewItem[] = [
       "<p>SSR은 서버에서 HTML을 생성하지만, 클라이언트에서 hydration으로 동일한 컴포넌트 코드를 다시 실행합니다. RSC는 서버에서만 실행되고 클라이언트 번들에 포함되지 않습니다. RSC의 결과는 React 직렬화 형식으로 전달되어 클라이언트 컴포넌트와 결합됩니다. RSC는 번들 크기를 줄이고 서버 리소스(DB, 파일)에 직접 접근할 수 있습니다.</p>",
   },
   {
+    id: 85,
     question: "Server Action이란 무엇인가요?",
     answer:
       "<p>Server Action은 React 19/Next.js의 기능으로, 서버에서 실행되는 비동기 함수를 클라이언트 컴포넌트에서 직접 호출할 수 있게 합니다. <code>'use server'</code> 지시어를 사용하며, 폼 제출, 데이터 변경(mutation) 등에 활용됩니다. 별도 API 엔드포인트를 만들지 않고도 서버 로직을 실행할 수 있어 풀스택 개발이 간소화됩니다.</p>" +
@@ -1227,6 +1312,7 @@ export const INTERVIEW_DATA: InterviewItem[] = [
       "<p>Server Action: Next.js/React 생태계 한정, 폼 제출에 최적화, Progressive Enhancement, 별도 라우터 불필요. tRPC: TypeScript 타입 안전 RPC, 프레임워크 독립적, 양방향 타입 추론. REST API: 가장 범용적, 클라이언트 비의존적, 도구 지원 풍부. 단순 CRUD는 Server Action, 복잡한 클라이언트-서버 통신은 tRPC, 외부 공개 API는 REST가 적합합니다.</p>",
   },
   {
+    id: 86,
     question: "번들러(Bundler)란 무엇이며, 왜 필요한가요?",
     answer:
       "<p>번들러는 여러 모듈(JS, CSS, 이미지 등)을 하나 또는 최적화된 소수의 파일로 합치는 도구입니다. 필요한 이유: ① HTTP 요청 수 감소(HTTP/1.1에서 중요) ② 모듈 시스템 변환(ESM → 브라우저 호환) ③ 트랜스파일(TypeScript, JSX → JS) ④ 최소화(minification) ⑤ Tree Shaking(미사용 코드 제거) ⑥ 코드 스플리팅(지연 로딩). Webpack, Vite, Rollup, esbuild, Turbopack이 대표적입니다.</p>" +
@@ -1241,6 +1327,7 @@ export const INTERVIEW_DATA: InterviewItem[] = [
       "<p>① 라우트 기반: <code>React.lazy(() => import('./Page'))</code>로 페이지별 분할 ② 컴포넌트 기반: 모달, 차트 등 초기에 불필요한 컴포넌트 지연 로딩 ③ 벤더 스플리팅: node_modules를 별도 청크로 분리(캐싱 이점) ④ <code>import(/* webpackPrefetch: true */ './HeavyComponent')</code>로 유휴 시간에 프리페칭. Bundle Analyzer로 청크 크기와 중복을 시각적으로 분석합니다.</p>",
   },
   {
+    id: 87,
     question: "Service Worker와 PWA(Progressive Web App)란 무엇인가요?",
     answer:
       "<p>Service Worker는 브라우저 백그라운드에서 실행되는 스크립트로, 네트워크 요청을 가로채고, 캐싱하며, 오프라인 기능을 제공합니다. PWA는 Service Worker, Web App Manifest, HTTPS를 기반으로 네이티브 앱과 유사한 경험(오프라인, 설치, 푸시 알림)을 웹에서 제공하는 기술 집합입니다. HTTPS(또는 localhost)에서만 동작합니다.</p>" +
@@ -1255,6 +1342,7 @@ export const INTERVIEW_DATA: InterviewItem[] = [
       "<p>① iOS의 제한적 지원: 백그라운드 동기화, 푸시 알림(iOS 16.4+부터 지원) 제한 ② 하드웨어 접근: Bluetooth, NFC, 카메라 고급 기능 제한적 ③ 앱 스토어 노출 어려움(PWABuilder로 일부 해결) ④ 저장 공간 제한(브라우저 정책에 따라 다름) ⑤ iOS에서 standalone 모드의 웹뷰 제약. 그러나 Project Fugu API로 점차 네이티브 기능 접근이 확대되고 있습니다.</p>",
   },
   {
+    id: 88,
     question: "마이크로 프론트엔드(Micro Frontend)란 무엇인가요?",
     answer:
       "<p>마이크로 프론트엔드는 마이크로서비스 개념을 프론트엔드에 적용한 아키텍처입니다. 대규모 웹 앱을 독립적으로 개발, 배포, 운영 가능한 작은 앱으로 분할합니다. 각 팀이 독립적인 기술 스택과 배포 주기를 가질 수 있습니다. Module Federation(Webpack 5), Single-SPA, iframe, Web Components 등으로 통합합니다.</p>" +
@@ -1272,6 +1360,7 @@ export const INTERVIEW_DATA: InterviewItem[] = [
   // TypeScript
   // ─────────────────────────────────────────────
   {
+    id: 89,
     question: "타입 단언(Type Assertion)이란 무엇인가요?",
     answer:
       "<p>타입 단언은 개발자가 TypeScript 컴파일러에게 '이 값의 타입을 내가 더 잘 안다'고 알려주는 것입니다. <code>value as Type</code> 또는 <code>&lt;Type&gt;value</code>(JSX와 충돌하여 비권장) 문법을 사용합니다. 타입 단언은 런타임에 아무런 영향을 미치지 않으며, 컴파일 타임에만 타입 검사를 변경합니다. 실제 타입 변환(casting)이 아니므로 잘못 사용하면 런타임 에러를 유발합니다.</p>" +
@@ -1286,6 +1375,7 @@ export const INTERVIEW_DATA: InterviewItem[] = [
       "<p><code>!</code>(non-null assertion)은 컴파일러에게 '이 값은 null/undefined가 아니다'라고 단언합니다. 런타임 검사가 없어 잘못되면 에러가 발생합니다. <code>?.</code>(optional chaining)은 런타임에 null/undefined를 안전하게 처리하여 undefined를 반환합니다. <code>user!.name</code>은 위험하고, <code>user?.name</code>은 안전합니다. 가능하면 optional chaining을 사용하고, !는 테스트 코드나 확실한 경우에만 사용합니다.</p>",
   },
   {
+    id: 90,
     question: "as const는 어떤 상황에서 사용하나요?",
     answer:
       "<p><code>as const</code>는 값을 가장 구체적인 리터럴 타입으로 고정합니다. 주요 사용 사례: ① 상수 배열에서 유니온 타입 추출: <code>const STATUSES = ['active', 'inactive'] as const; type Status = typeof STATUSES[number]</code> ② 객체를 읽기 전용 상수로: <code>const CONFIG = { api: '/api', timeout: 5000 } as const</code> ③ 함수 반환값의 타입을 좁힐 때: 튜플 반환 ④ enum 대안으로 사용.</p>" +
@@ -1300,6 +1390,7 @@ export const INTERVIEW_DATA: InterviewItem[] = [
       "<p><code>satisfies</code>는 타입 호환성을 검증하면서도 추론된 타입을 유지합니다. <code>const palette = { red: [255,0,0], green: '#00ff00' } as const satisfies Record&lt;string, readonly number[] | string&gt;</code>에서 satisfies가 구조를 검증하고, as const가 리터럴 타입을 유지합니다. 타입 안전성과 좁은 타입 추론을 동시에 달성합니다.</p>",
   },
   {
+    id: 91,
     question: "TypeScript의 유틸리티 타입(Utility Types)에 대해 설명해주세요.",
     answer:
       "<p>유틸리티 타입은 기존 타입을 변환하여 새 타입을 생성하는 내장 제네릭 타입입니다. 주요 타입: <code>Partial&lt;T&gt;</code>(모든 프로퍼티 optional), <code>Required&lt;T&gt;</code>(모든 프로퍼티 필수), <code>Readonly&lt;T&gt;</code>(읽기 전용), <code>Pick&lt;T, K&gt;</code>(특정 프로퍼티만 선택), <code>Omit&lt;T, K&gt;</code>(특정 프로퍼티 제외), <code>Record&lt;K, V&gt;</code>(키-값 매핑).</p>" +
@@ -1314,6 +1405,7 @@ export const INTERVIEW_DATA: InterviewItem[] = [
       "<p>문자열 리터럴 타입을 조합하여 새 타입을 생성합니다. <code>type EventName = `on&#36;{Capitalize&lt;'click' | 'focus'&gt;}`</code>는 <code>'onClick' | 'onFocus'</code>가 됩니다. API 라우트 타입: <code>type Route = `/api/&#36;{string}`</code>. CSS 단위: <code>type CSSLength = `&#36;{number}&#36;{'px' | 'rem' | 'em'}`</code>. Intrinsic String Manipulation Types(<code>Uppercase</code>, <code>Lowercase</code>, <code>Capitalize</code>)와 결합하여 강력한 타입 안전성을 제공합니다.</p>",
   },
   {
+    id: 92,
     question: "satisfies 연산자는 무엇이며, 언제 사용하나요?",
     answer:
       "<p><code>satisfies</code>(TS 4.9+)는 값이 특정 타입을 만족하는지 검증하면서도, TypeScript가 추론한 더 구체적인 타입을 유지합니다. <code>const config = { port: 3000 } satisfies Config</code>에서 config.port는 number가 아닌 3000 리터럴 타입을 유지합니다. 타입 주석(<code>: Config</code>)은 타입을 넓히고, <code>as const</code>는 읽기 전용까지 강제하는 반면, satisfies는 검증만 수행합니다.</p>" +
@@ -1328,6 +1420,7 @@ export const INTERVIEW_DATA: InterviewItem[] = [
       "<p>① 라우트 설정: 모든 라우트가 필수 필드를 가지는지 검증 ② 테마 토큰: 디자인 시스템의 색상/크기 토큰이 스키마를 만족하는지 확인 ③ i18n 키: 번역 객체가 모든 필수 키를 포함하는지 검증 ④ 환경 변수: <code>process.env</code> 검증. 공통점은 '구조를 보장하면서 구체적인 값 타입을 유지'해야 하는 상황입니다.</p>",
   },
   {
+    id: 93,
     question: "TypeScript를 사용하는 이유는 무엇인가요?",
     answer:
       "<p>TypeScript는 JavaScript에 정적 타입 시스템을 추가하여: ① 컴파일 타임에 타입 에러를 감지하여 런타임 버그 예방 ② IDE의 자동 완성, 리팩토링, 네비게이션 지원으로 개발 생산성 향상 ③ 코드 자체가 문서 역할(타입 = 명세) ④ 대규모 코드베이스에서 안전한 리팩토링 ⑤ 팀 협업 시 인터페이스 계약으로 소통 비용 감소. 런타임 오버헤드 없이 컴파일 후 순수 JavaScript가 됩니다.</p>" +
@@ -1345,6 +1438,7 @@ export const INTERVIEW_DATA: InterviewItem[] = [
   // 테스팅
   // ─────────────────────────────────────────────
   {
+    id: 94,
     question: "TDD(Test-Driven Development)란 무엇인가요?",
     answer:
       "<p>TDD는 테스트를 먼저 작성하고, 테스트를 통과하는 최소한의 코드를 구현한 뒤, 리팩토링하는 개발 방법론입니다. Red(실패하는 테스트 작성) → Green(테스트 통과하는 코드 작성) → Refactor(코드 개선) 사이클을 반복합니다. 요구사항을 테스트로 명확히 정의하고, 과잉 구현을 방지하며, 리팩토링에 대한 자신감을 제공합니다.</p>" +
@@ -1359,6 +1453,7 @@ export const INTERVIEW_DATA: InterviewItem[] = [
       "<p>100% 커버리지는 비현실적이며, 의미 없는 테스트를 양산할 수 있습니다. 커버리지는 '어디를 테스트하지 않았는가'의 지표일 뿐, '테스트가 충분한가'의 지표가 아닙니다. 핵심 비즈니스 로직, 에러 처리, 엣지 케이스에 집중하는 것이 중요합니다. 실무에서는 70-80% 커버리지를 목표로 하되, 중요한 경로의 integration 테스트를 우선합니다.</p>",
   },
   {
+    id: 95,
     question: "E2E(End-to-End) 테스트란 무엇인가요?",
     answer:
       "<p>E2E 테스트는 사용자 관점에서 전체 애플리케이션 흐름을 실제 브라우저에서 테스트합니다. 회원가입 → 로그인 → 상품 구매 같은 전체 시나리오를 검증합니다. Playwright, Cypress가 대표적 도구입니다. 단위/통합 테스트로 잡지 못하는 브라우저 호환성, 네트워크 요청, 전체 흐름의 무결성을 확인하지만, 실행 속도가 느리고 불안정(flaky)할 수 있습니다.</p>" +
@@ -1373,6 +1468,7 @@ export const INTERVIEW_DATA: InterviewItem[] = [
       "<p>① PR마다 실행: 주요 사용자 경로만 포함한 스모크 테스트 ② 머지 후: 전체 E2E 스위트 실행 ③ 스케줄: 야간에 전체 크로스 브라우저 테스트 ④ Docker로 브라우저 환경 표준화 ⑤ 병렬 실행으로 시간 단축 ⑥ 실패 시 스크린샷/비디오 자동 저장. Playwright의 <code>--shard</code> 옵션으로 여러 CI 러너에 분산 실행하여 시간을 줄입니다.</p>",
   },
   {
+    id: 96,
     question: "단위 테스트(Unit Test)의 원칙과 모범 사례는 무엇인가요?",
     answer:
       "<p>단위 테스트는 개별 함수, 컴포넌트, 모듈을 격리하여 테스트합니다. FIRST 원칙: Fast(빠름), Isolated(격리됨), Repeatable(반복 가능), Self-validating(자가 검증), Timely(적시). AAA 패턴: Arrange(준비) → Act(실행) → Assert(검증). 외부 의존성은 모킹하여 격리하고, 하나의 테스트는 하나의 행동만 검증합니다.</p>" +
@@ -1387,6 +1483,7 @@ export const INTERVIEW_DATA: InterviewItem[] = [
       "<p>Vitest: ① Vite의 설정/플러그인을 공유하여 별도 설정 불필요 ② ESM 네이티브 지원 ③ HMR 기반의 빠른 watch 모드 ④ Jest 호환 API ⑤ 병렬 실행과 스레드 지원. Jest: ① 성숙한 생태계 ② CRA, Next.js 기본 지원 ③ 풍부한 커뮤니티 리소스. Vite 프로젝트에서는 Vitest가 설정/성능 면에서 압도적으로 유리합니다.</p>",
   },
   {
+    id: 97,
     question: "Storybook이란 무엇이며, 왜 사용하나요?",
     answer:
       "<p>Storybook은 UI 컴포넌트를 앱과 독립적으로 개발, 테스트, 문서화하는 도구입니다. 각 컴포넌트의 다양한 상태(props 조합)를 'Story'로 정의하여 시각적으로 확인합니다. 디자이너와 협업, 컴포넌트 카탈로그 구축, 시각적 회귀 테스트(Chromatic), 접근성 검사(a11y addon)에 활용됩니다. CDD(Component-Driven Development)의 핵심 도구입니다.</p>" +
@@ -1404,6 +1501,7 @@ export const INTERVIEW_DATA: InterviewItem[] = [
   // 소프트 스킬 / 기타
   // ─────────────────────────────────────────────
   {
+    id: 98,
     question: "CI/CD란 무엇이며, 프론트엔드에서 어떻게 적용하나요?",
     answer:
       "<p><strong>CI(Continuous Integration)</strong>는 코드 변경을 자주 통합하고 자동 빌드/테스트하는 관행입니다. <strong>CD(Continuous Delivery/Deployment)</strong>는 테스트를 통과한 코드를 자동으로 스테이징/프로덕션에 배포합니다. 프론트엔드에서는 GitHub Actions, GitLab CI 등으로 PR마다 빌드 → 린트 → 타입 체크 → 테스트 → 프리뷰 배포를 자동화합니다.</p>" +
@@ -1418,6 +1516,7 @@ export const INTERVIEW_DATA: InterviewItem[] = [
       "<p>Blue-Green: 두 환경을 유지하고 트래픽을 한 번에 전환. 롤백이 빠름. Canary: 트래픽의 일부(예: 5%)만 새 버전으로 보내고 점진적으로 확대. 문제 발생 시 영향 범위 최소화. Rolling: 서버를 순차적으로 업데이트. 프론트엔드에서는 CDN의 캐시 무효화와 결합하여, index.html은 즉시 갱신하고 해시된 정적 파일은 캐시를 유지하는 전략이 일반적입니다.</p>",
   },
   {
+    id: 99,
     question: "모노레포(Monorepo)란 무엇이며, 장단점은?",
     answer:
       "<p>모노레포는 여러 프로젝트/패키지를 하나의 Git 저장소에서 관리하는 전략입니다. Google, Meta, Microsoft가 대규모 모노레포를 운영합니다. 프론트엔드에서는 웹앱, 컴포넌트 라이브러리, 유틸리티, 설정 파일을 한 저장소에 두고 pnpm workspace + Turborepo(또는 Nx)로 관리합니다.</p>" +
@@ -1432,6 +1531,7 @@ export const INTERVIEW_DATA: InterviewItem[] = [
       "<p>① 내부 패키지: <code>workspace:*</code> 프로토콜로 항상 최신 참조(버전 불필요) ② 외부 게시: Changesets로 시맨틱 버저닝 관리, 자동 changelog 생성 ③ 의존성 중복 방지: 공통 의존성을 루트 또는 공유 패키지로 통합 ④ TypeScript 프로젝트 레퍼런스로 증분 빌드. 패키지 간 순환 의존성을 피하고, 명확한 의존성 방향(앱 → 라이브러리 → 유틸)을 유지합니다.</p>",
   },
   {
+    id: 100,
     question: "팀 내에서 기술적 의견이 충돌할 때 어떻게 해결하나요?",
     answer:
       "<p>기술적 의견 충돌은 건강한 팀 문화의 신호입니다. 해결 접근법: ① 객관적 데이터로 논의(벤치마크, 사용자 지표, 코드 복잡도) ② 각 선택지의 장단점을 문서화하여 감정이 아닌 사실 기반으로 비교 ③ 프로토타입/PoC로 검증 ④ 결정이 안 되면 가역적인 선택을 하고 모니터링 ⑤ 최종 결정권자(Tech Lead)에게 위임. '틀린 결정을 내리는 것보다 결정을 못 내리는 것이 더 나쁘다'는 원칙을 따릅니다.</p>" +
@@ -1446,6 +1546,7 @@ export const INTERVIEW_DATA: InterviewItem[] = [
       "<p>① 코드가 아닌 행동을 리뷰(개인 공격 금지) ② '왜'를 설명: 단순히 '이렇게 바꿔'가 아닌 이유 제시 ③ 가독성, 유지보수성, 성능, 보안 순으로 검토 ④ 너무 많은 코멘트보다 핵심 이슈 집중 ⑤ 'nit:' 접두사로 사소한 지적과 중요한 지적 구분 ⑥ 칭찬도 함께: 좋은 코드에 대한 긍정적 피드백. PR 크기를 작게 유지하는 것이 효과적 리뷰의 전제조건입니다.</p>",
   },
   {
+    id: 101,
     question:
       "React.memo, useMemo, useCallback의 차이와 사용 시기를 설명해주세요.",
     answer:
@@ -1461,6 +1562,7 @@ export const INTERVIEW_DATA: InterviewItem[] = [
       "<p>React Compiler는 빌드 타임에 컴포넌트를 분석하여 자동으로 메모이제이션을 삽입합니다. 개발자가 수동으로 memo, useMemo, useCallback을 작성할 필요가 없어집니다. 컴파일러가 '이 값은 의존성이 변하지 않으면 재계산 불필요'를 자동 판단합니다. 현재 Meta에서 프로덕션 사용 중이며 점진적으로 오픈소스 공개가 진행 중입니다.</p>",
   },
   {
+    id: 102,
     question: "React Server Components(RSC)란 무엇인가요?",
     answer:
       "<p>RSC는 서버에서만 실행되는 React 컴포넌트입니다. 클라이언트 번들에 포함되지 않아 번들 크기를 줄이고, 서버 리소스(DB, 파일 시스템)에 직접 접근할 수 있습니다. Next.js App Router에서 기본적으로 모든 컴포넌트가 Server Component이며, <code>'use client'</code> 지시어로 Client Component를 명시합니다. 서버 렌더링(SSR)과는 다른 개념입니다.</p>" +
@@ -1475,6 +1577,7 @@ export const INTERVIEW_DATA: InterviewItem[] = [
       "<p>SSR은 서버에서 HTML을 생성하지만 클라이언트에서 전체 컴포넌트 코드를 다시 실행(hydration)합니다. RSC는 서버 전용 코드가 클라이언트에 전혀 전달되지 않습니다. RSC의 결과는 HTML이 아닌 React의 직렬화 형식(RSC Payload)으로 전달되어 기존 클라이언트 상태를 유지하면서 서버 결과를 병합합니다. SSR + RSC를 결합하여 사용하는 것이 Next.js App Router의 기본 전략입니다.</p>",
   },
   {
+    id: 103,
     question: "100개의 API를 동시에 fetch해야 한다면 어떻게 하나요?",
     answer:
       "<p>100개를 동시에 보내면 브라우저의 동시 연결 제한(HTTP/1.1: 도메인당 6개)과 서버 부하 문제가 발생합니다. 전략: ① <code>Promise.allSettled</code>로 모든 요청의 성공/실패를 처리 ② 동시성 제한: 한 번에 5~10개씩 배치로 요청하는 풀(pool) 패턴 구현 ③ <code>p-limit</code> 라이브러리로 동시 실행 수 제어 ④ 서버 측에서 배치 API를 제공하여 요청 수 자체를 줄이는 것이 가장 좋습니다.</p>" +
@@ -1489,6 +1592,7 @@ export const INTERVIEW_DATA: InterviewItem[] = [
       "<p>TanStack Query의 <code>useQueries</code>로 여러 쿼리를 병렬 실행합니다. 자동 캐싱으로 같은 요청을 중복 방지하고, <code>staleTime</code>과 <code>gcTime</code>으로 캐시 정책을 설정합니다. <code>queryClient.prefetchQuery</code>로 사전 로딩도 가능합니다. Suspense와 결합하면 모든 쿼리가 완료될 때까지 로딩 UI를 자동으로 표시합니다.</p>",
   },
   {
+    id: 104,
     question: "디바운스(Debounce)와 스로틀(Throttle)의 차이점은 무엇인가요?",
     answer:
       "<p><strong>디바운스</strong>는 연속된 이벤트 중 마지막 이벤트 후 일정 시간이 지나야 실행합니다. 검색 입력에서 타이핑이 멈추면 API 호출. <strong>스로틀</strong>은 일정 시간 간격으로 최대 한 번만 실행합니다. 스크롤 이벤트에서 100ms마다 한 번씩 처리. 디바운스는 '마지막 이벤트를 기다림', 스로틀은 '주기적으로 실행'이 핵심 차이입니다.</p>" +
@@ -1503,6 +1607,7 @@ export const INTERVIEW_DATA: InterviewItem[] = [
       "<p>디바운스/스로틀의 실행 시점을 제어합니다. Trailing(기본): 지연 후 실행(타이핑 종료 후 검색). Leading: 첫 이벤트에서 즉시 실행(버튼 더블클릭 방지에 유용). 양쪽 모두 가능: 첫 이벤트에서 즉시 실행 + 마지막 이벤트 후 다시 실행. lodash의 debounce/throttle은 <code>{ leading: true, trailing: false }</code> 같은 옵션으로 이를 제어합니다.</p>",
   },
   {
+    id: 105,
     question: "Web Worker란 무엇이며, 어떤 상황에서 사용하나요?",
     answer:
       "<p>Web Worker는 메인 스레드와 별도의 백그라운드 스레드에서 JavaScript를 실행하는 API입니다. 메인 스레드의 UI 반응성을 유지하면서 CPU 집약적 작업을 처리할 수 있습니다. <code>postMessage()</code>로 데이터를 주고받으며, DOM에 접근할 수 없습니다. 이미지 처리, 데이터 파싱, 암호화, 복잡한 계산에 적합합니다.</p>" +
@@ -1517,6 +1622,7 @@ export const INTERVIEW_DATA: InterviewItem[] = [
       "<p>① Vite에서 <code>new Worker(new URL('./worker.ts', import.meta.url))</code>로 Worker 생성 ② comlink 라이브러리로 Worker 함수를 일반 async 함수처럼 호출 ③ 커스텀 훅으로 래핑: <code>useWorker(() => heavyComputation(data))</code> ④ useTransition과 결합하여 Worker 결과를 논블로킹으로 표시. Worker 내에서는 React를 사용할 수 없으므로 순수 연산 로직만 분리합니다.</p>",
   },
   {
+    id: 106,
     question: "Node와 Element의 차이점은 무엇인가요?",
     answer:
       "<p>DOM에서 <code>Node</code>는 모든 DOM 노드의 기본 인터페이스입니다. Element, Text, Comment, Document 등 모든 것이 Node입니다. <code>Element</code>는 Node의 하위 타입으로, HTML/SVG 태그를 나타냅니다. <code>childNodes</code>는 텍스트, 주석 등 모든 자식 Node를 반환하고, <code>children</code>은 Element 자식만 반환합니다. TypeScript에서 <code>HTMLDivElement extends HTMLElement extends Element extends Node</code> 계층입니다.</p>" +
@@ -1531,6 +1637,7 @@ export const INTERVIEW_DATA: InterviewItem[] = [
       "<p>① 포커스 관리: <code>inputRef.current.focus()</code> ② 스크롤 위치: <code>element.scrollIntoView()</code> ③ DOM 측정: <code>getBoundingClientRect()</code> ④ 서드파티 라이브러리 통합(지도, 에디터) ⑤ 캔버스/WebGL 조작. 이 경우 <code>useRef</code>로 DOM 참조를 가져오고, <code>useEffect</code>/<code>useLayoutEffect</code>에서 조작합니다. Render Phase에서는 절대 DOM을 조작하면 안 됩니다.</p>",
   },
   {
+    id: 107,
     question: "JavaScript의 메모리 관리와 가비지 컬렉션은 어떻게 동작하나요?",
     answer:
       "<p>JavaScript는 자동 메모리 관리를 사용합니다. 객체가 생성되면 메모리를 할당하고, 더 이상 참조되지 않으면 가비지 컬렉터(GC)가 자동으로 해제합니다. V8의 GC는 Generational Collection을 사용합니다: Young Generation(새로 생성된 객체, Scavenger로 빠르게 수집)과 Old Generation(오래 생존한 객체, Mark-Sweep-Compact로 수집). 대부분의 객체는 짧은 수명을 가져 Young Generation에서 빠르게 수집됩니다.</p>" +
@@ -1545,6 +1652,7 @@ export const INTERVIEW_DATA: InterviewItem[] = [
       "<p><code>WeakRef</code>는 GC를 방해하지 않는 약한 참조를 생성합니다. 캐시 구현에서 참조가 없으면 자동으로 캐시에서 제거됩니다: <code>const ref = new WeakRef(largeObject)</code>. <code>FinalizationRegistry</code>는 객체가 GC될 때 콜백을 실행하여 리소스 정리를 자동화합니다. 두 API는 GC 타이밍이 비결정적이므로 핵심 로직에 의존해서는 안 되며, 최적화 목적으로만 사용합니다.</p>",
   },
   {
+    id: 108,
     question: "React에서 발생할 수 있는 메모리 누수와 해결 방법은?",
     answer:
       "<p>React에서 흔한 메모리 누수: ① useEffect에서 구독/타이머 설정 후 cleanup 미구현 ② 언마운트된 컴포넌트에서 setState 호출 시도 ③ 이벤트 리스너 미해제 ④ 큰 객체를 Context나 전역 상태에 누적 ⑤ 잘못된 클로저가 이전 상태를 계속 참조. 핵심 원칙: useEffect에는 항상 cleanup 함수를 반환하고, 비동기 작업에는 AbortController를 사용합니다.</p>" +
@@ -1559,6 +1667,7 @@ export const INTERVIEW_DATA: InterviewItem[] = [
       "<p>① Profiler: 각 렌더의 소요 시간과 원인(props/state/context 변경) 확인 ② 'Highlight updates when components render'로 리렌더링 시각화 ③ Components 탭에서 훅 상태와 props 실시간 확인 ④ 'Why did you render' 라이브러리로 불필요한 리렌더링 원인 자동 감지 ⑤ Chrome Memory 탭과 결합하여 특정 상호작용 후 메모리 증가 패턴 추적.</p>",
   },
   {
+    id: 109,
     question: "브라우저 뒤로가기 시 스크롤 위치를 복원하는 방법은?",
     answer:
       "<p>브라우저의 기본 <code>scrollRestoration</code>은 일반 네비게이션에서 자동 스크롤 복원을 제공하지만, SPA에서는 클라이언트 라우팅으로 인해 동작하지 않는 경우가 많습니다. 해결 방법: ① <code>history.scrollRestoration = 'manual'</code>로 브라우저 기본 복원 비활성화 ② 라우터의 스크롤 복원 기능 사용(TanStack Router, React Router) ③ 페이지 이탈 시 스크롤 위치 저장 → 복귀 시 복원.</p>" +

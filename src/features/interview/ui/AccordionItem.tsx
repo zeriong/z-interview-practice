@@ -1,17 +1,24 @@
 import DOMPurify from "dompurify";
-import { useState } from "react";
 import { twMerge } from "tailwind-merge";
 import type { InterviewItem } from "@/shared/types";
 import { ChevronIcon } from "@/shared/ui/icons";
 
-export default function AccordionItem({ question, answer }: InterviewItem) {
-  const [isOpen, setIsOpen] = useState(false);
+interface AccordionItemProps extends InterviewItem {
+  isOpen: boolean;
+  onToggle: () => void;
+}
 
+export default function AccordionItem({
+  question,
+  answer,
+  isOpen,
+  onToggle,
+}: AccordionItemProps) {
   return (
     <div>
       <button
         type="button"
-        onClick={() => setIsOpen((prev) => !prev)}
+        onClick={onToggle}
         className="flex w-full items-start justify-between gap-3 py-3 text-left"
       >
         <span className="text-[16px] font-semibold leading-snug text-gray-800">

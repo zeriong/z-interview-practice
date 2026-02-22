@@ -9,8 +9,8 @@ interface Props {
 
 export default function SidebarContent({ onClose, onItemClick }: Props) {
   return (
-    <>
-      <div className="mb-6 flex items-start justify-between">
+    <div className="flex min-h-0 flex-1 flex-col">
+      <div className="mb-6 shrink-0 flex items-start justify-between">
         <SidebarHeading />
         <button
           type="button"
@@ -22,6 +22,6 @@ export default function SidebarContent({ onClose, onItemClick }: Props) {
         </button>
       </div>
       <NavList onItemClick={onItemClick} />
-    </>
+    </div>
   );
 }

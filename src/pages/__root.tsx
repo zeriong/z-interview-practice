@@ -13,6 +13,7 @@ const RootLayout = () => (
       <div className="flex min-w-0 grow flex-col">
         <Header />
         <div
+          id="main-scroll"
           className={twMerge(
             "flex-1 overflow-auto w-full",
             "flex justify-center",

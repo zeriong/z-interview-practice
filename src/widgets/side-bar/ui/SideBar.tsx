@@ -3,15 +3,10 @@ import { useSidebarStore } from "@/entities/sidebar/model";
 import SidebarContent from "./SidebarContent";
 
 export default function SideBar() {
-  const { isOpen, close, toggle } = useSidebarStore();
-
-  const scrollToItem = (index: number) => {
-    const el = document.getElementById(`interview-q-${index}`);
-    el?.scrollIntoView({ behavior: "smooth" });
-  };
+  const { isOpen, close, toggle, scrollTo } = useSidebarStore();
 
   const handleItemClick = (index: number) => {
-    scrollToItem(index);
+    scrollTo(index);
     toggle();
   };
 
@@ -21,14 +16,14 @@ export default function SideBar() {
       <aside
         className={twMerge(
           "hidden md:flex h-full shrink-0 flex-col",
-          "overflow-y-auto bg-white p-6 shadow-xl",
+          "overflow-hidden bg-white p-6 shadow-xl",
           "transition-[width,padding] duration-300",
           isOpen ? "w-[300px]" : "w-0 p-0",
         )}
       >
         <div
           className={twMerge(
-            "min-w-[252px]",
+            "min-w-[252px] flex-1 min-h-0 flex flex-col",
             "transition-opacity duration-300",
             isOpen ? "opacity-100" : "opacity-0",
           )}
@@ -58,7 +53,7 @@ export default function SideBar() {
         <aside
           className={twMerge(
             "absolute left-0 top-0 flex h-full w-[300px] flex-col",
-            "overflow-y-auto bg-white p-6 shadow-xl",
+            "overflow-hidden bg-white p-6 shadow-xl",
             "transition-transform duration-300",
             isOpen ? "translate-x-0" : "-translate-x-full",
           )}

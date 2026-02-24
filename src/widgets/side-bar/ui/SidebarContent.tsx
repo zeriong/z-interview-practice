@@ -1,18 +1,19 @@
 import { useRouterState } from "@tanstack/react-router";
 import DOMPurify from "dompurify";
-import { useMemo, useState } from "react";
 import { twMerge } from "tailwind-merge";
 
 import { useFavoritesStore } from "@/entities/favorites/model";
 import { useQuizStore } from "@/entities/quiz/model";
 import { useSidebarStore } from "@/entities/sidebar/model";
-import { INTERVIEW_DATA } from "@/shared/constants";
 import { useModal } from "@/shared/hooks";
 import type { InterviewItem } from "@/shared/types";
 import { Modal } from "@/shared/ui";
 import { CloseIcon } from "@/shared/ui/icons";
 
+import { useSidebarSearch } from "../model";
+import FavoritesList from "./FavoritesList";
 import NavList from "./NavList";
+import QuizHistoryList from "./QuizHistoryList";
 import SidebarHeading from "./SidebarHeading";
 
 interface Props {
@@ -25,29 +26,21 @@ export default function SidebarContent({ onClose, onItemClick }: Props) {
     select: (s) => s.location.pathname === "/quiz",
   });
   const { sidebarTab, setSidebarTab } = useSidebarStore();
-  const { favoriteIds, clearAll: clearAllFavorites } = useFavoritesStore();
-  const { historyIds, removeFromHistory, clearHistory } = useQuizStore();
-  const { isFavorite, toggle: toggleFavorite } = useFavoritesStore();
+  const { clearAll: clearAllFavorites } = useFavoritesStore();
+  const { clearHistory } = useQuizStore();
   const { isOpen, data, open, close, clearData } = useModal<InterviewItem>();
-  const [searchQuery, setSearchQuery] = useState("");
+  const {
+    searchQuery,
+    setSearchQuery,
+    favSearchQuery,
+    setFavSearchQuery,
+    filteredItems,
+    filteredFavoriteItems,
+    quizHistoryItems,
+    hasFavorites,
+  } = useSidebarSearch();
 
   const listLabel = isQuizPage ? "Quiz History" : "Interview List";
-
-  const filteredItems = useMemo(() => {
-    if (!searchQuery.trim()) return INTERVIEW_DATA;
-    const query = searchQuery.trim().toLowerCase();
-    return INTERVIEW_DATA.filter((item) =>
-      item.question.toLowerCase().includes(query),
-    );
-  }, [searchQuery]);
-
-  const favoriteItems = INTERVIEW_DATA.filter((item) =>
-    favoriteIds.includes(item.id),
-  );
-
-  const quizHistoryItems = historyIds
-    .map((id) => INTERVIEW_DATA.find((item) => item.id === id))
-    .filter((item): item is InterviewItem => item !== undefined);
 
   const handleClearAllFavorites = () => {
     if (window.confirm("즐겨찾기를 모두 해제하시겠습니까?")) {
@@ -65,71 +58,11 @@ export default function SidebarContent({ onClose, onItemClick }: Props) {
     if (isQuizPage) {
       return (
         <div className="mt-4 flex min-h-0 flex-1 flex-col">
-          {quizHistoryItems.length > 0 ? (
-            <>
-              <button
-                type="button"
-                onClick={handleClearHistory}
-                className={twMerge(
-                  "mb-3 shrink-0 self-end rounded-lg px-3 py-1",
-                  "text-xs font-semibold text-red-500",
-                  "transition-colors bg-red-50 hover:bg-red-100",
-                )}
-              >
-                전체 삭제
-              </button>
-              <ul className="flex-1 space-y-2 overflow-y-auto">
-                {quizHistoryItems.map((item) => (
-                  <li key={item.id} className="flex items-start gap-1">
-                    <div
-                      className={twMerge(
-                        "flex min-w-0 flex-1 items-start gap-2",
-                        "rounded-lg bg-gray-100 p-3",
-                        "transition-colors hover:bg-gray-200",
-                      )}
-                    >
-                      <button
-                        type="button"
-                        aria-label={
-                          isFavorite(item.id)
-                            ? "즐겨찾기 해제"
-                            : "즐겨찾기 등록"
-                        }
-                        onClick={() => toggleFavorite(item.id)}
-                        className="shrink-0 text-base leading-snug"
-                      >
-                        {isFavorite(item.id) ? "⭐" : "☆"}
-                      </button>
-                      <button
-                        type="button"
-                        onClick={() => open(item)}
-                        className="min-w-0 flex-1 text-left"
-                      >
-                        <span className="wrap-break-word text-[15px] leading-snug text-gray-700">
-                          {item.question}
-                        </span>
-                      </button>
-                    </div>
-                    <button
-                      type="button"
-                      aria-label="히스토리 삭제"
-                      onClick={() => removeFromHistory(item.id)}
-                      className={twMerge(
-                        "shrink-0 rounded-lg p-2 text-gray-400",
-                        "transition-colors hover:bg-red-50 hover:text-red-500",
-                      )}
-                    >
-                      <CloseIcon />
-                    </button>
-                  </li>
-                ))}
-              </ul>
-            </>
-          ) : (
-            <div className="flex flex-1 items-center justify-center">
-              <p className="text-sm text-gray-400">퀴즈 히스토리가 없습니다</p>
-            </div>
-          )}
+          <QuizHistoryList
+            items={quizHistoryItems}
+            onItemClick={open}
+            onClearHistory={handleClearHistory}
+          />
         </div>
       );
     }
@@ -154,7 +87,7 @@ export default function SidebarContent({ onClose, onItemClick }: Props) {
 
   return (
     <div className="flex min-h-0 flex-1 flex-col">
-      <div className="mb-6 md:mb-10 shrink-0 flex items-start justify-between">
+      <div className="mb-6 shrink-0 flex items-start justify-between md:mb-10">
         <SidebarHeading />
         {onClose && (
           <button
@@ -203,47 +136,14 @@ export default function SidebarContent({ onClose, onItemClick }: Props) {
         renderListTab()
       ) : (
         <div className="mt-4 flex min-h-0 flex-1 flex-col">
-          {favoriteItems.length > 0 ? (
-            <>
-              <button
-                type="button"
-                onClick={handleClearAllFavorites}
-                className={twMerge(
-                  "mb-3 shrink-0 self-end rounded-lg px-3 py-1",
-                  "text-xs font-semibold text-red-500",
-                  "transition-colors bg-red-50 hover:bg-red-100",
-                )}
-              >
-                모두 비우기
-              </button>
-              <ul className="flex-1 space-y-2 overflow-y-auto">
-                {favoriteItems.map((item) => (
-                  <li key={item.id}>
-                    <button
-                      type="button"
-                      onClick={() => open(item)}
-                      className={twMerge(
-                        "flex w-full items-start gap-2",
-                        "rounded-lg bg-gray-100 p-3 text-left",
-                        "transition-colors hover:bg-gray-200",
-                      )}
-                    >
-                      <span className="shrink-0 text-base leading-snug">
-                        ⭐
-                      </span>
-                      <span className="wrap-break-word text-[15px] leading-snug text-gray-700">
-                        {item.question}
-                      </span>
-                    </button>
-                  </li>
-                ))}
-              </ul>
-            </>
-          ) : (
-            <div className="flex flex-1 items-center justify-center">
-              <p className="text-sm text-gray-400">즐겨찾기가 없습니다</p>
-            </div>
-          )}
+          <FavoritesList
+            items={filteredFavoriteItems}
+            searchQuery={favSearchQuery}
+            onSearchChange={setFavSearchQuery}
+            onClearAll={handleClearAllFavorites}
+            onItemClick={open}
+            hasFavorites={hasFavorites}
+          />
         </div>
       )}
 

@@ -77,6 +77,7 @@ export default function InterviewSection() {
                 )}
               >
                 <AccordionItem
+                  id={item.id}
                   question={item.question}
                   answer={item.answer}
                   isOpen={openItems.has(virtualRow.index)}

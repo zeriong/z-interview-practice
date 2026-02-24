@@ -1,5 +1,6 @@
 import { useVirtualizer } from "@tanstack/react-virtual";
 import { useRef } from "react";
+import { useFavoritesStore } from "@/entities/favorites/model";
 import { INTERVIEW_DATA } from "@/shared/constants";
 
 export default function NavList({
@@ -8,6 +9,7 @@ export default function NavList({
   onItemClick: (i: number) => void;
 }) {
   const scrollRef = useRef<HTMLDivElement>(null);
+  const { toggle, isFavorite } = useFavoritesStore();
 
   const virtualizer = useVirtualizer({
     count: INTERVIEW_DATA.length,
@@ -26,6 +28,7 @@ export default function NavList({
       >
         {virtualizer.getVirtualItems().map((virtualRow) => {
           const item = INTERVIEW_DATA[virtualRow.index];
+          const favorited = isFavorite(item.id);
           return (
             <li
               key={virtualRow.key}
@@ -36,15 +39,25 @@ export default function NavList({
                 transform: `translateY(${virtualRow.start}px)`,
               }}
             >
-              <button
-                type="button"
-                onClick={() => onItemClick(virtualRow.index)}
-                className="w-full rounded-lg bg-gray-100 p-3 text-left"
-              >
-                <span className="wrap-break-word text-[15px] leading-snug text-gray-700">
-                  {item.question}
-                </span>
-              </button>
+              <div className="flex w-full items-start gap-2 rounded-lg bg-gray-100 p-3">
+                <button
+                  type="button"
+                  aria-label={favorited ? "즐겨찾기 해제" : "즐겨찾기 등록"}
+                  onClick={() => toggle(item.id)}
+                  className="shrink-0 text-base leading-snug"
+                >
+                  {favorited ? "⭐" : "☆"}
+                </button>
+                <button
+                  type="button"
+                  onClick={() => onItemClick(virtualRow.index)}
+                  className="min-w-0 flex-1 text-left"
+                >
+                  <span className="wrap-break-word text-[15px] leading-snug text-gray-700">
+                    {item.question}
+                  </span>
+                </button>
+              </div>
             </li>
           );
         })}

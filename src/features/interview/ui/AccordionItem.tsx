@@ -1,28 +1,54 @@
 import DOMPurify from "dompurify";
 import { twMerge } from "tailwind-merge";
+import { useFavoritesStore } from "@/entities/favorites/model";
 import type { InterviewItem } from "@/shared/types";
 import { ChevronIcon } from "@/shared/ui/icons";
 
 interface AccordionItemProps extends Omit<InterviewItem, "id"> {
+  id: number;
   isOpen: boolean;
   onToggle: () => void;
 }
 
 export default function AccordionItem({
+  id,
   question,
   answer,
   isOpen,
   onToggle,
 }: AccordionItemProps) {
+  const { toggle, isFavorite } = useFavoritesStore();
+  const favorited = isFavorite(id);
+
   return (
     <div>
-      <button
-        type="button"
+      <div
+        role="button"
+        tabIndex={0}
         onClick={onToggle}
-        className="flex w-full items-start justify-between gap-3 py-3 text-left"
+        onKeyDown={(e) => {
+          if (e.key === "Enter" || e.key === " ") {
+            e.preventDefault();
+            onToggle();
+          }
+        }}
+        className="flex w-full cursor-pointer items-start justify-between gap-3 py-3 text-left"
       >
-        <span className="text-[16px] font-semibold leading-snug text-gray-800">
-          {question}
+        <span className="flex items-start gap-2">
+          <button
+            type="button"
+            aria-label={favorited ? "즐겨찾기 해제" : "즐겨찾기 등록"}
+            onClick={(e) => {
+              e.stopPropagation();
+              toggle(id);
+            }}
+            className="shrink-0 text-lg leading-snug"
+          >
+            {favorited ? "⭐" : "☆"}
+          </button>
+          <span className="text-[16px] font-semibold leading-snug text-gray-800">
+            {question}
+          </span>
         </span>
         <span
           className={twMerge(
@@ -32,7 +58,7 @@ export default function AccordionItem({
         >
           <ChevronIcon />
         </span>
-      </button>
+      </div>
       <div
         className={twMerge(
           "grid transition-all duration-500",

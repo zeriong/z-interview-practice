@@ -41,41 +41,39 @@ export default function QuizHistoryList({
       </button>
       <ul className="flex-1 space-y-2 overflow-y-auto">
         {items.map((item) => (
-          <li key={item.id} className="flex items-start gap-1">
-            <div
-              className={twMerge(
-                "flex min-w-0 flex-1 items-start gap-2",
-                "rounded-lg bg-gray-100 p-3",
-                "transition-colors hover:bg-gray-200",
-              )}
+          <li
+            key={item.id}
+            className={twMerge(
+              "flex items-start gap-2 rounded-lg bg-gray-100 p-3",
+              "transition-colors hover:bg-gray-200",
+            )}
+          >
+            <button
+              type="button"
+              aria-label={
+                isFavorite(item.id) ? "즐겨찾기 해제" : "즐겨찾기 등록"
+              }
+              onClick={() => toggleFavorite(item.id)}
+              className="shrink-0 text-base leading-snug"
             >
-              <button
-                type="button"
-                aria-label={
-                  isFavorite(item.id) ? "즐겨찾기 해제" : "즐겨찾기 등록"
-                }
-                onClick={() => toggleFavorite(item.id)}
-                className="shrink-0 text-base leading-snug"
-              >
-                {isFavorite(item.id) ? "⭐" : "☆"}
-              </button>
-              <button
-                type="button"
-                onClick={() => onItemClick(item)}
-                className="min-w-0 flex-1 text-left"
-              >
-                <span className="wrap-break-word text-[15px] leading-snug text-gray-700">
-                  {item.question}
-                </span>
-              </button>
-            </div>
+              {isFavorite(item.id) ? "⭐" : "☆"}
+            </button>
+            <button
+              type="button"
+              onClick={() => onItemClick(item)}
+              className="min-w-0 flex-1 text-left"
+            >
+              <span className="wrap-break-word text-[15px] leading-snug text-gray-700">
+                {item.question}
+              </span>
+            </button>
             <button
               type="button"
               aria-label="히스토리 삭제"
               onClick={() => removeFromHistory(item.id)}
               className={twMerge(
-                "shrink-0 rounded-lg p-2 text-gray-400",
-                "transition-colors hover:bg-red-50 hover:text-red-500",
+                "shrink-0 rounded p-1 text-gray-400/60",
+                "transition-colors hover:bg-red-100 hover:text-red-500",
               )}
             >
               <CloseIcon />

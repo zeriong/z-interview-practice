@@ -2,17 +2,20 @@ import { useVirtualizer } from "@tanstack/react-virtual";
 import { useRef } from "react";
 import { useFavoritesStore } from "@/entities/favorites/model";
 import { INTERVIEW_DATA } from "@/shared/constants";
+import type { InterviewItem } from "@/shared/types";
 
 export default function NavList({
+  items,
   onItemClick,
 }: {
+  items: InterviewItem[];
   onItemClick: (i: number) => void;
 }) {
   const scrollRef = useRef<HTMLDivElement>(null);
   const { toggle, isFavorite } = useFavoritesStore();
 
   const virtualizer = useVirtualizer({
-    count: INTERVIEW_DATA.length,
+    count: items.length,
     getScrollElement: () => scrollRef.current,
     estimateSize: () => 60,
     overscan: 5,
@@ -27,7 +30,7 @@ export default function NavList({
         }}
       >
         {virtualizer.getVirtualItems().map((virtualRow) => {
-          const item = INTERVIEW_DATA[virtualRow.index];
+          const item = items[virtualRow.index];
           const favorited = isFavorite(item.id);
           return (
             <li
@@ -50,7 +53,7 @@ export default function NavList({
                 </button>
                 <button
                   type="button"
-                  onClick={() => onItemClick(virtualRow.index)}
+                  onClick={() => onItemClick(INTERVIEW_DATA.indexOf(item))}
                   className="min-w-0 flex-1 text-left"
                 >
                   <span className="wrap-break-word text-[15px] leading-snug text-gray-700">

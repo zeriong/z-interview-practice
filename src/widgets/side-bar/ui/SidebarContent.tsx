@@ -1,5 +1,6 @@
 import { useRouterState } from "@tanstack/react-router";
 import DOMPurify from "dompurify";
+import { useMemo, useState } from "react";
 import { twMerge } from "tailwind-merge";
 
 import { useFavoritesStore } from "@/entities/favorites/model";
@@ -28,8 +29,17 @@ export default function SidebarContent({ onClose, onItemClick }: Props) {
   const { historyIds, removeFromHistory, clearHistory } = useQuizStore();
   const { isFavorite, toggle: toggleFavorite } = useFavoritesStore();
   const { isOpen, data, open, close, clearData } = useModal<InterviewItem>();
+  const [searchQuery, setSearchQuery] = useState("");
 
   const listLabel = isQuizPage ? "Quiz History" : "Interview List";
+
+  const filteredItems = useMemo(() => {
+    if (!searchQuery.trim()) return INTERVIEW_DATA;
+    const query = searchQuery.trim().toLowerCase();
+    return INTERVIEW_DATA.filter((item) =>
+      item.question.toLowerCase().includes(query),
+    );
+  }, [searchQuery]);
 
   const favoriteItems = INTERVIEW_DATA.filter((item) =>
     favoriteIds.includes(item.id),
@@ -124,7 +134,22 @@ export default function SidebarContent({ onClose, onItemClick }: Props) {
       );
     }
 
-    return <NavList onItemClick={onItemClick} />;
+    return (
+      <>
+        <input
+          type="text"
+          value={searchQuery}
+          onChange={(e) => setSearchQuery(e.target.value)}
+          placeholder="질문 검색..."
+          className={twMerge(
+            "mt-4 w-full shrink-0 rounded-lg border border-gray-200",
+            "bg-white px-3 py-2 text-sm text-gray-700",
+            "placeholder:text-gray-400 focus:border-primary focus:outline-none",
+          )}
+        />
+        <NavList items={filteredItems} onItemClick={onItemClick} />
+      </>
+    );
   };
 
   return (

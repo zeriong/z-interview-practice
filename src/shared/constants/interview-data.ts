@@ -1681,4 +1681,99 @@ export const INTERVIEW_DATA: InterviewItem[] = [
       "<p><strong>Q3. TanStack Router의 스크롤 복원 메커니즘은?</strong></p>" +
       "<p>TanStack Router는 <code>ScrollRestoration</code> 컴포넌트로 자동 스크롤 복원을 제공합니다. 라우트 전환 시 스크롤 위치를 sessionStorage에 저장하고, 뒤로가기 시 복원합니다. <code>getKey</code> 옵션으로 캐싱 키를 커스터마이징하고, <code>scrollRestorationBehavior</code>로 동작을 세밀하게 제어합니다. Suspense와 함께 사용 시 콘텐츠 로딩 완료 후 복원됩니다.</p>",
   },
+  // ─────────────────────────────────────────────
+  // 컴파일러·인터프리터, 가상 스크롤, React Compiler, React vs Vue, SPA, 캐싱 라이브러리
+  // ─────────────────────────────────────────────
+  {
+    id: 110,
+    question: "컴파일러(Compiler)란 무엇인가요?",
+    answer:
+      "<p>컴파일러는 고급 프로그래밍 언어로 작성된 소스 코드 전체를 한꺼번에 읽어 기계어(또는 중간 코드)로 변환하는 번역 프로그램입니다. 어휘 분석(Lexical Analysis) → 구문 분석(Parsing) → 의미 분석(Semantic Analysis) → 중간 코드 생성 → 최적화 → 목적 코드 생성의 단계를 거칩니다. C, C++, Rust, Go 등이 대표적인 컴파일 언어이며, 실행 전에 전체 코드를 검사하므로 타입 오류 등을 사전에 발견할 수 있고 최적화된 실행 파일을 생성하여 런타임 성능이 뛰어납니다.</p>" +
+      "<br/>" +
+      "<p><strong>Q1. 인터프리터(Interpreter)란 무엇인가요?</strong></p>" +
+      "<p>인터프리터는 소스 코드를 한 줄(또는 한 문장)씩 읽어 즉시 실행하는 프로그램입니다. 별도의 컴파일 단계 없이 바로 결과를 확인할 수 있어 개발 중 빠른 피드백이 가능합니다. Python, Ruby, 초기 JavaScript가 인터프리터 방식으로 동작합니다. 다만 매번 소스를 해석하므로 반복 실행 시 컴파일된 코드보다 느리고, 실행 중에야 오류를 발견할 수 있다는 단점이 있습니다.</p>" +
+      "<br/>" +
+      "<p><strong>Q2. 컴파일러와 인터프리터의 핵심 차이는 무엇인가요?</strong></p>" +
+      "<p>① <strong>변환 시점</strong>: 컴파일러는 실행 전에 전체를 변환, 인터프리터는 실행 시 한 줄씩 해석 ② <strong>실행 속도</strong>: 컴파일된 코드는 기계어로 직접 실행되어 빠르고, 인터프리터는 해석 오버헤드가 있어 상대적으로 느림 ③ <strong>에러 발견 시점</strong>: 컴파일러는 컴파일 타임에 대부분의 에러를 잡고, 인터프리터는 해당 줄이 실행될 때 발견 ④ <strong>배포</strong>: 컴파일러는 실행 파일을 배포, 인터프리터는 소스 코드 + 런타임을 함께 배포. 현대 언어는 이 두 방식을 혼합하는 경우가 많습니다(예: Java는 바이트코드로 컴파일 후 JVM이 인터프리트/JIT 컴파일).</p>" +
+      "<br/>" +
+      "<p><strong>Q3. JIT(Just-In-Time) 컴파일러란 무엇이며, JavaScript 엔진에서 어떻게 활용되나요?</strong></p>" +
+      "<p>JIT 컴파일러는 인터프리터와 컴파일러의 장점을 결합한 방식입니다. 프로그램 실행 중(런타임)에 자주 실행되는 코드(Hot Code)를 감지하여 기계어로 컴파일합니다. V8(Chrome, Node.js)은 Ignition 인터프리터로 바이트코드를 실행하다가 반복 호출되는 함수를 TurboFan 컴파일러로 최적화된 기계어로 변환합니다. SpiderMonkey(Firefox)는 Baseline → IonMonkey 단계적 최적화를 수행합니다. 이 덕분에 JavaScript는 인터프리터 언어임에도 네이티브에 근접한 성능을 달성합니다. 다만 타입이 동적으로 변하면 최적화가 무효화(deoptimization)되어 성능이 저하될 수 있습니다.</p>",
+  },
+  {
+    id: 111,
+    question:
+      "가상 스크롤(Virtual Scroll)이란 무엇이고, 어떻게 구현 가능한가요?",
+    answer:
+      "<p>가상 스크롤(Virtualization)은 대량의 리스트 아이템 중 현재 뷰포트에 보이는 항목만 실제 DOM에 렌더링하는 기법입니다. 예를 들어 10,000개의 항목이 있어도 화면에 보이는 20~30개만 DOM에 존재합니다. 핵심 원리: ① 전체 리스트 높이를 계산하여 스크롤 컨테이너의 높이를 설정 ② 현재 스크롤 위치로부터 보여야 할 아이템 인덱스 범위를 계산 ③ 해당 범위의 아이템만 <code>position: absolute</code> 또는 <code>transform: translateY</code>로 정확한 위치에 렌더링. 대표 라이브러리로 <code>@tanstack/react-virtual</code>, <code>react-virtuoso</code>, <code>react-window</code>가 있습니다.</p>" +
+      "<br/>" +
+      "<p><strong>Q1. 가상 스크롤에서 아이템 높이가 동적(가변)일 때 어떻게 처리하나요?</strong></p>" +
+      "<p>고정 높이가 아닌 경우 ① <code>estimateSize</code>로 추정 높이를 제공하고, 실제 렌더링 후 <code>ResizeObserver</code>로 실제 높이를 측정하여 캐싱 ② 측정된 높이를 기반으로 전체 스크롤 높이와 아이템 오프셋을 재계산 ③ @tanstack/react-virtual의 <code>measureElement</code> 콜백이 이 과정을 자동 처리합니다. 주의점: 높이가 자주 변하면 레이아웃 시프트가 발생할 수 있어 <code>content-visibility: auto</code>나 placeholder 높이 예측이 중요합니다.</p>" +
+      "<br/>" +
+      "<p><strong>Q2. 가상 스크롤의 한계와 접근성(a11y) 이슈는 무엇인가요?</strong></p>" +
+      "<p>한계: ① 브라우저 <code>Ctrl+F</code> 검색이 렌더링되지 않은 항목을 찾지 못함 ② 스크린 리더가 전체 목록을 인식하지 못해 접근성 저하 ③ 빠른 스크롤 시 빈 영역이 잠깐 보이는 '깜빡임' 현상 ④ SSR에서 초기 렌더링 아이템 수 결정 문제. 접근성 대응: <code>role=\"listbox\"</code>, <code>aria-setsize</code>(전체 수), <code>aria-posinset</code>(현재 위치)를 명시하여 스크린 리더에 전체 목록 정보를 제공합니다. 검색 문제는 별도 필터링 UI를 제공하여 보완합니다.</p>" +
+      "<br/>" +
+      "<p><strong>Q3. @tanstack/react-virtual과 react-virtuoso의 차이는?</strong></p>" +
+      "<p><code>@tanstack/react-virtual</code>은 headless 라이브러리로 가상화 로직만 제공하고 UI는 개발자가 직접 구현합니다. 유연성이 높고 번들 크기가 작지만 구현 코드가 많아집니다. <code>react-virtuoso</code>는 UI 컴포넌트를 포함한 올인원 라이브러리로 그룹 헤더, 역방향 스크롤(채팅 UI), 테이블 가상화 등 고급 기능을 기본 제공합니다. 간단한 리스트라면 @tanstack/react-virtual이 가볍고, 복잡한 시나리오(채팅, 그룹핑, 테이블)라면 react-virtuoso가 생산성 높습니다.</p>",
+  },
+  {
+    id: 112,
+    question: "리액트 컴파일러(React Compiler)란 무엇인가요?",
+    answer:
+      "<p>React Compiler(구 React Forget)는 React 컴포넌트를 빌드 타임에 분석하여 자동으로 메모이제이션을 삽입하는 컴파일러입니다. 기존에 개발자가 수동으로 <code>React.memo</code>, <code>useMemo</code>, <code>useCallback</code>을 작성하던 최적화를 컴파일러가 자동 수행합니다. Babel 플러그인 형태로 동작하며, 컴포넌트의 입력(props, state, context)을 분석하여 '어떤 값이 변하면 어떤 부분을 재계산해야 하는지'를 정적으로 판단합니다. Meta에서 Instagram, Facebook 등 대규모 프로덕션에서 검증 후 오픈소스로 공개되었습니다.</p>" +
+      "<br/>" +
+      "<p><strong>Q1. 리액트 컴파일러는 어떻게 최적화를 수행하나요?</strong></p>" +
+      "<p>React Compiler는 다음 과정으로 최적화합니다: ① <strong>정적 분석</strong>: 컴포넌트 함수의 AST를 분석하여 각 변수와 표현식의 의존성 그래프를 구축 ② <strong>반응성 추적</strong>: props, state, context 등 반응형 값이 어떤 JSX나 계산에 영향을 주는지 추적 ③ <strong>자동 메모이제이션 삽입</strong>: 의존성이 변하지 않으면 이전 결과를 재사용하도록 캐시 코드를 삽입 ④ <strong>세분화된 업데이트</strong>: 컴포넌트 전체가 아닌, 실제 변경된 부분만 재계산하도록 코드를 분할. 이는 개발자가 수동으로 하기 어려운 세밀한 수준의 메모이제이션을 자동 달성합니다.</p>" +
+      "<br/>" +
+      "<p><strong>Q2. 리액트 컴파일러의 한계는 무엇인가요?</strong></p>" +
+      "<p>① <strong>React 규칙 준수 필수</strong>: 컴파일러는 'Rules of React'(순수 컴포넌트, 훅 규칙 등)를 지키는 코드만 올바르게 최적화합니다. 사이드 이펙트가 있는 렌더링, 조건부 훅 호출 등은 최적화 대상에서 제외(bail out)됩니다 ② <strong>외부 뮤테이션 감지 불가</strong>: 컴파일러는 JavaScript 값의 불변성을 가정하므로, 외부에서 객체를 직접 변경(mutate)하면 캐싱된 이전 값을 잘못 재사용할 수 있음 ③ <strong>클래스 컴포넌트 미지원</strong>: 함수 컴포넌트와 훅만 최적화 대상 ④ <strong>복잡한 동적 패턴</strong>: 동적 계산이나 간접 참조가 많으면 컴파일러가 보수적으로 동작하여 최적화 효과가 제한됩니다.</p>" +
+      "<br/>" +
+      "<p><strong>Q3. 리액트 컴파일러 도입 시 기존 코드와의 호환성은 어떠한가요?</strong></p>" +
+      "<p>React Compiler는 점진적 도입이 가능합니다. ① <code>eslint-plugin-react-compiler</code>로 코드베이스의 호환성을 사전 검사 ② 특정 파일이나 컴포넌트 단위로 opt-in/opt-out 가능 ③ 기존 useMemo/useCallback과 충돌하지 않으며, 수동 메모이제이션이 있으면 컴파일러가 건너뜀 ④ <code>'use no memo'</code> 지시어로 특정 컴포넌트를 컴파일 대상에서 제외 가능. React 19 이상이 필요하며, Babel/Vite 플러그인으로 설정합니다.</p>",
+  },
+  {
+    id: 113,
+    question: "React와 Vue의 차이는 무엇인가요?",
+    answer:
+      "<p>React는 UI 라이브러리로서 JSX를 사용하여 JavaScript 안에서 마크업을 작성하며, 단방향 데이터 흐름과 불변성 기반의 상태 관리를 강조합니다. Vue는 프로그레시브 프레임워크로서 템플릿 기반 문법(<code>&lt;template&gt;</code>)을 사용하고, 반응형 시스템으로 데이터 변경을 자동 추적합니다. React는 'JavaScript 우선', Vue는 'HTML 우선' 철학으로 접근합니다.</p>" +
+      "<br/>" +
+      "<p><strong>Q1. 반응성(Reactivity) 시스템의 근본적 차이는 무엇인가요?</strong></p>" +
+      "<p>React는 <strong>Pull 기반</strong> 반응성입니다. 상태가 변경되면 컴포넌트 함수 전체를 재실행하고, Virtual DOM Diffing으로 변경점을 찾습니다. 개발자가 useMemo/useCallback으로 불필요한 재계산을 수동 방지합니다. Vue는 <strong>Push 기반</strong> 반응성(Proxy 기반)입니다. <code>ref()</code>나 <code>reactive()</code>로 선언된 값을 접근(get)할 때 의존성을 자동 수집하고, 값이 변경(set)되면 해당 의존성에 연결된 부분만 정확히 업데이트합니다. Vue의 세밀한 반응성 덕분에 수동 메모이제이션이 거의 불필요하지만, 디버깅 시 '왜 업데이트되었는지' 추적이 어려울 수 있습니다.</p>" +
+      "<br/>" +
+      "<p><strong>Q2. 생태계와 커뮤니티 측면에서의 차이는?</strong></p>" +
+      "<p>React: ① Meta가 후원하며 가장 큰 생태계 보유 ② Next.js, Remix 등 메타 프레임워크 다양 ③ React Native로 모바일 개발 가능 ④ 서드파티 라이브러리가 압도적으로 많음 ⑤ 채용 시장에서 수요가 가장 높음. Vue: ① 커뮤니티 주도 개발(Evan You) ② Nuxt.js 메타 프레임워크 ③ 공식 라우터(Vue Router), 상태관리(Pinia)가 통합되어 있어 선택 피로 적음 ④ 중국·아시아권에서 특히 강세 ⑤ 학습 곡선이 완만하여 소규모 팀이나 빠른 프로토타이핑에 유리. 대규모 프로젝트에서는 React의 생태계가 이점이며, 빠른 개발 생산성에서는 Vue의 통합된 도구 체인이 이점입니다.</p>" +
+      "<br/>" +
+      "<p><strong>Q3. 어떤 기준으로 React 또는 Vue를 선택해야 하나요?</strong></p>" +
+      "<p>React 선택: ① 대규모 팀·장기 프로젝트에서 풍부한 생태계 필요 ② React Native로 모바일 동시 개발 계획 ③ TypeScript와의 강력한 통합 필요 ④ 채용 풀(pool)이 중요한 경우. Vue 선택: ① 소규모 팀에서 빠른 생산성 필요 ② 공식 도구 체인의 일관성 선호 ③ 기존 서버 렌더링 앱에 점진적 도입 ④ HTML 템플릿 기반이 팀에 익숙한 경우. 기술적으로 두 프레임워크 모두 동일한 규모의 애플리케이션을 구축할 수 있으며, 팀의 경험과 프로젝트 요구사항이 가장 중요한 선택 기준입니다.</p>",
+  },
+  {
+    id: 114,
+    question: "SPA(Single Page Application)란 무엇인가요?",
+    answer:
+      "<p>SPA는 하나의 HTML 페이지를 로드한 후, 이후 페이지 전환을 서버 요청 없이 JavaScript로 동적으로 콘텐츠를 교체하는 웹 애플리케이션입니다. 브라우저의 History API(<code>pushState</code>, <code>popstate</code>)를 사용하여 URL을 변경하되 실제 페이지 새로고침은 발생하지 않습니다. React, Vue, Angular 등 현대 프론트엔드 프레임워크가 SPA 구축에 사용되며, 초기 로딩 후 네이티브 앱과 유사한 빠른 사용자 경험을 제공합니다.</p>" +
+      "<br/>" +
+      "<p><strong>Q1. SPA의 장단점은 무엇인가요?</strong></p>" +
+      "<p><strong>장점</strong>: ① 페이지 전환 시 전체 리로드 없이 부드러운 UX ② 서버 부하 감소(API 호출만) ③ 프론트엔드·백엔드 분리로 독립적 개발·배포 가능 ④ 오프라인 지원(Service Worker)과 PWA 구현 용이. <strong>단점</strong>: ① 초기 로딩 시 JavaScript 번들 다운로드로 느린 FCP(First Contentful Paint) ② SEO 불리(크롤러가 JS 실행 필요) ③ 메모리 누수 관리 필요(이벤트 리스너, 타이머 정리) ④ 브라우저 히스토리 관리 복잡성 증가. 이런 단점을 보완하기 위해 SSR, SSG, ISR 등의 렌더링 전략과 코드 스플리팅이 함께 사용됩니다.</p>" +
+      "<br/>" +
+      "<p><strong>Q2. SPA를 배포할 때 Nginx와 같은 웹서버에서 어떤 설정이 필요한가요?</strong></p>" +
+      "<p>SPA의 핵심 설정은 <strong>모든 경로를 <code>index.html</code>로 폴백(fallback)</strong>하는 것입니다. SPA는 클라이언트 라우팅을 사용하므로 <code>/about</code>이나 <code>/users/123</code> 같은 URL로 직접 접근하면 서버에 해당 파일이 없어 404가 발생합니다. Nginx 설정: <code>location / { try_files $uri $uri/ /index.html; }</code> — 요청 경로에 실제 파일이 없으면 index.html을 반환하고, 클라이언트 라우터가 URL을 해석합니다. 추가로 ① 정적 에셋에 캐시 헤더 설정(<code>Cache-Control</code>) ② gzip/brotli 압축 ③ HTTPS 리다이렉트 ④ API 프록시(<code>proxy_pass</code>)로 CORS 우회를 설정합니다.</p>" +
+      "<br/>" +
+      "<p><strong>Q3. SPA의 SEO 문제를 해결하는 방법은 무엇인가요?</strong></p>" +
+      "<p>① <strong>SSR(Server-Side Rendering)</strong>: Next.js, Nuxt.js로 서버에서 HTML을 생성하여 크롤러에 완성된 콘텐츠 제공 ② <strong>SSG(Static Site Generation)</strong>: 빌드 타임에 정적 HTML 생성, 변경이 적은 페이지에 적합 ③ <strong>ISR(Incremental Static Regeneration)</strong>: SSG + 주기적 재생성으로 동적 데이터 반영 ④ <strong>프리렌더링</strong>: prerender.io 같은 서비스로 크롤러에만 프리렌더링된 HTML 제공 ⑤ <code>&lt;meta&gt;</code> 태그 동적 관리(react-helmet, @unhead/vue). Google 크롤러는 JS를 실행할 수 있지만, 렌더링 대기 큐로 인해 인덱싱이 지연될 수 있어 SSR/SSG가 여전히 권장됩니다.</p>",
+  },
+  {
+    id: 115,
+    question:
+      "React Query를 제외하고 다른 통신 데이터 캐싱 라이브러리는 무엇이 있고 차이점은 무엇인가요?",
+    answer:
+      "<p>대표적인 서버 상태 관리(캐싱) 라이브러리: ① <strong>SWR</strong>(Vercel): 'stale-while-revalidate' HTTP 캐시 전략 기반, 가볍고 간결한 API ② <strong>RTK Query</strong>(Redux Toolkit): Redux 생태계에 통합된 데이터 패칭·캐싱 솔루션 ③ <strong>Apollo Client</strong>: GraphQL 전용 클라이언트로 정규화된 캐시 제공 ④ <strong>urql</strong>: 가벼운 GraphQL 클라이언트로 문서 캐시와 정규화 캐시 선택 가능.</p>" +
+      "<br/>" +
+      "<p><strong>Q1. SWR과 TanStack Query의 구체적인 차이는 무엇인가요?</strong></p>" +
+      "<p><strong>SWR</strong>: ① Vercel 개발, 최소한의 API로 빠른 도입 ② 기본적으로 전역 설정 + 개별 훅 오버라이드 패턴 ③ 뮤테이션은 <code>mutate()</code>로 수동 캐시 갱신 ④ DevTools가 커뮤니티 플러그인 ⑤ 번들 크기가 작음(~4KB). <strong>TanStack Query</strong>: ① <code>useMutation</code>으로 뮤테이션 상태(loading, error) 관리 내장 ② <code>queryClient.invalidateQueries</code>로 세밀한 캐시 무효화 ③ 공식 DevTools ④ 무한 스크롤(<code>useInfiniteQuery</code>), 낙관적 업데이트(Optimistic Updates), 쿼리 취소 등 고급 기능 기본 제공 ⑤ Suspense와의 통합이 더 성숙. 소규모 프로젝트에서는 SWR이 간편하고, 복잡한 캐시 정책이 필요하면 TanStack Query가 유리합니다.</p>" +
+      "<br/>" +
+      "<p><strong>Q2. GraphQL 환경에서의 캐싱 전략은 REST와 어떻게 다른가요?</strong></p>" +
+      "<p>REST 캐싱은 URL 기반(엔드포인트별 캐시)이지만, GraphQL은 단일 엔드포인트에 다양한 쿼리가 들어오므로 <strong>정규화 캐시(Normalized Cache)</strong>를 사용합니다. Apollo Client는 응답의 각 객체를 <code>__typename:id</code> 키로 평탄화하여 저장합니다. 한 쿼리에서 받은 User 객체를 업데이트하면 해당 User를 참조하는 모든 쿼리의 캐시가 자동 갱신됩니다. urql은 기본 문서 캐시(쿼리 단위)와 선택적 정규화 캐시(@urql/exchange-graphcache)를 제공합니다. 정규화 캐시는 강력하지만 설정 복잡도가 높으며, 부분 데이터 문제를 이해해야 합니다.</p>" +
+      "<br/>" +
+      "<p><strong>Q3. 서버 상태와 클라이언트 상태를 어떻게 분리하여 관리해야 하나요?</strong></p>" +
+      "<p><strong>서버 상태</strong>는 서버에 원본이 있는 비동기 데이터(API 응답)로 캐싱·동기화·무효화가 핵심이며, TanStack Query/SWR/RTK Query가 담당합니다. <strong>클라이언트 상태</strong>는 UI에만 존재하는 동기 데이터(모달 열림, 폼 입력, 테마)로 Zustand, Jotai, Redux 등이 담당합니다. 이 둘을 하나의 전역 스토어(예: Redux)에 섞으면 캐시 무효화·재요청 로직이 복잡해지고, 불필요한 리렌더링이 발생합니다. 분리하면: ① 서버 데이터는 자동 캐싱·리패칭·낙관적 업데이트 혜택 ② 클라이언트 상태는 단순하고 즉각적 ③ 관심사 분리로 코드 예측 가능성 향상. 이 패턴이 현재 React 생태계의 주류 아키텍처입니다.</p>",
+  },
 ];

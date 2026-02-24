@@ -25,11 +25,7 @@ export default function SidebarContent({ onClose, onItemClick }: Props) {
   });
   const { sidebarTab, setSidebarTab } = useSidebarStore();
   const { favoriteIds, clearAll: clearAllFavorites } = useFavoritesStore();
-  const {
-    historyIds,
-    removeFromHistory,
-    clearHistory,
-  } = useQuizStore();
+  const { historyIds, removeFromHistory, clearHistory } = useQuizStore();
   const { isFavorite, toggle: toggleFavorite } = useFavoritesStore();
   const { isOpen, data, open, close, clearData } = useModal<InterviewItem>();
 

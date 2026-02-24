@@ -6,11 +6,12 @@ import { CloseIcon } from "@/shared/ui/icons";
 interface ModalProps {
   isOpen: boolean;
   onClose: () => void;
+  onExited?: () => void;
   title?: string;
   children: React.ReactNode;
 }
 
-export default function Modal({ isOpen, onClose, title, children }: ModalProps) {
+export default function Modal({ isOpen, onClose, onExited, title, children }: ModalProps) {
   const [mounted, setMounted] = useState(false);
   const [visible, setVisible] = useState(false);
 
@@ -22,10 +23,13 @@ export default function Modal({ isOpen, onClose, title, children }: ModalProps) 
       });
     } else {
       setVisible(false);
-      const timer = setTimeout(() => setMounted(false), 300);
+      const timer = setTimeout(() => {
+        setMounted(false);
+        onExited?.();
+      }, 300);
       return () => clearTimeout(timer);
     }
-  }, [isOpen]);
+  }, [isOpen, onExited]);
 
   if (!mounted) return null;
 

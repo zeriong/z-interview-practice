@@ -5,6 +5,7 @@ interface UseModalReturn<T = undefined> {
   data: T | null;
   open: (data?: T) => void;
   close: () => void;
+  clearData: () => void;
 }
 
 export default function useModal<T = undefined>(): UseModalReturn<T> {
@@ -18,6 +19,9 @@ export default function useModal<T = undefined>(): UseModalReturn<T> {
 
   const close = useCallback(() => {
     setIsOpen(false);
+  }, []);
+
+  const clearData = useCallback(() => {
     setData(null);
   }, []);
 
@@ -38,5 +42,5 @@ export default function useModal<T = undefined>(): UseModalReturn<T> {
     };
   }, [isOpen, close]);
 
-  return { isOpen, data, open, close };
+  return { isOpen, data, open, close, clearData };
 }

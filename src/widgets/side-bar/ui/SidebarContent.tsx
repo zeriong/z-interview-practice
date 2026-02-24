@@ -71,12 +71,10 @@ export default function SidebarContent({ onClose, onItemClick }: Props) {
               <ul className="flex-1 space-y-2 overflow-y-auto">
                 {quizHistoryItems.map((item) => (
                   <li key={item.id} className="flex items-start gap-1">
-                    <button
-                      type="button"
-                      onClick={() => open(item)}
+                    <div
                       className={twMerge(
                         "flex min-w-0 flex-1 items-start gap-2",
-                        "rounded-lg bg-gray-100 p-3 text-left",
+                        "rounded-lg bg-gray-100 p-3",
                         "transition-colors hover:bg-gray-200",
                       )}
                     >
@@ -87,18 +85,21 @@ export default function SidebarContent({ onClose, onItemClick }: Props) {
                             ? "즐겨찾기 해제"
                             : "즐겨찾기 등록"
                         }
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          toggleFavorite(item.id);
-                        }}
+                        onClick={() => toggleFavorite(item.id)}
                         className="shrink-0 text-base leading-snug"
                       >
                         {isFavorite(item.id) ? "⭐" : "☆"}
                       </button>
-                      <span className="wrap-break-word text-[15px] leading-snug text-gray-700">
-                        {item.question}
-                      </span>
-                    </button>
+                      <button
+                        type="button"
+                        onClick={() => open(item)}
+                        className="min-w-0 flex-1 text-left"
+                      >
+                        <span className="wrap-break-word text-[15px] leading-snug text-gray-700">
+                          {item.question}
+                        </span>
+                      </button>
+                    </div>
                     <button
                       type="button"
                       aria-label="히스토리 삭제"

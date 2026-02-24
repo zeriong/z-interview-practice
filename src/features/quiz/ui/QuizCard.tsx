@@ -20,12 +20,11 @@ export default function QuizCard({ item, onNext }: QuizCardProps) {
   };
 
   return (
-    <div className="flex flex-col items-center gap-5">
+    <div className="flex h-full w-full flex-col items-center gap-5">
       {/* 카드 컨테이너 */}
       <div
         className={twMerge(
-          "w-[calc(100%-2rem)] max-w-[480px]",
-          "h-[360px] md:h-[420px]",
+          "w-full max-w-[700px] flex-1",
           "[perspective:1000px]",
         )}
       >
@@ -102,7 +101,7 @@ export default function QuizCard({ item, onNext }: QuizCardProps) {
       </div>
 
       {/* 버튼 그룹 */}
-      <div className="flex gap-3">
+      <div className="flex shrink-0 gap-3">
         <button
           type="button"
           onClick={() => setFlipped((prev) => !prev)}

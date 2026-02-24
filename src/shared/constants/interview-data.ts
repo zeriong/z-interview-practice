@@ -1776,4 +1776,20 @@ export const INTERVIEW_DATA: InterviewItem[] = [
       "<p><strong>Q3. 서버 상태와 클라이언트 상태를 어떻게 분리하여 관리해야 하나요?</strong></p>" +
       "<p><strong>서버 상태</strong>는 서버에 원본이 있는 비동기 데이터(API 응답)로 캐싱·동기화·무효화가 핵심이며, TanStack Query/SWR/RTK Query가 담당합니다. <strong>클라이언트 상태</strong>는 UI에만 존재하는 동기 데이터(모달 열림, 폼 입력, 테마)로 Zustand, Jotai, Redux 등이 담당합니다. 이 둘을 하나의 전역 스토어(예: Redux)에 섞으면 캐시 무효화·재요청 로직이 복잡해지고, 불필요한 리렌더링이 발생합니다. 분리하면: ① 서버 데이터는 자동 캐싱·리패칭·낙관적 업데이트 혜택 ② 클라이언트 상태는 단순하고 즉각적 ③ 관심사 분리로 코드 예측 가능성 향상. 이 패턴이 현재 React 생태계의 주류 아키텍처입니다.</p>",
   },
+  {
+    id: 116,
+    question:
+      "왜 Rust나 Go 같은 컴파일 언어로 만든 프론트엔드 빌드 도구가 JavaScript 기반 도구보다 빠른가요?",
+    answer:
+      "<p>Webpack, Babel 등 기존 빌드 도구는 JavaScript(인터프리터/JIT 언어)로 작성되어 Node.js 위에서 실행됩니다. 반면 esbuild(Go), SWC(Rust), Turbopack(Rust), Rolldown(Rust) 등 차세대 도구는 컴파일 언어로 작성되어 근본적인 성능 차이가 있습니다. ① <strong>네이티브 기계어 실행</strong>: 컴파일 언어는 CPU가 직접 실행하는 기계어로 미리 변환되어, JIT 워밍업이나 인터프리팅 오버헤드가 없습니다 ② <strong>멀티스레딩</strong>: Go의 goroutine, Rust의 rayon 등으로 파일 파싱·변환을 병렬 처리합니다. Node.js는 싱글 스레드 이벤트 루프 기반이라 CPU 집약 작업의 병렬화가 제한적입니다 ③ <strong>메모리 효율</strong>: 수동 메모리 관리(Rust)나 효율적 GC(Go)로 가비지 컬렉션 일시 정지(Stop-the-World)가 최소화됩니다 ④ <strong>최적화된 자료 구조</strong>: 컴파일 타임에 메모리 레이아웃이 확정되어 CPU 캐시 친화적인 데이터 처리가 가능합니다.</p>" +
+      "<br/>" +
+      "<p><strong>Q1. Vite는 어떤 부분에서 컴파일 언어의 이점을 활용하나요?</strong></p>" +
+      "<p>Vite 자체는 JavaScript/TypeScript로 작성되었지만, 성능이 중요한 부분을 컴파일 언어 도구에 위임합니다. ① <strong>의존성 사전 번들링</strong>: esbuild(Go)로 node_modules를 ESM으로 변환 — Webpack 대비 10~100배 빠름 ② <strong>TypeScript/JSX 변환</strong>: esbuild 또는 SWC(Rust)로 트랜스파일 — Babel(JS) 대비 20~70배 빠름 ③ <strong>개발 서버</strong>: 네이티브 ESM + 요청 시 변환(on-demand)으로 전체 번들링을 회피 ④ <strong>프로덕션 빌드</strong>: Rollup을 사용하되, Rolldown(Rust 포팅)으로의 전환이 진행 중입니다. 즉 Vite의 빠른 속도는 '아키텍처(ESM 활용) + 컴파일 언어 도구 위임'의 조합입니다.</p>" +
+      "<br/>" +
+      "<p><strong>Q2. esbuild, SWC, Turbopack 각각의 특징과 차이점은?</strong></p>" +
+      "<p><strong>esbuild</strong>(Go): 번들링 + 트랜스파일 올인원. 극도로 빠른 속도가 장점이나 플러그인 생태계가 제한적이고 HMR 미지원. Vite의 의존성 번들링에 사용. <strong>SWC</strong>(Rust): Babel 대체 트랜스파일러 + 압축기. Next.js에서 기본 사용. Babel 플러그인 호환 생태계 구축 중. <strong>Turbopack</strong>(Rust): Webpack 후속작으로 Vercel이 개발. 증분 컴퓨팅(incremental computation) 엔진이 핵심으로, 변경된 부분만 재빌드. Next.js 15+에서 개발 서버로 사용 가능. 각 도구는 경쟁이 아닌 보완 관계인 경우가 많습니다(예: SWC 트랜스파일 + Turbopack 번들링).</p>" +
+      "<br/>" +
+      "<p><strong>Q3. JavaScript 기반 빌드 도구가 느린 근본적 이유는 무엇인가요?</strong></p>" +
+      "<p>① <strong>JIT 컴파일 한계</strong>: V8의 TurboFan이 핫 코드를 최적화하지만, 빌드 도구는 다양한 파일을 한 번씩 처리하므로 핫 코드가 형성되기 어려움 ② <strong>싱글 스레드</strong>: Node.js의 이벤트 루프는 I/O에 최적화되어 있지만, AST 파싱·코드 변환 같은 CPU 바운드 작업에는 비효율적. Worker Threads로 부분 해결 가능하나 스레드 간 데이터 직렬화 비용 발생 ③ <strong>GC 오버헤드</strong>: 수만 개 파일의 AST 객체 생성·폐기 시 가비지 컬렉션 부담 ④ <strong>동적 타입</strong>: 프로퍼티 접근 시 히든 클래스 체크 등 런타임 타입 확인 비용. Rust/Go는 컴파일 타임에 이 모든 것이 해결되어 순수 연산 성능에 집중할 수 있습니다.</p>",
+  },
 ];

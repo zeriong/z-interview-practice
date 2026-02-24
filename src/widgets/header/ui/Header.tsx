@@ -32,11 +32,11 @@ export default function Header() {
         </button>
 
         {/* 중앙: 제목 */}
-        <h1 className="text-xl font-bold text-gray-600 md:text-3xl">
+        <h1 className="text-lg font-bold text-gray-600 md:text-3xl">
           Frontend Questions!
         </h1>
 
-        {/* 우측: Quiz / Show All 토글 */}
+        {/* 우측: Quiz / List 토글 */}
         <Link
           to={isQuizPage ? "/" : "/quiz"}
           className={twMerge(
@@ -47,7 +47,7 @@ export default function Header() {
               : "bg-primary text-white hover:bg-primary/90",
           )}
         >
-          {isQuizPage ? "Show All" : "Quiz"}
+          {isQuizPage ? "List" : "Quiz"}
         </Link>
       </div>
     </header>

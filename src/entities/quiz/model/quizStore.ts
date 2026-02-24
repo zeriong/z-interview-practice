@@ -20,10 +20,12 @@ interface QuizState {
   shuffledIds: number[];
   historyIds: number[];
   currentId: number | null;
+  voiceEnabled: boolean;
   initialize: () => void;
   next: () => void;
   removeFromHistory: (id: number) => void;
   clearHistory: () => void;
+  setVoiceEnabled: (enabled: boolean) => void;
 }
 
 export const useQuizStore = create<QuizState>()(
@@ -32,6 +34,7 @@ export const useQuizStore = create<QuizState>()(
       shuffledIds: [],
       historyIds: [],
       currentId: null,
+      voiceEnabled: false,
 
       initialize: () => {
         const { shuffledIds, currentId } = get();
@@ -41,7 +44,7 @@ export const useQuizStore = create<QuizState>()(
           set({
             shuffledIds: ids,
             currentId: first,
-            historyIds: [first, ...get().historyIds],
+            historyIds: [first, ...get().historyIds.filter((id) => id !== first)],
           });
         }
       },
@@ -65,10 +68,14 @@ export const useQuizStore = create<QuizState>()(
         })),
 
       clearHistory: () => set({ historyIds: [] }),
+      setVoiceEnabled: (enabled) => set({ voiceEnabled: enabled }),
     }),
     {
       name: "quiz-storage",
-      partialize: (state) => ({ historyIds: state.historyIds }),
+      partialize: (state) => ({
+        historyIds: state.historyIds,
+        voiceEnabled: state.voiceEnabled,
+      }),
     },
   ),
 );

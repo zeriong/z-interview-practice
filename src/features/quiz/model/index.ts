@@ -1,1 +1,1 @@
-export { useQuizSpeech } from "./hooks";
+export { useQuizSpeech, useSwipeFlip } from "./hooks";

@@ -1,2 +1,2 @@
-export { useQuizSpeech } from "./model";
+export { useQuizSpeech, useSwipeFlip } from "./model";
 export { QuizCard } from "./ui";

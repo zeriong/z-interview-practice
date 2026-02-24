@@ -2,6 +2,7 @@ import DOMPurify from "dompurify";
 import { useState } from "react";
 import { twMerge } from "tailwind-merge";
 import { useFavoritesStore } from "@/entities/favorites/model";
+import { useSwipeFlip } from "@/features/quiz/model";
 import type { InterviewItem } from "@/shared/types";
 
 interface QuizCardProps {
@@ -11,6 +12,7 @@ interface QuizCardProps {
 
 export default function QuizCard({ item, onNext }: QuizCardProps) {
   const [flipped, setFlipped] = useState(false);
+  const { cardRef, swipeHandlers } = useSwipeFlip(flipped, setFlipped);
   const { toggle, isFavorite } = useFavoritesStore();
   const favorited = isFavorite(item.id);
 
@@ -23,18 +25,13 @@ export default function QuizCard({ item, onNext }: QuizCardProps) {
     <div className="flex h-full w-full flex-col items-center gap-5">
       {/* 카드 컨테이너 */}
       <div
+        {...swipeHandlers}
         className={twMerge(
-          "w-full max-w-[700px] flex-1",
-          "[perspective:1000px]",
+          "w-full max-w-[700px] flex-1 cursor-grab",
+          "[perspective:1000px] [touch-action:pan-y]",
         )}
       >
-        <div
-          className={twMerge(
-            "relative h-full w-full transition-transform duration-500",
-            "[transform-style:preserve-3d]",
-            flipped && "[transform:rotateY(180deg)]",
-          )}
-        >
+        <div ref={cardRef} className="relative h-full w-full transform-3d">
           {/* 앞면: Question */}
           <div
             className={twMerge(
@@ -47,6 +44,9 @@ export default function QuizCard({ item, onNext }: QuizCardProps) {
             <div className="flex items-center justify-between">
               <span className="text-xs font-bold uppercase tracking-wider text-primary/60">
                 Quiz
+              </span>
+              <span className="text-xs font-bold text-gray-300">
+                카드를 회전할 수 있어요
               </span>
               <button
                 type="button"
@@ -81,11 +81,15 @@ export default function QuizCard({ item, onNext }: QuizCardProps) {
             <div
               className={twMerge(
                 "shrink-0 border-b border-gray-200",
-                "px-6 py-3 md:px-8 md:py-4",
+                "px-6 py-3 md:px-8 md:py-4 flex justify-between",
               )}
             >
               <span className="text-xs font-bold uppercase tracking-wider text-pr-orange/60">
                 Answer
+              </span>
+
+              <span className="text-[12px] font-bold text-gray-300">
+                이곳을 드래그하면, 카드 회전이 편해요!
               </span>
             </div>
             <div className="flex-1 overflow-auto px-6 py-4 md:px-8">

@@ -2061,4 +2061,212 @@ export const INTERVIEW_DATA: InterviewItem[] = [
       "<p><strong>Q3. Suspense와 transition이 결합하면 어떤 UX 개선이 가능한가요?</strong></p>" +
       "<p>기본 동작에는 함정이 있습니다 — 이미 표시된 콘텐츠라도 리렌더 중 suspend가 발생하면 <strong>기존 콘텐츠가 fallback으로 교체</strong>되어, 페이지 이동 시마다 화면 전체가 스피너로 바뀌는 UX가 됩니다. 상태 업데이트를 <code>startTransition</code>으로 감싸면 React는 <strong>이미 커밋된 콘텐츠를 fallback으로 숨기지 않고</strong>, 백그라운드에서 새 트리의 데이터가 준비될 때까지 이전 화면을 유지합니다(isPending으로 진행 표시). 라우터 라이브러리들이 페이지 전환을 transition으로 감싸는 이유입니다. 반대로 '처음 나타나는' 경계의 fallback은 transition과 무관하게 표시됩니다. 데이터 페칭 관점에서는 각 컴포넌트가 렌더 시점에 fetch를 시작하면 부모→자식 순차 <strong>워터폴</strong>이 생기므로, 렌더 전에 로딩을 시작하는 render-as-you-fetch 패턴(라우트 로더, 서버 컴포넌트에서 Promise를 내려주는 방식)이 권장됩니다.</p>",
   },
+  // ─────────────────────────────────────────────
+  // 프론트엔드 시스템 설계 — 자동 저장(Auto-Save)
+  // ─────────────────────────────────────────────
+  {
+    id: 134,
+    question:
+      "노션(Notion)처럼 입력 내용을 자동 저장하는 기능을 어떻게 설계하시겠어요?",
+    answer:
+      "<p>먼저 요구사항의 범위를 정합니다 — 무엇을 저장하는가(문서 vs 폼), 동시 편집이 있는가(단일 브라우저 vs 다중 사용자·다중 탭), 오프라인을 지원하는가, 초안과 발행을 구분하는가. 그 위에 핵심 뼈대를 올립니다. ① <strong>저장 시점</strong>: 디바운스(마지막 입력 후 700ms) + maxWait(첫 변경 후 최대 10초)로 요청 수와 유실 위험의 균형을 잡음 ② <strong>상태 분리</strong>: 서버 확정값(base) / 편집 중 값(draft) / 미저장 여부(dirty)를 구분 ③ <strong>상태 머신</strong>: synced → dirty → saving → synced 전이로 저장 흐름을 명시적으로 관리 ④ <strong>UI 표시</strong>: '저장 중…', '모든 변경사항 저장됨'으로 사용자에게 상태를 투명하게 노출합니다.</p>" +
+      "<br/>" +
+      "<p><strong>Q1. 디바운스만으로는 왜 부족하며, maxWait는 왜 필요한가요?</strong></p>" +
+      "<p>디바운스는 '마지막 입력 후 N ms 대기'이므로, 사용자가 쉬지 않고 계속 타이핑하면 타이머가 계속 리셋되어 <strong>저장이 영원히 일어나지 않는</strong> 함정이 있습니다. 그 상태에서 브라우저가 크래시하면 긴 작성 내용 전체가 유실됩니다. maxWait는 '첫 변경 이후 최대 N초가 지나면 대기 중이어도 반드시 실행'을 보장하는 상한선입니다 — lodash의 <code>debounce(fn, 700, { maxWait: 10000 })</code> 옵션이 대표적 구현이며, 개념적으로는 디바운스에 스로틀의 성질을 결합한 것입니다. 이렇게 하면 연속 입력 중에도 최소 10초 단위의 체크포인트가 생겨 유실 범위가 상한으로 제한됩니다.</p>" +
+      "<br/>" +
+      "<p><strong>Q2. base / draft / dirty 상태 분리는 왜 필요한가요?</strong></p>" +
+      "<p>세 값이 서로 다른 질문에 답하기 때문입니다. <strong>base</strong>는 '서버가 마지막으로 확정한 값'으로, 저장 실패 시 되돌아갈 기준점이자 이후 충돌 병합(3-way merge)의 공통 조상이 됩니다. <strong>draft</strong>는 '지금 화면의 값'이고, <strong>dirty</strong>는 '보내지 않은 변경이 있는가'입니다. 이 분리가 없으면 전형적인 버그가 생깁니다 — 저장 요청이 진행되는 동안 사용자가 더 입력했는데, 응답이 도착하며 서버 값으로 화면을 덮어써 <strong>방금 친 글자가 사라지는</strong> 문제입니다. 분리되어 있으면 응답은 base와 revision만 갱신하고 draft는 건드리지 않으며, 요청 페이로드에 담았던 값과 현재 draft를 비교해 추가 저장 필요 여부(dirty)를 정확히 판단할 수 있습니다.</p>" +
+      "<br/>" +
+      "<p><strong>Q3. 저장 상태 머신과 UI 표시는 어떻게 구성하나요?</strong></p>" +
+      "<p>상태를 <code>synced | dirty | saving | error</code>로 명시하고 전이를 규칙으로 고정합니다: 입력 → dirty, 디바운스 만료 → saving, 성공 → (그 사이 입력이 없으면) synced / (있으면) dirty로 복귀, 실패 → error(draft 보존 + 재시도 예약). 불리언 플래그 여러 개(isSaving, hasError…) 대신 상태 머신으로 만들면 '저장 중에 또 입력', '실패 직후 재입력' 같은 엣지 케이스가 전이 규칙 하나로 정리되고 불가능한 상태 조합이 원천 차단됩니다. UI는 이 상태를 그대로 렌더링합니다 — 저장 중 스피너, 저장됨 체크, 실패 시 '재시도' 버튼과 함께 명확한 안내. 자동 저장 UX의 본질은 기술이 아니라 <strong>'내 글이 안전하다'는 신뢰</strong>를 시각적으로 제공하는 것이므로, 상태 표시와 버전 기록(복구 수단)까지가 설계 범위입니다.</p>",
+  },
+  {
+    id: 135,
+    question:
+      "자동 저장 요청이 겹치거나 응답 순서가 뒤바뀌면 어떤 문제가 생기고, 어떻게 해결하나요?",
+    answer:
+      "<p>저장 요청을 그냥 연달아 보내면 두 가지 문제가 생깁니다. ① 같은 문서에 대한 요청 여러 개가 동시에 서버에 도달해 처리 순서를 예측할 수 없고 ② HTTP 응답은 요청 순서대로 돌아온다는 보장이 없어, <strong>먼저 보낸 오래된 내용의 응답이 나중에 도착해 최신 상태를 덮어쓸</strong> 수 있습니다. 해결 축은 세 가지입니다: <strong>single-flight</strong>(동시 저장 요청은 항상 1개), <strong>coalescing</strong>(대기 중 요청들은 최신값 하나로 합침), <strong>revision 검사</strong>(오래된 응답은 무시).</p>" +
+      "<br/>" +
+      "<p><strong>Q1. single-flight와 coalescing queue는 어떻게 구현하나요?</strong></p>" +
+      "<p>진행 중인 저장 요청의 Promise를 변수로 추적하고, 저장이 이미 진행 중일 때 새 저장 요청이 오면 네트워크를 타지 않고 <strong>pending 플래그만 세웁니다</strong>. 진행 중 요청이 완료된 시점에 pending이 서 있으면 그때의 최신 draft로 저장을 한 번 더 시작합니다. 핵심 통찰은 <strong>중간 상태는 서버에 보낼 필요가 없다</strong>는 것입니다 — 사용자가 'A → AB → ABC'로 입력했을 때 서버에 필요한 것은 최종 스냅샷 ABC뿐이므로, 큐에 요청을 쌓는 게 아니라 '한 번 더 저장해야 함'이라는 사실 하나로 합칩니다(coalescing). 이 구조는 저장 요청 수를 최소화하면서도 항상 최신값이 전송됨을 보장하고, 요청 간 순서 경합 자체를 제거합니다.</p>" +
+      "<br/>" +
+      "<p><strong>Q2. 응답 순서 역전(out-of-order)은 어떻게 방지하나요?</strong></p>" +
+      "<p>서버가 응답마다 단조 증가하는 <strong>revision</strong>을 내려주고, 클라이언트는 보유한 revision보다 낮거나 같은 응답을 무시합니다. 이 검사는 저장(PUT) 응답뿐 아니라 <strong>조회(GET) 응답에도 동일하게</strong> 적용해야 합니다 — 편집 중에 도착한 오래된 GET 응답이 화면을 과거로 되돌리는 사고가 실제로 흔하기 때문입니다. <code>AbortController</code>로 이전 요청을 취소하는 방법도 보조적으로 쓰지만, 취소는 클라이언트 측 중단일 뿐 요청이 이미 서버에 도달해 처리됐을 수 있으므로 근본 대책이 되지 못합니다. '버전을 비교해 오래된 것을 버린다'는 데이터 레벨의 방어가 근본책이고, 취소는 대역폭 절약용 최적화입니다.</p>" +
+      "<br/>" +
+      "<p><strong>Q3. 재시도 정책은 어떻게 설계하나요?</strong></p>" +
+      "<p>① <strong>오류 유형 분류</strong>: 타임아웃·네트워크 단절·5xx는 일시적 오류이므로 재시도, 400대 검증 오류는 재시도해도 같은 결과이므로 즉시 사용자에게 알림 ② <strong>exponential backoff + jitter</strong>: 1s → 2s → 4s로 간격을 늘리되 무작위 편차(jitter)를 더해, 장애 복구 직후 수많은 클라이언트가 동시에 재시도하는 폭주(thundering herd)를 분산 ③ <strong>멱등성 보장</strong>: 타임아웃은 '서버가 처리했는지 알 수 없는' 상태이므로, 요청에 <code>Idempotency-Key</code>를 부여해 서버가 같은 키의 요청을 한 번만 처리하고 이후에는 저장된 응답을 반환하게 합니다. 이것이 없으면 재시도가 중복 생성·중복 적용 버그가 됩니다. 재시도 중에도 UI는 dirty 상태를 유지해 사용자가 유실 여부를 오해하지 않게 합니다.</p>",
+  },
+  {
+    id: 136,
+    question:
+      "여러 탭이나 여러 사용자가 같은 문서를 동시에 편집하면 충돌을 어떻게 처리하나요?",
+    answer:
+      "<p>기본 전략은 <strong>revision 기반 낙관적 동시성 제어(Optimistic Concurrency Control)</strong>입니다. 문서에 버전 번호를 두고, 저장 시 '내가 읽었던 revision이 여전히 서버의 최신일 때만 적용'하는 조건을 겁니다. 충돌이 드물다고 가정하고 락 없이 진행하다가 충돌이 감지된 경우에만 해소 절차를 밟는 방식으로, 편집 내내 락을 잡는 비관적 락과 달리 사용자가 이탈해도 잠금이 남는 문제가 없고 읽기·편집 경험이 자유롭습니다.</p>" +
+      "<br/>" +
+      "<p><strong>Q1. revision 기반 OCC는 서버에서 어떻게 동작하나요?</strong></p>" +
+      "<p>업데이트 쿼리에 버전 조건을 함께 겁니다 — <code>UPDATE docs SET content = ?, revision = revision + 1 WHERE id = ? AND revision = ?</code>. 내가 보낸 revision이 최신이면 1행이 갱신되고, 그 사이 다른 탭/사용자가 먼저 저장했다면 <strong>0행 업데이트</strong>가 되어 충돌을 원자적으로 감지합니다(별도 SELECT 후 비교는 경쟁 조건이 생기므로 반드시 조건부 쓰기 하나로). 서버는 이때 409 Conflict와 함께 최신 revision·내용을 응답하고, 클라이언트는 충돌 해소 플로우로 진입합니다. HTTP 표준으로는 <code>ETag</code> + <code>If-Match</code> 헤더와 412 Precondition Failed가 같은 패턴의 표준화된 형태입니다.</p>" +
+      "<br/>" +
+      "<p><strong>Q2. 충돌이 감지되면 어떻게 해소하나요?</strong></p>" +
+      "<p>데이터 성격에 따라 전략을 다르게 가져갑니다. ① 서로 독립적인 단순 필드(제목, 태그)는 <strong>latest-write-wins</strong>로 충분한 경우가 많습니다 ② 긴 텍스트는 <strong>3-way merge</strong> — 공통 조상인 base, 내 편집본 local, 서버 최신 remote를 놓고 base→local의 변경(패치)을 계산해 remote 위에 재적용합니다. base를 클라이언트가 계속 보관해온 이유가 여기서 드러나며, git의 병합과 동일한 원리입니다 ③ 자동 병합이 불가능하거나(같은 문장을 서로 다르게 수정) 삭제 같은 파괴적 작업이 얽히면 자동 처리하지 않고 <strong>사용자에게 선택 UI</strong>를 제시합니다. '항상 자동으로 풀겠다'는 설계보다, 병합 가능한 것은 자동으로·애매한 것은 명시적으로가 데이터 유실을 막는 원칙입니다.</p>" +
+      "<br/>" +
+      "<p><strong>Q3. CRDT나 OT 같은 실시간 협업 기술은 언제 도입해야 하나요?</strong></p>" +
+      "<p>'여러 명이 같은 문단을 동시에 타이핑하고 서로의 커서가 보이는' 실시간 공동 편집이 핵심 요구일 때입니다. <strong>OT</strong>(Operational Transformation, 구글 문서)는 서버가 동시 편집 연산들을 변환·직렬화하는 서버 중심 방식이고, <strong>CRDT</strong>(Yjs, Automerge — Figma 계열도 유사 접근)는 어떤 순서로 병합해도 수학적으로 같은 결과에 수렴하는 자료구조라 P2P·오프라인 친화적입니다. 둘 다 구현·운영 복잡도가 매우 크므로 단계적 도입이 정석입니다: <strong>1단계</strong> 디바운스 자동 저장 → <strong>2단계</strong> revision 충돌 감지 + 3-way merge → <strong>3단계</strong> 실시간 협업이 제품의 핵심 가치일 때만 CRDT/OT. 대부분의 제품은 2단계에서 충분하며, 면접에서도 '바로 CRDT'보다 이 단계적 판단을 보여주는 것이 좋은 답변입니다.</p>",
+  },
+  {
+    id: 137,
+    question:
+      "작성 중 페이지를 떠나거나 오프라인이 되었을 때 데이터 유실은 어떻게 막나요?",
+    answer:
+      "<p>디바운스 대기 중에 사용자가 페이지를 떠나면 마지막 몇 초의 변경이 유실됩니다. 방어는 2중으로 구성합니다. ① <strong>이탈 시점 flush</strong>: 라우트 전환·컴포넌트 unmount·탭 이탈 신호에서 대기 중인 저장을 즉시 실행 ② <strong>로컬 영속화</strong>: 네트워크와 무관하게 IndexedDB에 먼저 기록해 두어, 저장 요청이 못 나간 상황에서도 복구 지점을 확보합니다.</p>" +
+      "<br/>" +
+      "<p><strong>Q1. beforeunload 대신 visibilitychange를 권장하는 이유는 무엇인가요?</strong></p>" +
+      "<p><code>beforeunload</code>는 신뢰도가 낮습니다 — 모바일에서 탭 스와이프·앱 전환·OS의 백그라운드 종료 시 호출되지 않는 경우가 많고, 등록만으로 bfcache(뒤로가기 캐시)를 비활성화해 성능을 해칩니다. 반면 <code>visibilitychange</code>(document.hidden 전환)는 탭 전환, 앱 백그라운드 진입, 화면 잠금까지 커버하는 사실상 마지막 신뢰 가능한 신호로, 페이지 생명주기(Page Lifecycle) 관점의 권장 지점입니다. 이탈 중에는 일반 fetch가 페이지 소멸과 함께 취소될 수 있으므로 <code>navigator.sendBeacon()</code>이나 <code>fetch(url, { keepalive: true })</code>처럼 페이지가 닫혀도 브라우저가 전송을 완료해주는 API로 flush합니다. SPA 내부 이동은 라우터 가드나 unmount 클린업에서 동일하게 처리합니다.</p>" +
+      "<br/>" +
+      "<p><strong>Q2. 오프라인 지원은 어떻게 구현하나요?</strong></p>" +
+      "<p>저장소는 <strong>IndexedDB</strong>를 사용합니다 — localStorage는 동기 API라 입력마다 쓰면 메인 스레드를 막고 용량(약 5MB)도 부족합니다. 기록 단위는 <code>{ resourceId, content, baseRevision, updatedAt }</code>처럼 <strong>어느 서버 버전에서 갈라져 나온 편집인지(baseRevision)를 반드시 함께</strong> 저장합니다. 입력 시 로컬에 먼저 기록하고(local-first) 네트워크 저장은 그 뒤를 따르게 하면, 오프라인 전환을 사용자가 의식할 필요가 없어집니다. 온라인 복귀(<code>online</code> 이벤트, 재접속) 시 서버의 현재 revision과 baseRevision을 비교해 — 서버가 그대로면 그냥 저장, 그 사이 서버가 변했으면 3-way merge 또는 충돌 UI로 이어갑니다. baseRevision 없이 내용만 저장해두면 복귀 시 '무조건 덮어쓰기'밖에 할 수 없어 다른 기기에서의 편집을 파괴하게 됩니다.</p>" +
+      "<br/>" +
+      "<p><strong>Q3. 이런 자동 저장 로직은 어떻게 테스트하나요?</strong></p>" +
+      "<p>타이밍·순서·장애가 본질이므로 시나리오를 명시적으로 재현해야 합니다. 핵심 케이스: ① 끊김 없이 계속 입력해도 maxWait 주기로 저장 발생 ② 저장 진행 중 입력이 draft를 잃지 않음 ③ 낮은 revision의 늦은 응답이 무시됨 ④ 두 탭이 충돌 시 병합·해소 플로우 진입 ⑤ 타임아웃 후 재시도가 중복 적용되지 않음(멱등성) ⑥ 저장 직전 즉시 이탈 시 flush 실행 ⑦ 오프라인 편집 → 복귀 후 정합성. 도구로는 <strong>MSW</strong>로 응답 지연·순서 역전·오류를 의도적으로 주입하고, <strong>Playwright</strong>로 다중 탭과 오프라인(<code>context.setOffline(true)</code>)을 재현하며, 디바운스·백오프 타이머는 fake timers로 결정적으로 제어합니다. '네트워크가 항상 정상'인 해피 패스 테스트만으로는 이 기능의 버그를 하나도 잡지 못합니다.</p>",
+  },
+  // ─────────────────────────────────────────────
+  // 실무 구현 시나리오 (검색, 업로드, 무한 스크롤, 인증, 모달, 폼, 다크 모드, 채팅, 관측성)
+  // ─────────────────────────────────────────────
+  {
+    id: 138,
+    question:
+      "자동완성 검색창(Typeahead)을 구현할 때 고려해야 할 것들을 설계해보세요.",
+    answer:
+      "<p>자동완성은 '키 입력마다 네트워크 요청'이라는 특성 때문에 여러 문제가 응축된 기능입니다. 설계 축은 네 가지입니다. ① <strong>요청 수 제어</strong>: 디바운스(200~300ms) + 최소 글자 수(2자 이상) ② <strong>경쟁 조건 방어</strong>: 이전 요청 취소와 응답-쿼리 매칭 검사 ③ <strong>체감 속도</strong>: 결과 캐싱과 로딩 표시 전략 ④ <strong>접근성</strong>: WAI-ARIA combobox 패턴과 키보드 내비게이션. 넷 중 하나라도 빠지면 '가끔 이상한 결과가 뜨는 검색창'이 됩니다.</p>" +
+      "<br/>" +
+      "<p><strong>Q1. 'ab'의 응답이 'abc'의 응답보다 늦게 도착하면 어떻게 되나요? 어떻게 방어하나요?</strong></p>" +
+      "<p>전형적인 <strong>경쟁 조건(race condition)</strong>입니다 — 사용자는 'abc'까지 입력했는데 늦게 도착한 'ab'의 결과가 화면을 덮어써 입력과 결과가 어긋납니다. 방어는 이중으로 합니다. ① <strong>취소</strong>: 새 요청을 보내기 전 <code>AbortController.abort()</code>로 이전 요청을 취소 — 대역폭을 아끼지만 이미 서버를 떠난 응답까지 막지는 못합니다 ② <strong>검증</strong>: 응답 도착 시 '이 응답이 어떤 쿼리에 대한 것인지'를 현재 입력값과 비교해 다르면 폐기합니다. 클로저로 요청 시점의 쿼리를 캡처하거나 요청 시퀀스 번호를 비교합니다. TanStack Query를 쓰면 쿼리 키가 <code>['search', query]</code>로 분리되어 각 응답이 자기 키의 캐시로만 들어가므로 이 문제가 구조적으로 사라집니다 — 라이브러리가 해결해주는 것이 정확히 이 지점임을 설명할 수 있어야 합니다.</p>" +
+      "<br/>" +
+      "<p><strong>Q2. 체감 속도를 높이는 캐싱·로딩 전략에는 어떤 것들이 있나요?</strong></p>" +
+      "<p>① <strong>결과 캐싱</strong>: 같은 쿼리 재입력 시(백스페이스로 되돌아오는 흔한 패턴) 네트워크 없이 즉시 표시하고, 필요하면 백그라운드 재검증(stale-while-revalidate) ② <strong>로딩 지연 표시</strong>: 응답이 200ms 안에 오는데도 매번 스피너가 번쩍이면 오히려 느려 보입니다. 스피너는 일정 시간(예: 300ms) 이상 걸릴 때만 표시하고, 그 전에는 이전 결과를 유지 ③ <strong>이전 결과 유지</strong>: 새 쿼리 로딩 중 결과 리스트를 비우지 않고 흐리게(opacity) 유지 — TanStack Query의 placeholderData(keepPreviousData) 패턴 ④ 결과 렌더링이 무겁다면 <code>useDeferredValue</code>로 입력 반응성과 리스트 렌더를 분리합니다. 단 이것은 렌더 최적화일 뿐 요청 수는 줄이지 않으므로 디바운스와 역할이 다릅니다.</p>" +
+      "<br/>" +
+      "<p><strong>Q3. 자동완성의 접근성은 어떻게 구현하나요?</strong></p>" +
+      "<p>WAI-ARIA <strong>combobox 패턴</strong>을 따릅니다. 입력창에 <code>role='combobox'</code>, <code>aria-expanded</code>(목록 열림 여부), <code>aria-controls</code>(목록 id), 결과 목록에 <code>role='listbox'</code>와 각 항목 <code>role='option'</code>을 부여합니다. 핵심은 <strong>포커스를 입력창에 유지한 채</strong> 화살표 키로 항목을 탐색하는 것으로, 실제 포커스 대신 <code>aria-activedescendant</code>로 활성 항목을 가리킵니다(포커스가 이동하면 타이핑을 이어갈 수 없기 때문). 키보드: ↑↓ 탐색, Enter 선택, ESC 닫기. 결과 수 변화는 <code>aria-live='polite'</code> 영역으로 스크린리더에 알립니다('검색 결과 5건'). 마우스 사용자만 테스트하면 절대 발견되지 않는 부분이라, 키보드만으로 전 과정을 조작해보는 테스트가 필수입니다.</p>",
+  },
+  {
+    id: 139,
+    question: "대용량 파일 업로드 기능은 어떻게 설계하나요?",
+    answer:
+      "<p>파일 크기에 따라 전략이 갈립니다. 수 MB 이하는 <code>FormData</code>로 단일 요청이면 충분하지만, 수백 MB~GB급은 ① <strong>Presigned URL</strong>로 애플리케이션 서버를 거치지 않고 오브젝트 스토리지(S3 등)에 직접 업로드하고 ② 파일을 <strong>청크로 분할</strong>해 개별 업로드하며 ③ 실패한 청크만 재시도하고 중단 지점부터 <strong>재개(resumable)</strong>할 수 있게 설계합니다. 진행률 표시, 취소, 미리보기 같은 UX 계층이 그 위에 올라갑니다.</p>" +
+      "<br/>" +
+      "<p><strong>Q1. 왜 서버를 경유하지 않고 Presigned URL을 사용하나요?</strong></p>" +
+      "<p>파일이 애플리케이션 서버를 통과하면 서버의 대역폭·메모리·요청 타임아웃을 모두 소모합니다 — 1GB 업로드 하나가 서버 워커 하나를 수 분간 점유하는 구조입니다. Presigned URL 방식은 서버가 '이 경로에 이 조건으로 업로드해도 된다'는 <strong>서명된 임시 URL만 발급</strong>하고, 실제 바이트 전송은 클라이언트 → 스토리지 직행입니다. 서버는 발급 시점에 인증·권한·파일 타입·최대 크기를 검증해 서명에 포함시키고, 업로드 완료 후 콜백(또는 클라이언트의 완료 통지)으로 DB에 메타데이터를 기록합니다. 보안 포인트: URL에 짧은 만료 시간을 걸고, Content-Type과 크기 제약을 서명 조건에 포함시켜 서명된 조건 밖의 업로드를 스토리지가 거부하게 합니다.</p>" +
+      "<br/>" +
+      "<p><strong>Q2. 청크 업로드와 재개는 어떻게 구현하나요?</strong></p>" +
+      "<p><code>File.prototype.slice(start, end)</code>로 파일을 5~10MB 단위로 자릅니다 — Blob slice는 실제 복사가 아니라 참조라 메모리 부담이 없습니다. S3 Multipart Upload 기준: ① 업로드 세션 시작(uploadId 발급) ② 각 청크를 파트 번호와 함께 업로드하고 응답의 ETag 수집 ③ 전체 완료 시 파트 목록으로 병합 요청. 실패하면 <strong>실패한 청크만</strong> 백오프 재시도하고, uploadId와 완료된 파트 목록을 로컬(IndexedDB)에 저장해두면 새로고침 후에도 이어서 올릴 수 있습니다. 청크들은 병렬 업로드하되 <strong>동시성을 3~5개로 제한</strong>합니다 — 무제한 병렬은 다른 요청까지 굶기고 모바일에서 실패율을 높입니다. 무결성이 중요하면 청크별 체크섬(MD5/SHA-256)을 함께 보내 스토리지가 검증하게 합니다.</p>" +
+      "<br/>" +
+      "<p><strong>Q3. 진행률 표시와 미리보기 같은 UX 계층에서 주의할 점은?</strong></p>" +
+      "<p>① <strong>진행률</strong>: fetch API는 업로드 진행률 이벤트를 제공하지 않아, <code>XMLHttpRequest</code>의 <code>upload.onprogress</code>를 여전히 사용합니다(fetch의 업로드 스트리밍은 지원이 제한적). 청크 방식에서는 완료 청크 수 + 진행 중 청크의 progress를 합산해 전체 퍼센트를 계산합니다 ② <strong>취소</strong>: XHR abort 또는 AbortController로 진행 중 요청을 끊고, 시작된 멀티파트 세션은 서버에서 abort시켜 스토리지에 조각이 과금되며 남지 않게 합니다 ③ <strong>이미지 미리보기</strong>: <code>FileReader.readAsDataURL</code>은 파일 전체를 base64 문자열로 메모리에 올리므로, 참조만 만드는 <code>URL.createObjectURL(file)</code>이 효율적입니다 — 대신 사용 후 <code>revokeObjectURL</code>로 해제하지 않으면 메모리 누수입니다 ④ 드래그 앤 드롭은 dragover에서 <code>preventDefault()</code>를 해야 drop 이벤트가 발생한다는 고전적 함정이 있습니다.</p>",
+  },
+  {
+    id: 140,
+    question: "무한 스크롤 피드를 구현할 때의 설계 포인트를 설명해주세요.",
+    answer:
+      "<p>세 개의 층으로 나눠 설계합니다. ① <strong>트리거</strong>: 스크롤 이벤트 대신 목록 끝의 센티널 요소를 <code>IntersectionObserver</code>로 감시 ② <strong>데이터</strong>: 커서(cursor) 기반 페이지네이션 API + TanStack Query의 <code>useInfiniteQuery</code>류로 페이지 배열 캐시 관리 ③ <strong>렌더링</strong>: 쌓이는 DOM을 가상 스크롤과 조합해 메모리·렌더 비용 제어. 여기에 스크롤 위치 관련 UX(앵커링, 뒤로가기 복원)가 실무 난이도의 대부분을 차지합니다.</p>" +
+      "<br/>" +
+      "<p><strong>Q1. offset 기반과 cursor 기반 페이지네이션의 차이는 무엇이며, 무한 스크롤에는 왜 cursor가 적합한가요?</strong></p>" +
+      "<p><strong>offset 방식</strong>(<code>?page=3&amp;size=20</code>)은 '앞에서 40개 건너뛰고 20개'인데, 페이지를 넘기는 사이 새 글이 삽입되면 경계가 밀려 <strong>같은 항목이 중복 표시되거나 누락</strong>됩니다 — 실시간으로 데이터가 추가되는 피드에서 치명적입니다. 또한 OFFSET이 커질수록 DB가 건너뛸 행을 모두 스캔해 뒤 페이지로 갈수록 느려집니다. <strong>cursor 방식</strong>(<code>?after=마지막 항목의 정렬 키</code>)은 '이 지점 이후 20개'라 데이터 삽입과 무관하게 안정적이고, 인덱스 탐색으로 성능도 일정합니다. 트레이드오프는 '17페이지로 점프' 같은 임의 접근이 불가능하다는 것 — 무한 스크롤은 순차 소비만 하므로 이 단점이 문제되지 않는, 커서와 정확히 맞는 사용처입니다. 커서는 고유하고 안정적인 정렬 키(생성시각+id 조합 등)여야 합니다.</p>" +
+      "<br/>" +
+      "<p><strong>Q2. 트리거를 스크롤 이벤트가 아닌 IntersectionObserver로 구현하는 이유는?</strong></p>" +
+      "<p>스크롤 이벤트 방식은 스크롤 때마다 핸들러가 실행되고, 그 안에서 <code>getBoundingClientRect()</code>나 <code>scrollHeight</code>를 읽으면 <strong>강제 동기 레이아웃(forced reflow)</strong>을 유발해 스크롤 성능을 직접 해칩니다. 스로틀을 걸어도 근본적으로 메인 스레드 위에서 위치를 '계산'하는 구조입니다. <code>IntersectionObserver</code>는 브라우저가 컴포지터 수준에서 교차를 감지해 비동기로 콜백을 주므로 스크롤을 막지 않습니다. 구현: 목록 끝에 빈 센티널 div를 두고 관찰하며, <code>rootMargin: '400px'</code>로 뷰포트에 닿기 전에 미리 다음 페이지를 로드해 사용자가 로딩을 기다리는 순간 자체를 없앱니다. 콜백에서는 로딩 중 재진입을 막는 가드(isFetching 체크)가 필요합니다.</p>" +
+      "<br/>" +
+      "<p><strong>Q3. 무한 스크롤 특유의 UX 문제에는 어떤 것들이 있나요?</strong></p>" +
+      "<p>① <strong>스크롤 앵커링</strong>: 읽는 중 위쪽에 콘텐츠가 삽입되면 화면이 밀립니다. 브라우저 기본 scroll anchoring이 상당 부분 처리하지만, 직접 제어 시 삽입 전후 scrollHeight 차이만큼 scrollTop을 보정합니다 ② <strong>뒤로가기 복원</strong>: 상세 페이지에 다녀오면 목록이 초기화되는 문제 — 페이지 캐시(useInfiniteQuery 캐시 유지)와 스크롤 위치 저장·복원을 함께 해야 하며, 데이터 없이 위치만 복원하면 빈 화면으로 점프합니다 ③ <strong>메모리·DOM 증가</strong>: 수천 개가 쌓이면 스크롤이 무거워지므로 가상 스크롤과 조합해 화면 밖 항목을 DOM에서 제거합니다 ④ <strong>푸터 도달 불가</strong>: 스크롤할수록 콘텐츠가 늘어나 푸터를 영원히 못 밟는 문제 — 일정 페이지 이후 '더 보기' 버튼으로 전환하는 혼합 전략이 관례입니다 ⑤ SEO가 필요한 목록이면 크롤러는 스크롤하지 않으므로 페이지네이션 URL을 병행 제공해야 합니다.</p>",
+  },
+  {
+    id: 141,
+    question:
+      "Access Token이 만료되었을 때 사용자 모르게 갱신하는 로직은 어떻게 구현하나요?",
+    answer:
+      "<p>기본 구조는 '짧은 수명의 Access Token(메모리 보관) + 긴 수명의 Refresh Token(HttpOnly 쿠키)'입니다. API 응답이 401이면 인터셉터가 갱신 엔드포인트를 호출해 새 Access Token을 받고, <strong>실패했던 원래 요청을 새 토큰으로 자동 재시도</strong>합니다 — 사용자는 만료를 인지하지 못합니다. 여기까지는 단순하지만, 실무 난이도는 '동시에 여러 요청이 401을 맞는 순간'과 '여러 탭이 각자 갱신하려는 순간'에 있습니다.</p>" +
+      "<br/>" +
+      "<p><strong>Q1. 여러 요청이 동시에 401을 받으면 어떤 문제가 생기고, 인터셉터를 어떻게 구현하나요?</strong></p>" +
+      "<p>화면 진입 시 API 5개가 동시에 나가 모두 401을 받으면, 순진한 구현은 <strong>갱신 요청을 5번</strong> 보냅니다. Refresh Token Rotation이 적용된 서버라면 첫 갱신에서 토큰이 교체되므로 나머지 4개의 갱신은 '이미 사용된 토큰'으로 실패하고, 최악의 경우 재사용 감지 로직이 발동해 <strong>정상 사용자가 로그아웃</strong>됩니다. 해결은 자동 저장의 single-flight와 동일한 패턴입니다: 갱신 Promise를 모듈 변수로 공유해 <strong>첫 401만 갱신을 시작</strong>하고, 그동안 도착하는 401들은 그 Promise를 await한 뒤 새 토큰으로 자기 요청만 재시도합니다(요청 큐잉). 추가 규칙: 갱신 요청 자체가 401이면 재시도하지 않고 로그아웃 처리(무한 루프 방지), 재시도는 요청당 1회로 제한합니다.</p>" +
+      "<br/>" +
+      "<p><strong>Q2. Refresh Token Rotation과 재사용 감지(reuse detection)란 무엇인가요?</strong></p>" +
+      "<p><strong>Rotation</strong>은 갱신할 때마다 Refresh Token도 새로 발급하고 이전 것을 무효화하는 정책입니다. Refresh Token이 탈취되어도 공격자가 쓸 수 있는 창이 '다음 갱신 전까지'로 좁아집니다. <strong>재사용 감지</strong>는 그 위의 방어선입니다 — 이미 교체되어 무효화된 Refresh Token으로 갱신 시도가 들어오면, 토큰이 복제되었다는 신호이므로(정상 클라이언트는 항상 최신만 보유) 해당 토큰 패밀리 전체를 무효화해 <strong>공격자와 사용자 모두를 로그아웃</strong>시키고 재인증을 요구합니다. 프론트엔드 관점의 함의: 네트워크 오류로 갱신 응답을 못 받은 채 재시도하면 정상 사용자가 재사용으로 오탐될 수 있으므로, 갱신 요청의 재시도는 신중해야 하고 서버도 짧은 유예(grace period)를 두는 것이 일반적입니다.</p>" +
+      "<br/>" +
+      "<p><strong>Q3. 여러 탭이 열려 있을 때는 어떤 문제가 있고 어떻게 동기화하나요?</strong></p>" +
+      "<p>Access Token을 메모리에 두면 탭마다 독립 사본이 있어, 각 탭이 <strong>제각기 갱신을 시도</strong>합니다 — Rotation 환경에서는 탭 간 경쟁으로 서로의 토큰을 무효화하는 사고가 납니다. 동기화 수단: ① <strong>Web Locks API</strong>로 '갱신' 락을 잡은 탭만 갱신하고 나머지는 대기 — 탭 간 single-flight의 표준적 구현 ② 새 토큰과 로그아웃 이벤트를 <strong>BroadcastChannel</strong>로 전 탭에 전파(localStorage의 storage 이벤트는 다른 탭에서만 발화하는 구식 대안) ③ Refresh Token이 HttpOnly 쿠키라면 쿠키 자체는 탭 간 공유되므로, 갱신 '실행'만 락으로 직렬화하면 됩니다. 로그아웃도 동일하게 전파해 한 탭에서 로그아웃하면 모든 탭이 즉시 세션을 정리하게 합니다.</p>",
+  },
+  {
+    id: 142,
+    question: "모달(Modal)을 제대로 구현하려면 무엇을 고려해야 하나요?",
+    answer:
+      "<p>모달은 '띄우는 것'보다 '제대로 가두고 되돌리는 것'이 어렵습니다. 고려 축: ① <strong>렌더 위치</strong>: Portal로 DOM 트리 밖(body 직하)에 렌더링해 조상의 <code>overflow: hidden</code>·z-index·transform(포함 블록 문제)의 영향에서 격리 ② <strong>포커스 관리</strong>: 진입·순환·복귀 ③ <strong>배경 처리</strong>: 스크롤 잠금과 배경 콘텐츠 비활성화 ④ <strong>닫기 수단</strong>: ESC, 오버레이 클릭, 중첩 모달 스택 관리. 최근에는 네이티브 <code>&lt;dialog&gt;</code>가 이 중 상당 부분을 흡수했습니다.</p>" +
+      "<br/>" +
+      "<p><strong>Q1. 모달의 포커스 관리는 구체적으로 무엇을 해야 하나요?</strong></p>" +
+      "<p>세 단계입니다. ① <strong>진입</strong>: 열리는 즉시 포커스를 모달 안으로 이동(첫 인터랙티브 요소 또는 모달 컨테이너) — 안 하면 키보드 사용자의 포커스가 배경에 남아 보이지 않는 곳을 조작하게 됩니다 ② <strong>가두기(focus trap)</strong>: Tab이 모달 밖으로 나가지 않게 마지막 요소에서 Tab → 첫 요소, 첫 요소에서 Shift+Tab → 마지막 요소로 순환 ③ <strong>복귀</strong>: 닫힐 때 모달을 열었던 트리거 요소로 포커스를 되돌림 — 이걸 빼먹으면 닫은 뒤 포커스가 body로 날아가 키보드 사용자가 위치를 잃습니다. 마크업은 <code>role='dialog'</code> + <code>aria-modal='true'</code> + <code>aria-labelledby</code>(제목 연결)이고, 배경 콘텐츠에는 <code>inert</code> 속성을 걸어 포커스·클릭·스크린리더 접근을 통째로 차단하는 것이 현대적 방법입니다(과거의 aria-hidden 수동 관리 대체).</p>" +
+      "<br/>" +
+      "<p><strong>Q2. 배경 스크롤 잠금은 왜 까다로운가요?</strong></p>" +
+      "<p>단순히 <code>body { overflow: hidden }</code>을 걸면 두 가지 문제가 생깁니다. ① 데스크톱에서 <strong>스크롤바가 사라지며 그 폭(15px가량)만큼 레이아웃이 수평 이동</strong>해 화면 전체가 꿀렁입니다 — 잠글 때 <code>window.innerWidth - document.documentElement.clientWidth</code>로 스크롤바 폭을 계산해 body에 같은 값의 padding-right를 보정하거나, 최신 브라우저에서는 <code>scrollbar-gutter: stable</code>로 예방합니다 ② <strong>iOS Safari</strong>는 overflow: hidden을 무시하고 배경이 스크롤되는 오랜 이슈가 있어, <code>position: fixed; top: -스크롤위치</code>로 body를 고정했다가 닫을 때 스크롤 위치를 복원하는 기법이 사실상의 표준 우회책입니다. 모달 내부가 스크롤되는 경우, 내부 스크롤이 끝에 닿았을 때 배경으로 전파되는 것은 <code>overscroll-behavior: contain</code>으로 막습니다.</p>" +
+      "<br/>" +
+      "<p><strong>Q3. 네이티브 &lt;dialog&gt; 요소는 무엇을 해결해주고, 무엇은 여전히 직접 해야 하나요?</strong></p>" +
+      "<p><code>dialog.showModal()</code>은 ① 포커스 트랩과 배경 inert 처리 ② ESC로 닫기 ③ <code>::backdrop</code> 의사 요소 ④ <strong>top layer</strong> 렌더링을 기본 제공합니다. top layer는 z-index 체계 밖의 최상위 레이어라, 'z-index: 9999 전쟁'과 조상 overflow/transform에 갇히는 문제가 원천적으로 사라집니다 — Portal을 쓰는 이유의 상당 부분이 브라우저 표준으로 흡수된 것입니다. <strong>여전히 직접 할 것</strong>: 닫힌 후 트리거로의 포커스 복귀(명시적으로 관리해야 안정적), 배경 스크롤 잠금(Q2), 열림·닫힘 애니메이션(최근 <code>@starting-style</code>과 transition-behavior: allow-discrete로 CSS만으로 가능해지는 중), 폼 유효성과 결합된 닫기 제어. 참고로 알림·툴팁처럼 '가두지 않는' 떠 있는 UI는 dialog가 아니라 <strong>Popover API</strong>(popover 속성)가 맞는 도구입니다 — 모달성(modality) 유무로 둘을 구분하는 것이 좋은 답변 포인트입니다.</p>",
+  },
+  {
+    id: 143,
+    question: "필드가 수십 개인 대규모 폼은 어떻게 설계하나요?",
+    answer:
+      "<p>대규모 폼의 핵심 문제는 <strong>키 입력마다 폼 전체가 리렌더링</strong>되는 것입니다. 모든 필드를 useState로 관리하는 제어 컴포넌트 방식은 필드 50개짜리 폼에서 한 글자 칠 때마다 50개 필드가 다시 렌더됩니다. 설계 축: ① 제어 vs 비제어 방식의 선택 ② 검증 전략(스키마 기반, 시점, 비동기) ③ 멀티스텝·임시 저장 같은 상태 수명 관리. react-hook-form 같은 라이브러리 채택 이유를 원리 수준에서 설명할 수 있어야 합니다.</p>" +
+      "<br/>" +
+      "<p><strong>Q1. react-hook-form은 왜 빠른가요? 제어 컴포넌트 방식과 무엇이 다른가요?</strong></p>" +
+      "<p>제어 방식은 입력값이 React 상태이므로 키 입력 = setState = 리렌더입니다. react-hook-form은 <strong>비제어 기반</strong>입니다 — <code>register</code>가 각 input에 ref를 연결해 값을 <strong>DOM에 그대로 두고</strong>, React 상태로 끌어올리지 않습니다. 타이핑해도 React는 아무것도 모르므로 리렌더가 0회입니다. 값이 필요한 순간(제출, 검증)에만 ref에서 읽어옵니다. 에러·isDirty 같은 파생 상태는 <strong>구독 모델</strong>로 처리합니다 — 해당 필드를 구독한 컴포넌트만 리렌더되고, <code>formState</code>는 Proxy로 감싸져 있어 실제로 읽은 속성(예: errors만)이 바뀔 때만 리렌더를 트리거합니다. 즉 '상태를 React 밖에 두고 필요한 곳만 구독'이라는, 외부 스토어 최적화와 동일한 원리입니다. 트레이드오프: 입력값에 실시간 반응해야 하는 필드(글자 수 카운터, 조건부 필드)는 <code>watch</code>/<code>useWatch</code>로 선택적으로 구독하며, 그 필드만 제어 비용을 지불합니다.</p>" +
+      "<br/>" +
+      "<p><strong>Q2. 검증은 어떻게 설계하나요?</strong></p>" +
+      "<p>① <strong>스키마 단일 소스</strong>: 검증 규칙을 각 필드에 흩뿌리지 않고 zod 같은 스키마로 한 곳에 선언합니다. TypeScript 타입이 스키마에서 추론되고(<code>z.infer</code>), 같은 스키마를 서버에서 재사용하면 클라이언트·서버 검증 불일치가 사라집니다 — 클라이언트 검증은 UX용이고 보안 경계는 항상 서버라는 원칙과 함께 설명합니다 ② <strong>검증 시점</strong>: 처음부터 onChange 검증은 '입력을 시작하자마자 빨간 에러'가 되어 최악의 UX입니다. 관례는 첫 제출 또는 blur 전까지는 조용히 있다가, 한 번 에러가 표시된 필드는 onChange로 즉시 회복을 보여주는 방식(reValidateMode)입니다 ③ <strong>비동기 검증</strong>(이메일 중복 확인 등): 디바운스 + 경쟁 조건 방어(최신 요청만 유효)가 필요하고, 제출 시점에 다시 한 번 확인합니다.</p>" +
+      "<br/>" +
+      "<p><strong>Q3. 멀티스텝 폼(퍼널)은 어떻게 상태를 관리하나요?</strong></p>" +
+      "<p>① <strong>상태 수명</strong>: 스텝 컴포넌트가 언마운트되면 내부 상태가 사라지므로, 폼 데이터는 스텝보다 위(부모 상태, 스토어, 또는 하나의 form 인스턴스 공유)에 둡니다. 모든 스텝을 마운트한 채 숨기는 방법(hidden)도 있지만 스텝이 많으면 초기 비용이 커집니다 ② <strong>스텝별 부분 검증</strong>: 다음 단계 버튼에서 현재 스텝의 필드만 검증(<code>trigger(['name', 'email'])</code>)하고, 최종 제출에서 전체 스키마로 재검증합니다 ③ <strong>이탈 대비</strong>: 새로고침·복귀를 위해 sessionStorage에 진행 상태를 저장(민감 정보는 제외)하고, 작성 중 이탈 시 경고를 띄웁니다 ④ <strong>URL과 동기화</strong>: 스텝을 URL에 반영하면 뒤로가기가 자연스럽게 이전 스텝이 되지만, URL로 직접 뒷 스텝에 진입하는 경우 앞 스텝 완료 여부를 가드해야 합니다.</p>",
+  },
+  {
+    id: 144,
+    question: "다크 모드를 구현할 때 고려해야 할 것들을 설명해주세요.",
+    answer:
+      "<p>다크 모드는 '색만 바꾸는 기능'이 아니라 상태 관리 + 초기 렌더링 + 디자인 토큰 문제입니다. 설계 축: ① <strong>3가지 상태</strong>: light / dark / system(OS 추종) — 사용자가 명시 선택하지 않았다면 시스템 설정을 따르고, 선택했다면 그것을 우선 ② <strong>토큰 설계</strong>: CSS 변수 기반 시맨틱 토큰으로 색을 추상화 ③ <strong>첫 페인트 문제</strong>: JS 실행 전에 테마가 결정되어야 깜빡임이 없음 ④ 이미지·차트·서드파티 위젯 같은 비-CSS 자산의 대응.</p>" +
+      "<br/>" +
+      "<p><strong>Q1. 새로고침 시 흰 화면이 번쩍이는 문제(FOUC)는 왜 생기고 어떻게 해결하나요?</strong></p>" +
+      "<p>테마 적용을 React 이펙트에서 하면 'HTML 로드(기본 라이트) → JS 다운로드·실행 → 저장된 테마 읽기 → 다크 적용' 순서가 되어, 다크 사용자에게 <strong>매 진입마다 흰 화면이 번쩍</strong>입니다. 해결은 <strong>렌더링 차단을 역이용</strong>하는 것입니다 — <code>&lt;head&gt;</code>에 인라인 동기 스크립트를 두어 첫 페인트 전에 localStorage와 <code>matchMedia('(prefers-color-scheme: dark)')</code>를 읽고 <code>&lt;html&gt;</code>에 클래스/속성을 즉시 스탬프합니다. 몇 줄짜리 동기 스크립트는 파싱을 수 ms 막을 뿐이지만 깜빡임을 원천 차단합니다. SSR/Next.js에서는 localStorage를 서버가 읽을 수 없으므로 테마를 <strong>쿠키</strong>에도 저장해 서버 렌더 시점에 html 속성을 박아 내보내거나, 동일한 인라인 스크립트 기법을 씁니다(next-themes가 하는 일). hydration mismatch 경고를 피하려면 html 속성 변경을 suppressHydrationWarning으로 감쌉니다.</p>" +
+      "<br/>" +
+      "<p><strong>Q2. 색상 토큰은 어떻게 설계해야 유지보수가 가능한가요?</strong></p>" +
+      "<p>컴포넌트가 <code>gray-900</code> 같은 <strong>원시 색상을 직접 참조하면 다크 모드는 전면 수정</strong>이 됩니다. 두 층으로 분리합니다 — 원시 팔레트(gray-50~950) 위에 <strong>시맨틱 토큰</strong>(<code>--bg-surface</code>, <code>--text-primary</code>, <code>--border-default</code>)을 정의하고, 컴포넌트는 시맨틱 토큰만 사용합니다. 테마 전환은 시맨틱 토큰의 값 재정의만으로 끝납니다. 주의점: ① 다크 모드는 단순 반전이 아닙니다 — 다크에서는 그림자가 안 보여 <strong>표면의 높낮이를 밝기로 표현</strong>하고(elevation이 높을수록 밝은 surface), 채도 높은 색은 어두운 배경에서 진동하므로 한 단계 톤 다운합니다 ② <code>color-scheme: light dark</code>를 선언해야 스크롤바·폼 컨트롤·시스템 UI가 테마를 따라옵니다 ③ Tailwind에서는 <code>dark:</code> variant를 곳곳에 흩뿌리기보다, 변수 기반 시맨틱 색을 config에 등록해 variant 사용을 최소화하는 편이 규모에서 유리합니다.</p>" +
+      "<br/>" +
+      "<p><strong>Q3. 시스템 설정 연동과 그 외 자산들은 어떻게 처리하나요?</strong></p>" +
+      "<p>① <strong>시스템 추종</strong>: 사용자가 'system'을 선택한 상태에서는 <code>matchMedia</code>의 change 이벤트를 구독해 OS가 야간 자동 전환될 때 실시간으로 따라갑니다(useSyncExternalStore로 구독하면 React 상태와 안전하게 동기화). 사용자가 light/dark를 명시 선택하면 저장하고 시스템 변화를 무시합니다 ② <strong>탭 간 동기화</strong>: storage 이벤트나 BroadcastChannel로 한 탭의 테마 변경을 다른 탭에 전파합니다 ③ <strong>이미지</strong>: <code>&lt;picture&gt;</code>에 <code>media='(prefers-color-scheme: dark)'</code> source로 테마별 에셋을 제공하거나, 로고 같은 단색 SVG는 currentColor로 만들어 자동 대응시킵니다 ④ 사용자 제공 콘텐츠(이메일 HTML 등)처럼 제어 불가한 영역은 무리하게 반전(filter: invert)하면 사진까지 반전되므로 신중해야 하고 ⑤ 전환 순간 전체 요소가 제각기 트랜지션되며 얼룩지는 것을 막으려면 전환 시에만 트랜지션을 일시 비활성화하거나 View Transitions API로 크로스페이드 처리합니다.</p>",
+  },
+  {
+    id: 145,
+    question: "실시간 채팅 UI를 구현할 때의 어려운 점과 해결 방법을 설명해주세요.",
+    answer:
+      "<p>전송 계층(WebSocket)보다 어려운 것이 그 위의 UI 상태 관리입니다. 핵심 문제: ① <strong>내 메시지의 여정</strong>: 전송 → 낙관적 표시(pending) → 서버 확정 → 실패 시 재전송, 이 상태를 사용자에게 정직하게 보여주기 ② <strong>순서와 중복</strong>: 낙관적 메시지와 서버 브로드캐스트가 만나는 지점의 중복 제거, 재연결 시 놓친 메시지 복구 ③ <strong>스크롤</strong>: 하단 고정과 과거 메시지 로드 시 점프 방지. 채팅은 자동 저장·무한 스크롤·실시간 통신의 문제들이 한 화면에 모두 모이는 종합 시나리오입니다.</p>" +
+      "<br/>" +
+      "<p><strong>Q1. 메시지 순서 보장과 중복 제거는 어떻게 하나요?</strong></p>" +
+      "<p>핵심 도구는 <strong>클라이언트 생성 ID(clientMsgId)</strong>입니다. 전송 시 UUID를 만들어 메시지에 붙이고 낙관적으로 즉시 렌더링합니다(pending 표시). 서버는 확정 메시지에 이 clientMsgId를 에코해주고, 브로드캐스트로 같은 메시지가 돌아왔을 때 클라이언트는 ID 매칭으로 <strong>낙관적 항목을 확정 항목으로 교체</strong>합니다 — 이것이 없으면 내가 보낸 메시지가 두 번 보입니다. 순서는 클라이언트 시각을 믿지 않고 <strong>서버가 부여한 시퀀스/타임스탬프</strong>로 정렬합니다(기기 간 시계는 어긋나므로). 재연결 시에는 마지막으로 받은 시퀀스 번호를 서버에 보내 <strong>그 이후의 갭만 REST로 백필</strong>하고, 백필과 실시간 수신이 겹치는 구간도 ID 기준 dedupe로 수렴시킵니다. 전송의 멱등성도 같은 ID로 해결됩니다 — 타임아웃 후 재전송해도 서버가 같은 clientMsgId를 한 번만 저장합니다.</p>" +
+      "<br/>" +
+      "<p><strong>Q2. 채팅의 스크롤 UX는 어떻게 구현하나요?</strong></p>" +
+      "<p>규칙이 두 개 충돌합니다 — '새 메시지가 오면 하단으로 따라가야 한다'와 '사용자가 과거를 읽고 있으면 방해하면 안 된다'. 해결: 스크롤이 하단 근처(예: 100px 이내)일 때만 자동 스크롤하고, 위를 보는 중에는 고정을 해제하고 <strong>'새 메시지 N개' 배지</strong>를 띄워 클릭 시 하단으로 이동시킵니다. 과거 메시지를 위로 무한 로드할 때는 prepend 순간 화면이 점프하므로, 삽입 전 scrollHeight를 기억했다가 <strong>차이만큼 scrollTop을 보정</strong>하거나 CSS <code>overflow-anchor</code>에 맡깁니다. <code>flex-direction: column-reverse</code>로 뒤집어 렌더링하면 '하단 고정'이 공짜로 되는 기법도 널리 쓰이지만, DOM 순서가 시각 순서와 반대가 되어 스크린리더·드래그 선택에 부작용이 있다는 트레이드오프까지 말할 수 있어야 합니다. 메시지 높이가 제각각이므로 대량 히스토리에는 동적 측정 가상 스크롤을 조합합니다.</p>" +
+      "<br/>" +
+      "<p><strong>Q3. 전송 실패와 연결 끊김은 어떻게 다루나요?</strong></p>" +
+      "<p>① <strong>메시지 상태 머신</strong>: sending → sent → delivered/read, 실패 시 failed — 실패한 메시지는 조용히 버리지 말고 목록에 남겨 재전송/삭제 선택지를 줍니다(입력한 내용이 사라지는 것이 채팅 최악의 UX) ② <strong>연결 상태 표시</strong>: 끊김을 숨기지 말고 '연결 중…' 배너로 알리되, 재연결은 지수 백오프 + jitter로 자동 수행합니다. 하트비트(ping/pong)로 좀비 연결을 감지합니다 ③ <strong>오프라인 큐</strong>: 오프라인 중 전송한 메시지는 로컬 큐(IndexedDB)에 쌓고 복귀 시 순서대로 재전송 — clientMsgId 덕분에 중복 걱정 없이 재시도할 수 있습니다 ④ 타이핑 인디케이터·읽음 표시 같은 부가 신호는 유실되어도 무방한 이벤트이므로 재전송하지 않고, 전송 빈도만 스로틀합니다. '반드시 도달해야 하는 것'과 '흘러가도 되는 것'을 구분하는 설계 감각이 포인트입니다.</p>",
+  },
+  {
+    id: 146,
+    question:
+      "프론트엔드의 에러 처리와 모니터링(관측성)은 어떻게 설계하나요?",
+    answer:
+      "<p>에러를 성격별로 3개 계층에서 잡습니다. ① <strong>렌더링 에러</strong>: Error Boundary — 어디에 몇 개를 두느냐가 설계 ② <strong>비동기·이벤트 에러</strong>: Boundary가 못 잡으므로 전역 핸들러(window의 error, unhandledrejection)로 수집 ③ <strong>네트워크 에러</strong>: API 계층에서 분류해 재시도·알림·폴백을 결정. 그리고 잡은 에러를 Sentry류로 <strong>수집·그룹핑·알림</strong>하는 관측성 파이프라인까지가 설계 범위입니다 — '에러가 나면 사용자보다 우리가 먼저 안다'가 목표입니다.</p>" +
+      "<br/>" +
+      "<p><strong>Q1. Error Boundary는 어디에, 몇 개를 배치해야 하나요?</strong></p>" +
+      "<p>전역 1개만 두면 사이드바 위젯 하나의 버그로 <strong>페이지 전체가 백지</strong>가 됩니다 — 격리 단위 설계가 핵심입니다. 관례: ① <strong>루트</strong>에 최후 방어선 1개(전체 크래시 화면 + 새로고침 안내) ② <strong>라우트 단위</strong> — 한 페이지의 실패가 앱 셸(네비게이션)을 살려두게 ③ <strong>독립 위젯 단위</strong>(추천 영역, 댓글, 배너 등) — 실패한 위젯만 조용히 접히거나 대체 UI를 보여주고 본문은 무사하게. fallback에는 <strong>복구 수단</strong>을 넣습니다 — Boundary의 상태를 리셋하는 재시도 버튼, 데이터 에러라면 TanStack Query의 <code>QueryErrorResetBoundary</code>와 연동해 리셋 시 쿼리도 함께 재요청합니다. Suspense 경계와 겹쳐 배치하면 '로딩은 fallback, 실패는 error UI'로 한 지점에서 두 상태가 모두 처리됩니다.</p>" +
+      "<br/>" +
+      "<p><strong>Q2. Error Boundary가 잡지 못하는 에러는 무엇이며 어떻게 수집하나요?</strong></p>" +
+      "<p>Boundary는 <strong>렌더링·생명주기 중의 throw만</strong> 잡습니다. 이벤트 핸들러, setTimeout 콜백, async 함수/Promise 거부, SSR 중 에러는 모두 통과합니다 — 렌더 트리 밖에서 던져지기 때문입니다. 수집망: ① <code>window.addEventListener('error')</code> — 동기 런타임 에러와 리소스 로드 실패 ② <code>window.addEventListener('unhandledrejection')</code> — 처리되지 않은 Promise 거부(async 에러의 대부분) ③ React 19의 루트 옵션 <code>onUncaughtError</code> / <code>onCaughtError</code> — Boundary가 잡은 것까지 포함해 리포팅 지점을 일원화. 이벤트 핸들러의 에러는 '화면이 안 깨졌으니 괜찮다'가 아니라 <strong>기능이 조용히 실패한 것</strong>이므로, try/catch로 감싸 사용자에게 토스트 등으로 알리고 리포터로 보내는 규율이 필요합니다. 네트워크 에러는 API 계층에서 '재시도 가능(5xx/timeout) vs 사용자 문제(4xx) vs 인증(401)'으로 분류해 각각 다른 처리로 라우팅합니다.</p>" +
+      "<br/>" +
+      "<p><strong>Q3. 프로덕션 모니터링에서 실무적으로 중요한 포인트는 무엇인가요?</strong></p>" +
+      "<p>① <strong>소스맵</strong>: 프로덕션 스택은 <code>a.js:1:48213</code>이라 그대로는 무의미합니다. 빌드 시 소스맵을 Sentry에 업로드하고(공개 배포는 하지 않음) release 버전을 태깅해 원본 코드 위치로 복원합니다 ② <strong>그룹핑과 노이즈 제어</strong>: 같은 에러 10만 건은 1개 이슈로 묶고, 브라우저 확장 프로그램·봇이 만드는 에러는 필터링합니다. 에러 전송 자체에 rate limit을 걸어 에러 루프가 리포팅 폭주(그리고 과금 폭탄)로 이어지지 않게 합니다 ③ <strong>컨텍스트</strong>: 스택만으로는 재현이 안 되므로 release, 라우트, 사용자 식별자(개인정보 최소화), 직전 행동 흐름(breadcrumb)을 함께 남깁니다 ④ <strong>배포 직후 청크 로드 실패</strong>: 새 배포로 이전 해시의 청크가 사라지면 열려 있던 탭에서 dynamic import가 실패합니다 — 이 에러를 감지해 '새 버전이 있습니다' 안내와 함께 새로고침을 유도하는 처리가 필요합니다 ⑤ 에러율·Core Web Vitals를 릴리스별로 비교해 <strong>배포가 회귀를 만들었는지</strong> 감시하는 것까지가 관측성의 완성입니다.</p>",
+  },
 ];

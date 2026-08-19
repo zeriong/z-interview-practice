@@ -31,6 +31,9 @@ export default function InterviewSection() {
     getScrollElement: () => document.getElementById("main-scroll"),
     estimateSize: () => 80,
     overscan: 3,
+    // 측정 캐시를 인덱스가 아닌 item.id에 묶어, 검색 필터로
+    // 인덱스가 재배열되어도 열린 항목의 실측 높이가 유지되도록 함
+    getItemKey: (index) => filteredItems[index].id,
     rangeExtractor,
   });
 

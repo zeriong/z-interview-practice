@@ -26,6 +26,9 @@ export default function QuizHistoryList({
     getScrollElement: () => scrollRef.current,
     estimateSize: () => 60,
     overscan: 5,
+    // 측정 캐시를 인덱스가 아닌 item.id에 묶어, 히스토리 삭제로
+    // 인덱스가 재배열되어도 실측 높이가 항목을 따라가도록 함
+    getItemKey: (index) => items[index].id,
   });
 
   if (items.length === 0) {

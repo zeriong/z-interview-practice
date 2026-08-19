@@ -1792,4 +1792,273 @@ export const INTERVIEW_DATA: InterviewItem[] = [
       "<p><strong>Q3. JavaScript 기반 빌드 도구가 느린 근본적 이유는 무엇인가요?</strong></p>" +
       "<p>① <strong>JIT 컴파일 한계</strong>: V8의 TurboFan이 핫 코드를 최적화하지만, 빌드 도구는 다양한 파일을 한 번씩 처리하므로 핫 코드가 형성되기 어려움 ② <strong>싱글 스레드</strong>: Node.js의 이벤트 루프는 I/O에 최적화되어 있지만, AST 파싱·코드 변환 같은 CPU 바운드 작업에는 비효율적. Worker Threads로 부분 해결 가능하나 스레드 간 데이터 직렬화 비용 발생 ③ <strong>GC 오버헤드</strong>: 수만 개 파일의 AST 객체 생성·폐기 시 가비지 컬렉션 부담 ④ <strong>동적 타입</strong>: 프로퍼티 접근 시 히든 클래스 체크 등 런타임 타입 확인 비용. Rust/Go는 컴파일 타임에 이 모든 것이 해결되어 순수 연산 성능에 집중할 수 있습니다.</p>",
   },
+  // ─────────────────────────────────────────────
+  // FE 관련 CS 심화 (보안, 네트워크, 브라우저 구조, 자료구조)
+  // ─────────────────────────────────────────────
+  {
+    id: 117,
+    question:
+      "CSRF(Cross-Site Request Forgery) 공격이란 무엇이며, 어떻게 방어하나요?",
+    answer:
+      "<p>CSRF는 사용자가 특정 사이트에 로그인된 상태(인증 쿠키 보유)를 악용하여, 공격자가 만든 페이지에서 사용자 모르게 해당 사이트로 위조된 요청을 보내는 공격입니다. 브라우저는 요청 대상 도메인의 쿠키를 자동으로 첨부하므로, 악성 사이트의 폼 제출이나 이미지 태그만으로도 '인증된 사용자의 요청'처럼 위장할 수 있습니다. 예를 들어 은행 사이트에 로그인된 사용자가 악성 페이지를 열면, 그 페이지가 숨겨진 폼으로 이체 요청을 자동 전송할 수 있습니다.</p>" +
+      "<br/>" +
+      "<p><strong>Q1. XSS와 CSRF는 어떻게 다른가요?</strong></p>" +
+      "<p><strong>XSS</strong>는 신뢰된 사이트 안에 악성 스크립트를 주입하여 사용자의 브라우저에서 실행시키는 공격이고, <strong>CSRF</strong>는 스크립트 실행 없이 사용자의 인증 상태를 이용해 요청 자체를 위조하는 공격입니다. 공격 방향이 다릅니다 — XSS는 사이트에 대한 사용자의 신뢰를, CSRF는 사용자에 대한 사이트의 신뢰를 악용합니다. 중요한 점은 XSS가 성공하면 CSRF 방어가 무력화된다는 것입니다. 스크립트가 페이지 내에서 실행되면 CSRF 토큰을 읽어서 정상 요청처럼 위조할 수 있기 때문에, XSS 방어가 항상 선행되어야 합니다.</p>" +
+      "<br/>" +
+      "<p><strong>Q2. SameSite 쿠키 속성은 CSRF를 어떻게 방어하나요?</strong></p>" +
+      "<p><code>SameSite</code>는 크로스 사이트 요청에 쿠키를 첨부할지 결정하는 속성입니다. <strong>Strict</strong>는 크로스 사이트 요청에 쿠키를 절대 보내지 않습니다(외부 링크로 진입 시 로그아웃 상태로 보이는 UX 문제 존재). <strong>Lax</strong>는 최상위 탐색(주소창 이동, 링크 클릭)의 GET 요청에만 쿠키를 허용하고, POST·iframe·이미지·fetch 요청에는 보내지 않습니다. Chrome 80부터 명시하지 않으면 Lax가 기본값이 되어 대부분의 고전적 CSRF가 차단됩니다. <strong>None</strong>은 모든 요청에 쿠키를 보내며 반드시 <code>Secure</code>(HTTPS)와 함께 사용해야 합니다. 단 Lax도 GET 요청은 허용하므로, GET으로 상태를 변경하는 API가 있다면 여전히 취약합니다 — 상태 변경은 반드시 POST/PUT/DELETE로 설계해야 하는 이유입니다.</p>" +
+      "<br/>" +
+      "<p><strong>Q3. SameSite 외의 방어 기법과 JWT 헤더 인증이 CSRF에 안전한 이유는?</strong></p>" +
+      "<p>① <strong>CSRF 토큰(Synchronizer Token Pattern)</strong>: 서버가 세션별 난수 토큰을 발급하고 폼/헤더로 회신받아 검증 — 공격자는 다른 오리진에서 이 값을 읽을 수 없습니다(SOP) ② <strong>Double Submit Cookie</strong>: 토큰을 쿠키와 헤더 양쪽에 담아 일치 여부 검증 ③ <strong>Origin/Referer 헤더 검증</strong>: 요청 출처 확인. 한편 Access Token을 쿠키가 아닌 <code>Authorization</code> 헤더로 전송하면 브라우저가 자동 첨부하지 않으므로 CSRF에 구조적으로 안전합니다. 대신 토큰을 JavaScript로 접근 가능한 곳(메모리, localStorage)에 두면 XSS에 노출되는 트레이드오프가 생깁니다. 그래서 실무에서는 Access Token은 메모리에, Refresh Token은 HttpOnly + SameSite 쿠키에 두는 하이브리드 전략을 많이 사용합니다.</p>",
+  },
+  {
+    id: 118,
+    question: "HTTP 캐싱 전략(Cache-Control, ETag)에 대해 설명해주세요.",
+    answer:
+      "<p>HTTP 캐싱은 크게 두 단계로 나뉩니다. ① <strong>신선도 검사(강한 캐싱)</strong>: <code>Cache-Control: max-age=3600</code> 같은 헤더로 지정된 시간 동안은 서버에 요청조차 보내지 않고 캐시를 사용합니다 ② <strong>재검증(조건부 요청)</strong>: 신선도가 만료되면 <code>If-None-Match</code>(ETag) 또는 <code>If-Modified-Since</code>(Last-Modified) 헤더로 서버에 변경 여부를 묻고, 변경이 없으면 서버는 본문 없이 <strong>304 Not Modified</strong>만 응답하여 대역폭을 절약합니다. <code>public</code>은 CDN 등 공유 캐시 저장 허용, <code>private</code>은 브라우저 개인 캐시만 허용을 의미합니다.</p>" +
+      "<br/>" +
+      "<p><strong>Q1. no-cache와 no-store의 차이는 무엇인가요?</strong></p>" +
+      "<p>이름과 달리 <code>no-cache</code>는 '캐시하지 말라'가 아닙니다. <strong>no-cache</strong>는 캐시에 저장은 하되, 사용하기 전에 반드시 서버에 재검증(조건부 요청)을 거치라는 의미입니다. 변경이 없으면 304를 받아 캐시본을 사용하므로 효율적입니다. <strong>no-store</strong>는 응답을 어디에도 저장하지 말라는 의미로, 민감한 정보(개인정보, 금융 데이터)에 사용합니다. 참고로 <code>max-age=0</code>은 no-cache와 유사하게 동작하지만, no-cache가 재검증을 강제하는 더 명확한 의도 표현입니다.</p>" +
+      "<br/>" +
+      "<p><strong>Q2. ETag는 어떻게 동작하며 Last-Modified보다 나은 점은 무엇인가요?</strong></p>" +
+      '<p>ETag는 리소스 내용의 해시 등으로 만든 버전 식별자입니다. 서버가 <code>ETag: "abc123"</code>을 내려주면, 브라우저는 다음 요청에 <code>If-None-Match: "abc123"</code>을 첨부하고, 서버는 현재 리소스의 ETag와 비교해 같으면 304를 응답합니다. Last-Modified 대비 장점: ① 1초 단위인 날짜 기반과 달리 1초 미만의 변경도 감지 ② 파일이 재생성되어 수정 시각만 바뀌고 내용이 같은 경우 불필요한 재전송 방지(내용 기반 비교) ③ 날짜를 신뢰할 수 없는 분산 환경에서도 동작. 단, 로드밸런서 뒤의 서버들이 서로 다른 방식으로 ETag를 생성하면 캐시가 무효화되는 함정이 있어 생성 방식을 통일해야 합니다.</p>' +
+      "<br/>" +
+      "<p><strong>Q3. SPA 배포 시 실무 캐싱 전략은 어떻게 구성하나요?</strong></p>" +
+      "<p>핵심은 '파일명에 해시를 넣은 정적 에셋은 영구 캐싱, 진입점 HTML은 항상 재검증'입니다. ① 번들러가 생성하는 <code>app.a1b2c3.js</code> 같은 해시 파일명은 내용이 바뀌면 파일명 자체가 바뀌므로 <code>Cache-Control: public, max-age=31536000, immutable</code>로 1년 캐싱합니다. <code>immutable</code>은 새로고침 시에도 재검증 요청을 생략하게 합니다 ② <code>index.html</code>은 <code>no-cache</code>로 설정하여 항상 최신 해시 파일명을 참조하도록 합니다 — 이것이 배포 즉시 반영의 핵심입니다 ③ API 응답에는 <code>stale-while-revalidate</code>를 활용해 만료된 캐시를 즉시 보여주고 백그라운드에서 갱신할 수 있습니다. TanStack Query의 staleTime/gcTime 개념이 바로 이 전략의 애플리케이션 레벨 구현입니다.</p>",
+  },
+  {
+    id: 119,
+    question:
+      "WebSocket, SSE, 폴링의 차이점과 각각 언제 사용하는지 설명해주세요.",
+    answer:
+      "<p>실시간 통신 기법은 네 가지로 구분됩니다. ① <strong>폴링(Polling)</strong>: 클라이언트가 주기적으로 요청을 반복 — 구현이 가장 단순하지만 불필요한 요청이 많고 실시간성이 주기에 제한됩니다 ② <strong>롱 폴링(Long Polling)</strong>: 서버가 새 데이터가 생길 때까지 응답을 보류 — 폴링보다 효율적이지만 연결 재수립 오버헤드 존재 ③ <strong>SSE(Server-Sent Events)</strong>: HTTP 연결을 유지하며 서버→클라이언트 단방향 스트림 전송 ④ <strong>WebSocket</strong>: 하나의 TCP 연결 위에서 양방향 전이중(full-duplex) 통신을 제공하는 별도 프로토콜입니다.</p>" +
+      "<br/>" +
+      "<p><strong>Q1. WebSocket 연결은 어떻게 수립되나요?</strong></p>" +
+      "<p>WebSocket은 HTTP 핸드셰이크로 시작합니다. 클라이언트가 <code>Upgrade: websocket</code>, <code>Connection: Upgrade</code>, <code>Sec-WebSocket-Key</code> 헤더를 담아 요청하면, 서버가 <strong>101 Switching Protocols</strong>로 응답하며 프로토콜이 전환됩니다. 이후 같은 TCP 연결 위에서 HTTP가 아닌 WebSocket 프레임으로 양방향 통신합니다. 기존 HTTP 포트(80/443)를 재사용하므로 방화벽 문제가 적고, <code>ws://</code>와 암호화된 <code>wss://</code> 스킴을 사용합니다. 헤더 오버헤드가 요청마다 반복되는 HTTP와 달리, 연결 수립 후에는 프레임당 몇 바이트의 오버헤드만 발생해 고빈도 메시지 교환에 효율적입니다.</p>" +
+      "<br/>" +
+      "<p><strong>Q2. SSE의 특징과 제약은 무엇인가요?</strong></p>" +
+      "<p>SSE는 <code>Content-Type: text/event-stream</code>인 HTTP 응답을 열어두고 서버가 이벤트를 계속 흘려보내는 방식입니다. 브라우저 내장 <code>EventSource</code> API로 사용하며, <strong>연결이 끊기면 자동 재연결</strong>되고 <code>Last-Event-ID</code>로 끊긴 지점부터 이어받을 수 있다는 것이 WebSocket 대비 큰 장점입니다(WebSocket은 재연결 로직을 직접 구현해야 합니다). 제약: ① 서버→클라이언트 단방향 ② 텍스트(UTF-8)만 전송 가능 ③ HTTP/1.1에서는 도메인당 6개 연결 제한에 걸릴 수 있음(HTTP/2의 멀티플렉싱으로 해소) ④ 구형 브라우저 지원 필요 시 폴리필 필요. 알림, 피드 갱신, 진행률 표시, LLM 응답 스트리밍처럼 서버 발신 위주의 시나리오에 적합합니다.</p>" +
+      "<br/>" +
+      "<p><strong>Q3. 실무에서는 어떤 기준으로 선택하며, 운영 시 고려사항은 무엇인가요?</strong></p>" +
+      "<p><strong>선택 기준</strong>: 채팅·협업 편집·게임처럼 양방향 저지연이 필요하면 WebSocket, 주가·알림·스트리밍처럼 서버 발신 위주면 SSE, 실시간성 요구가 낮고 인프라 제약이 있으면 (롱) 폴링이 합리적입니다. <strong>운영 고려사항</strong>: ① 프록시/로드밸런서의 유휴 연결 타임아웃에 대비한 하트비트(ping/pong) 전송 ② 재연결 시 지수 백오프(exponential backoff)로 서버 폭주 방지 ③ 수평 확장 시 연결이 특정 서버에 고정되므로, 서버 간 메시지 전파를 위해 Redis Pub/Sub 같은 브로커 필요 ④ 연결 수 자체가 서버 자원(메모리, 파일 디스크립터)을 점유하므로 커넥션 수 모니터링이 필수입니다.</p>",
+  },
+  {
+    id: 120,
+    question: "TCP와 UDP의 차이점과 3-way handshake에 대해 설명해주세요.",
+    answer:
+      "<p><strong>TCP</strong>는 연결 지향 프로토콜로, 연결 수립(핸드셰이크) 후 데이터의 <strong>순서 보장, 재전송을 통한 신뢰성, 흐름·혼잡 제어</strong>를 제공합니다. <strong>UDP</strong>는 비연결 프로토콜로 이런 보장 없이 데이터그램을 즉시 전송하여 오버헤드가 적고 빠릅니다. 웹에서는 HTTP/1.1과 HTTP/2가 TCP 위에서 동작하고, HTTP/3는 UDP 위에 신뢰성 계층을 직접 구현한 <strong>QUIC</strong> 프로토콜을 사용합니다. 화상통화·게임처럼 일부 손실보다 지연이 치명적인 경우 UDP(WebRTC)가 선택됩니다.</p>" +
+      "<br/>" +
+      "<p><strong>Q1. 3-way handshake는 어떻게 진행되나요?</strong></p>" +
+      "<p>TCP 연결 수립 과정입니다. ① 클라이언트가 <strong>SYN</strong> 패킷(임의의 시퀀스 번호 x 포함)을 전송 ② 서버가 <strong>SYN-ACK</strong>으로 응답(자신의 시퀀스 번호 y와 x+1 확인 응답) ③ 클라이언트가 <strong>ACK</strong>(y+1)를 보내면 연결 수립 완료. 양쪽 모두 상대의 송수신 능력과 시퀀스 번호를 확인해야 하므로 최소 3번의 교환이 필요합니다. 종료는 4-way handshake(FIN → ACK → FIN → ACK)로 진행되며, 마지막 ACK를 보낸 쪽은 지연 패킷 처리를 위해 TIME_WAIT 상태를 유지합니다. 이 핸드셰이크가 1 RTT(왕복 시간)를 소비한다는 점이 웹 성능에서 중요합니다.</p>" +
+      "<br/>" +
+      "<p><strong>Q2. HTTPS 요청 하나에 몇 번의 왕복(RTT)이 필요한가요?</strong></p>" +
+      "<p>첫 연결 기준으로: ① DNS 조회 ② TCP 3-way handshake 1 RTT ③ TLS 핸드셰이크 — TLS 1.2는 2 RTT, <strong>TLS 1.3은 1 RTT</strong>로 단축(재연결 시 0-RTT 재개도 가능) ④ 실제 HTTP 요청/응답 1 RTT. 즉 TLS 1.3 기준 TCP+TLS만으로 2 RTT가 소요됩니다. <strong>QUIC(HTTP/3)</strong>은 전송 계층 핸드셰이크와 TLS 1.3 암호화 협상을 통합하여 첫 연결을 1 RTT에, 재연결을 0-RTT에 수립합니다. 모바일처럼 RTT가 큰 환경에서 이 차이가 체감 성능을 크게 좌우하며, preconnect 리소스 힌트(<code>rel=preconnect</code>)로 핸드셰이크를 미리 수행하는 최적화도 이 비용을 줄이기 위한 것입니다.</p>" +
+      "<br/>" +
+      "<p><strong>Q3. HOL(Head-of-Line) Blocking이란 무엇이며 HTTP/3는 이를 어떻게 해결하나요?</strong></p>" +
+      "<p>HOL Blocking은 앞선 데이터의 처리 지연이 뒤따르는 데이터 전체를 막는 현상입니다. HTTP/1.1은 응답이 순서대로 와야 해서 애플리케이션 레벨 HOL이 발생했고, HTTP/2는 멀티플렉싱으로 이를 해결했지만 <strong>TCP 레벨의 HOL은 남아있습니다</strong> — TCP는 바이트 스트림의 순서를 보장하므로 패킷 하나가 유실되면 재전송될 때까지, 그 뒤에 도착한 다른 스트림의 패킷들까지 모두 대기합니다. QUIC은 UDP 위에서 <strong>스트림 단위로 독립적인 순서 보장과 재전송</strong>을 구현하여, 한 스트림의 패킷 손실이 다른 스트림에 영향을 주지 않습니다. 또한 연결을 IP가 아닌 Connection ID로 식별하므로 Wi-Fi에서 LTE로 전환해도 연결이 유지됩니다(connection migration).</p>",
+  },
+  {
+    id: 121,
+    question: "브라우저의 멀티프로세스 아키텍처에 대해 설명해주세요.",
+    answer:
+      "<p>모던 브라우저(Chrome 기준)는 하나의 프로그램이 아니라 여러 프로세스의 협업으로 동작합니다. ① <strong>브라우저 프로세스</strong>: 주소창·북마크 등 UI, 탭 관리, 권한 제어 ② <strong>렌더러 프로세스</strong>: 탭(사이트)마다 생성되며 HTML 파싱, JavaScript 실행, 렌더링 담당 — 우리가 작성한 코드가 실행되는 곳 ③ <strong>GPU 프로세스</strong>: 레이어 합성과 래스터화 ④ <strong>네트워크 프로세스</strong>: 리소스 요청 처리 ⑤ 유틸리티/확장 프로세스. 렌더러 프로세스 내부에는 다시 메인 스레드(파싱·JS·스타일·레이아웃), 컴포지터 스레드, 래스터 스레드, Web Worker 스레드가 있습니다.</p>" +
+      "<br/>" +
+      "<p><strong>Q1. 왜 멀티프로세스 구조를 채택했나요?</strong></p>" +
+      "<p>① <strong>안정성</strong>: 한 탭의 렌더러가 크래시해도 다른 탭과 브라우저 전체는 영향받지 않습니다. 단일 프로세스라면 탭 하나의 무한 루프나 메모리 오류가 브라우저 전체를 죽입니다 ② <strong>보안</strong>: 렌더러 프로세스는 <strong>샌드박스</strong> 안에서 실행되어 파일 시스템·OS API에 직접 접근할 수 없고, 반드시 브라우저 프로세스에 IPC로 요청해야 합니다. 웹 페이지의 악성 코드가 시스템을 장악하는 것을 구조적으로 차단합니다 ③ <strong>병렬성</strong>: 프로세스별로 CPU 코어를 활용할 수 있습니다. 대가는 메모리 사용량 증가로, 프로세스마다 V8·렌더링 엔진 사본이 필요합니다 — Chrome이 메모리를 많이 쓰는 근본 이유입니다.</p>" +
+      "<br/>" +
+      "<p><strong>Q2. Site Isolation(사이트 격리)이란 무엇인가요?</strong></p>" +
+      "<p>원래는 탭 단위로 렌더러를 분리했지만, 2018년 <strong>Spectre/Meltdown</strong> 취약점 공개 이후 같은 프로세스 안의 메모리를 사이드 채널로 읽을 수 있음이 드러났습니다. Site Isolation은 <strong>사이트(site) 단위로 프로세스를 격리</strong>하여, 한 페이지에 삽입된 크로스 오리진 iframe도 별도의 렌더러 프로세스에서 실행합니다. 예를 들어 내 페이지에 은행 사이트 iframe이 있다면 두 문서는 서로 다른 프로세스에 있어 메모리 공유가 원천 차단됩니다. 이 정책의 연장선에서 <code>SharedArrayBuffer</code> 같은 고정밀 타이머 관련 기능은 COOP/COEP 헤더로 교차 출처 격리(cross-origin isolation)를 명시한 페이지에서만 사용할 수 있습니다.</p>" +
+      "<br/>" +
+      "<p><strong>Q3. 컴포지터 스레드는 무엇이며, 메인 스레드가 바빠도 스크롤이 부드러운 이유는?</strong></p>" +
+      "<p>컴포지터 스레드는 이미 래스터화된 레이어들을 조합하여 최종 화면을 만드는 스레드로, <strong>메인 스레드와 독립적으로 동작</strong>합니다. JavaScript가 메인 스레드를 점유하고 있어도, 스크롤과 <code>transform</code>·<code>opacity</code> 애니메이션은 컴포지터 스레드가 GPU 프로세스와 협력해 처리할 수 있어 60fps를 유지합니다. 이것이 <code>width</code>·<code>top</code> 대신 <code>transform</code>으로 애니메이션하라는 조언의 근거입니다 — 전자는 메인 스레드의 레이아웃·페인트를 유발하지만, 후자는 합성 단계에서만 처리됩니다. 단, <code>wheel</code>·<code>touchmove</code>에 non-passive 리스너를 등록하면 컴포지터가 <code>preventDefault()</code> 여부를 확인하러 메인 스레드를 기다려야 하므로 스크롤이 버벅입니다 — <code>passive: true</code> 옵션이 중요한 이유입니다.</p>",
+  },
+  {
+    id: 122,
+    question:
+      "프론트엔드 개발에서 자료구조(트리, 스택, 큐, 해시맵)는 어디에 활용되나요?",
+    answer:
+      "<p>자료구조는 프론트엔드의 기반 곳곳에 있습니다. ① <strong>트리</strong>: DOM, 가상 DOM, AST(바벨·ESLint), 컴포넌트 계층, 파일 기반 라우팅 ② <strong>스택</strong>: 콜 스택, 브라우저 히스토리, 실행 취소(undo/redo), 괄호·태그 짝 검증 ③ <strong>큐</strong>: 이벤트 루프의 태스크·마이크로태스크 큐, 요청 대기열, 애니메이션 프레임 큐 ④ <strong>해시맵(Map/객체)</strong>: 메모이제이션 캐시, 정규화된 상태(normalized state), 중복 제거 ⑤ <strong>연결 리스트</strong>: React Fiber 트리와 훅 리스트. 자료구조 선택이 곧 성능 특성을 결정하므로, FE에서도 기본기가 중요합니다.</p>" +
+      "<br/>" +
+      "<p><strong>Q1. React의 Fiber 트리는 왜 재귀가 아닌 연결 리스트 형태로 순회하나요?</strong></p>" +
+      "<p>일반적인 트리 순회는 재귀(암묵적으로 콜 스택 사용)로 구현하지만, 재귀는 <strong>중간에 멈추고 재개할 수 없습니다</strong> — 스택이 풀리면 진행 상태가 사라지기 때문입니다. Fiber는 각 노드에 <code>child</code>(첫 자식), <code>sibling</code>(다음 형제), <code>return</code>(부모) 포인터를 두어, 콜 스택 없이 반복문으로 DFS를 수행합니다. 현재 작업 중인 fiber 포인터만 기억하면 언제든 <strong>작업을 중단했다가 정확히 그 지점부터 재개</strong>할 수 있습니다. 이것이 Concurrent Rendering(렌더링 중단·우선순위 양보)을 가능하게 하는 자료구조적 기반입니다. '재귀를 명시적 자료구조로 변환하면 제어권을 얻는다'는 CS의 고전적 기법이 그대로 적용된 사례입니다.</p>" +
+      "<br/>" +
+      "<p><strong>Q2. 시간 복잡도가 실무 성능 문제로 이어지는 대표적인 사례는?</strong></p>" +
+      "<p>대표적인 함정은 렌더링 루프 안의 선형 탐색입니다. 예를 들어 1만 개 아이템을 렌더링하며 각 아이템마다 <code>selectedIds.includes(id)</code>(O(n))를 호출하면 전체가 O(n²)이 되어 프레임 드랍이 발생합니다. <code>Set</code>으로 바꾸면 조회가 O(1)이 되어 전체 O(n)으로 줄어듭니다. 마찬가지로 중첩 배열에서 <code>find</code>를 반복하는 대신, <code>{ [id]: entity }</code> 형태의 <strong>정규화된 상태</strong>로 관리하면 조회·수정이 O(1)이 됩니다(Redux 공식 권장 패턴, RTK의 <code>createEntityAdapter</code>). 반대로 수백 개 수준의 데이터에서는 어떤 구조든 차이가 없으므로, 계측 없이 미리 최적화하는 것은 불필요한 복잡성입니다.</p>" +
+      "<br/>" +
+      "<p><strong>Q3. LRU 캐시란 무엇이며 JavaScript로 어떻게 구현하나요?</strong></p>" +
+      "<p>LRU(Least Recently Used) 캐시는 용량 초과 시 <strong>가장 오래 사용되지 않은 항목부터 제거</strong>하는 캐시 정책입니다. JavaScript의 <code>Map</code>은 삽입 순서를 보장하므로 간결하게 구현할 수 있습니다: 조회 시 해당 키를 <code>delete</code> 후 다시 <code>set</code>하여 '최근 사용'으로 갱신하고, 용량 초과 시 <code>map.keys().next().value</code>(가장 오래된 키)를 제거합니다. 모든 연산이 O(1)입니다. 이 개념은 이미지 캐싱, 메모이제이션 캐시의 메모리 제한, TanStack Query가 비활성 쿼리를 <code>gcTime</code> 이후 제거하는 정책 등 '메모리는 유한한데 캐시는 쌓인다'는 문제 전반에 적용됩니다.</p>",
+  },
+  {
+    id: 123,
+    question: "JavaScript에서 0.1 + 0.2 !== 0.3인 이유는 무엇인가요?",
+    answer:
+      "<p>JavaScript의 <code>number</code>는 IEEE 754 <strong>배정밀도(64비트) 부동소수점</strong>입니다. 이 형식은 수를 2진수로 저장하는데, 10진수의 0.1과 0.2는 2진수로 표현하면 무한 반복 소수가 되어(0.1 = 0.0001100110011...₂) 유한한 비트에 담기 위해 반올림됩니다. 이미 오차를 포함한 두 근사값을 더하면 0.30000000000000004처럼 0.3의 근사값과 미세하게 다른 결과가 나옵니다. 이는 JavaScript만의 문제가 아니라 IEEE 754를 사용하는 대부분의 언어(Python, Java의 double 등)에서 동일하게 발생하는 CS 원리입니다.</p>" +
+      "<br/>" +
+      "<p><strong>Q1. 실무에서는 어떻게 대처하나요?</strong></p>" +
+      "<p>① <strong>허용 오차 비교</strong>: <code>Math.abs(a - b) &lt; Number.EPSILON</code>처럼 미세한 차이를 무시하고 비교합니다 ② <strong>정수로 변환하여 연산</strong>: 금액은 원·센트 단위의 정수로 다루는 것이 원칙입니다(스트라이프 등 결제 API가 금액을 최소 단위 정수로 받는 이유). 10을 곱해 정수로 만들어 계산 후 되돌리는 방식도 같은 맥락입니다 ③ 정밀도가 중요한 도메인은 <strong>decimal.js, big.js</strong> 같은 십진 연산 라이브러리 사용 ④ <code>toFixed()</code>는 표시용 문자열 변환일 뿐이며 내부적으로 반올림 오차가 있을 수 있으므로(<code>(1.005).toFixed(2)</code>가 '1.00'이 되는 사례) 계산 로직에 사용하면 안 됩니다.</p>" +
+      "<br/>" +
+      "<p><strong>Q2. Number.MAX_SAFE_INTEGER는 왜 2^53 - 1이며, 어떤 실무 문제를 일으키나요?</strong></p>" +
+      "<p>64비트 부동소수점은 부호 1비트, 지수 11비트, <strong>가수(fraction) 52비트</strong>로 구성됩니다. 가수 52비트 + 암묵적 선행 1비트로 정수를 정확히 표현할 수 있는 한계가 2^53 - 1(약 9007조)입니다. 이를 넘으면 <code>2^53 === 2^53 + 1</code>이 true가 되는 등 정밀도를 잃습니다. 실무의 대표 사례가 <strong>백엔드의 64비트 ID(Snowflake ID 등)</strong>입니다. JSON 숫자로 받으면 <code>JSON.parse</code> 시점에 정밀도가 손실되어 잘못된 ID로 API를 호출하게 됩니다 — 반드시 문자열로 주고받아야 하며, 큰 정수 연산이 필요하면 <code>BigInt</code>를 사용합니다(단 BigInt는 JSON 직렬화와 number와의 혼합 연산이 안 됩니다).</p>" +
+      "<br/>" +
+      "<p><strong>Q3. NaN과 -0의 특이한 동작이 React와 어떤 관련이 있나요?</strong></p>" +
+      "<p>IEEE 754는 <code>NaN</code>(연산 실패)과 부호 있는 0(+0, -0)을 정의합니다. <code>NaN === NaN</code>은 false(어떤 실패값과도 같지 않다는 명세)이고, <code>+0 === -0</code>은 true입니다. 이 예외를 보정한 비교가 <code>Object.is()</code>로, NaN끼리는 같다고, +0과 -0은 다르다고 판정합니다. <strong>React는 상태 변경 감지에 Object.is를 사용</strong>하므로, 상태가 NaN인 채로 다시 NaN을 설정해도 리렌더링이 발생하지 않습니다(===라면 NaN !== NaN 때문에 매번 리렌더링될 것입니다). NaN 검사는 <code>x !== x</code> 트릭보다 의도가 명확한 <code>Number.isNaN()</code>을 사용하며, 전역 <code>isNaN()</code>은 문자열을 숫자로 강제 변환 후 판단하므로(<code>isNaN('abc')</code>가 true) 피해야 합니다.</p>",
+  },
+  // ─────────────────────────────────────────────
+  // React 훅 딥다이브 (Concurrent 훅, 내부 구현, React 19)
+  // ─────────────────────────────────────────────
+  {
+    id: 124,
+    question: "useTransition이란 무엇이며, 내부적으로 어떻게 동작하나요?",
+    answer:
+      "<p><code>useTransition</code>은 상태 업데이트를 <strong>긴급하지 않은 전환(transition)</strong>으로 표시하는 훅입니다. <code>const [isPending, startTransition] = useTransition()</code>에서 <code>startTransition(() =&gt; setState(...))</code>로 감싼 업데이트는 낮은 우선순위로 처리되어, 무거운 리렌더링이 진행 중이어도 사용자 입력 같은 긴급한 업데이트가 끼어들 수 있습니다. 대표 사례는 탭 전환입니다 — 탭 하이라이트(긴급)는 즉시 반영하고, 무거운 탭 콘텐츠 렌더링(transition)은 백그라운드에서 처리하며 <code>isPending</code>으로 로딩 표시를 합니다.</p>" +
+      "<br/>" +
+      "<p><strong>Q1. '낮은 우선순위 렌더링'은 내부적으로 어떻게 구현되나요?</strong></p>" +
+      "<p>React 18의 스케줄러는 업데이트를 <strong>Lane(레인)</strong>이라는 비트마스크 기반 우선순위로 분류합니다. 클릭·입력 같은 이산 이벤트는 SyncLane(동기 처리), transition은 TransitionLane에 배정됩니다. Transition 렌더링은 동시성 모드로 진행되어, 작업 단위(fiber)를 처리할 때마다 약 5ms 간격으로 메인 스레드에 <strong>제어권을 양보(yield)</strong>합니다 — 이것이 time slicing입니다. 이 사이에 긴급한 업데이트(예: 키 입력)가 들어오면 React는 <strong>진행 중이던 transition 렌더 결과를 폐기하고</strong> 긴급 업데이트를 먼저 커밋한 뒤, transition 렌더를 처음부터 다시 시작합니다. 렌더 단계가 순수해야 하는(사이드 이펙트가 없어야 하는) 이유가 바로 이 '폐기하고 재시작' 가능성 때문입니다.</p>" +
+      "<br/>" +
+      "<p><strong>Q2. 디바운스·스로틀과는 어떻게 다른가요?</strong></p>" +
+      "<p>디바운스·스로틀은 <strong>시간 기반</strong>으로 업데이트 자체를 지연·간소화하는 기법이라, 빠른 기기에서도 고정된 지연이 발생하고 지연 시간 튜닝이 필요합니다. useTransition은 <strong>우선순위 기반</strong>입니다 — 기기가 빠르면 transition도 거의 즉시 완료되고, 느린 기기에서만 자연스럽게 양보가 일어나 적응적으로 동작합니다. 또한 transition 렌더 중에는 <strong>이전 UI가 그대로 유지</strong>되므로 중간의 어중간한 상태가 노출되지 않습니다. 단 useTransition은 렌더링(CPU 바운드) 병목에 효과적인 것이지 네트워크 요청 횟수를 줄여주지는 않으므로, 검색 API 호출량 제어에는 여전히 디바운스가 유효합니다. 둘은 대체재가 아니라 다른 병목을 다루는 상호 보완재입니다.</p>" +
+      "<br/>" +
+      "<p><strong>Q3. useTransition의 제약과 React 19에서의 확장은 무엇인가요?</strong></p>" +
+      "<p>① <strong>제어 컴포넌트의 입력값에는 쓸 수 없습니다</strong> — <code>&lt;input value={text}&gt;</code>의 text 업데이트를 transition으로 미루면 타이핑 자체가 지연되어 보입니다. 입력값은 긴급하게 갱신하고, 그 값에서 파생되는 무거운 결과만 transition으로 처리해야 합니다(이 경우 useDeferredValue가 더 적합할 수 있습니다) ② startTransition의 콜백 내에서 <strong>동기적으로 호출된 setState만</strong> transition으로 표시됩니다. React 18에서는 await 이후의 setState가 transition에서 벗어나는 함정이 있었는데, <strong>React 19부터 async 함수를 직접 지원</strong>하여 await 이후 업데이트도 transition으로 유지되며, 이를 'Action'이라 부릅니다. 폼 제출 → 서버 요청 → 결과 반영의 전 과정을 isPending 하나로 관리할 수 있게 되었고, useActionState·useOptimistic이 이 위에 구축되어 있습니다.</p>",
+  },
+  {
+    id: 125,
+    question:
+      "useDeferredValue란 무엇이며, useTransition과 어떻게 구분해서 사용하나요?",
+    answer:
+      "<p><code>useDeferredValue</code>는 값의 <strong>지연된 사본</strong>을 만드는 훅입니다. <code>const deferredQuery = useDeferredValue(query)</code>로 사용하면, query가 변경될 때 React는 먼저 <strong>이전 deferredQuery 값으로 긴급 렌더링</strong>을 완료하고(입력 등 긴급 UI는 즉시 갱신), 그 후 백그라운드에서 새 값으로 다시 렌더링합니다. 백그라운드 렌더 중 더 새로운 값이 들어오면 진행 중이던 렌더는 폐기되고 최신 값으로 다시 시작합니다. 검색 입력창은 즉각 반응하면서 무거운 결과 리스트는 한 박자 늦게 따라오는 UX를 만들 수 있습니다.</p>" +
+      "<br/>" +
+      "<p><strong>Q1. useTransition과의 선택 기준은 무엇인가요?</strong></p>" +
+      "<p>핵심 기준은 <strong>상태 업데이트 코드를 내가 제어할 수 있는가</strong>입니다. setState 호출 지점을 직접 감쌀 수 있다면 <code>useTransition</code>이 명시적이고 <code>isPending</code>도 제공되어 유리합니다. 반면 값이 <strong>props로 내려오거나 외부 라이브러리에서 오는 등 업데이트 지점에 접근할 수 없다면</strong> <code>useDeferredValue</code>로 값 자체를 지연시킵니다. 같은 문제를 다른 지점에서 푸는 도구입니다 — useTransition은 '업데이트'에, useDeferredValue는 '값'에 우선순위를 부여합니다. pending 상태는 useDeferredValue에서는 <code>value !== deferredValue</code> 비교로 파악하며, 이를 이용해 결과 리스트에 opacity를 주는 패턴이 일반적입니다. 둘 다 내부적으로는 동일한 transition 레인 메커니즘을 사용합니다.</p>" +
+      "<br/>" +
+      "<p><strong>Q2. useDeferredValue를 쓸 때 자식 컴포넌트 메모이제이션이 사실상 필수인 이유는?</strong></p>" +
+      "<p>useDeferredValue의 이점은 '긴급 렌더링에서 <strong>무거운 자식의 재렌더링을 건너뛰는 것</strong>'에서 나옵니다. 긴급 렌더 시 deferredValue는 이전 값 그대로이므로, 결과 리스트가 <code>React.memo</code>로 감싸져 있고 deferredValue만 받는다면 props가 동일하여 재렌더링이 생략됩니다. 만약 memo가 없다면 긴급 렌더에서도 무거운 자식이 (이전 값으로) 통째로 다시 렌더링되므로 지연의 이점이 사라집니다. 즉 <code>useDeferredValue + React.memo</code>는 세트입니다. 이는 useTransition도 마찬가지로, 동시성 기능은 '렌더링을 나눌 수 있게' 해줄 뿐이고, 각 렌더링 자체를 싸게 만드는 것은 여전히 메모이제이션의 역할입니다.</p>" +
+      "<br/>" +
+      "<p><strong>Q3. 디바운싱과 비교했을 때의 장점과 한계는 무엇인가요?</strong></p>" +
+      "<p><strong>장점</strong>: ① 고정 지연이 없습니다 — 디바운스는 300ms 등 임의의 대기 시간을 강제하지만, useDeferredValue는 렌더링이 끝나는 즉시 반영되므로 빠른 기기에서는 지연이 체감되지 않습니다 ② 기기 성능에 적응적입니다 ③ 백그라운드 렌더가 중단 가능하므로 타이핑 중 프레임 드랍이 없습니다. <strong>한계</strong>: ① 렌더링 비용 문제만 해결하며, <strong>네트워크 요청 횟수는 줄여주지 않습니다</strong> — deferredValue를 useEffect나 쿼리 키로 쓰면 값이 확정될 때마다 요청이 발생하므로, API 호출량 제어가 목적이면 디바운스를 병행해야 합니다 ② 지연된 값과 최신 값이 공존하므로 둘을 혼용하면 UI 불일치가 생길 수 있습니다. React 19에서는 <code>useDeferredValue(value, initialValue)</code> 두 번째 인자가 추가되어, 첫 렌더를 initialValue로 그리고 즉시 백그라운드에서 실제 값으로 전환하는 초기 로딩 최적화가 가능해졌습니다.</p>",
+  },
+  {
+    id: 126,
+    question: "useEffect와 useLayoutEffect의 차이점은 무엇인가요?",
+    answer:
+      "<p>둘의 차이는 <strong>실행 시점</strong>입니다. <code>useLayoutEffect</code>는 React가 DOM을 변경한 직후, <strong>브라우저가 화면을 페인트하기 전에 동기적으로</strong> 실행됩니다. <code>useEffect</code>는 페인트 이후 비동기적으로 실행됩니다. 따라서 useLayoutEffect 안에서 DOM을 측정하고 상태를 변경하면 사용자는 중간 상태를 보지 못하고 최종 결과만 보게 되며, useEffect에서 같은 작업을 하면 이전 화면이 잠깐 보였다가 바뀌는 깜빡임(flicker)이 발생할 수 있습니다. 실행 순서는 렌더 → DOM 변경 → useLayoutEffect → 페인트 → useEffect입니다.</p>" +
+      "<br/>" +
+      "<p><strong>Q1. useLayoutEffect는 언제 사용해야 하며, 남용하면 어떤 문제가 있나요?</strong></p>" +
+      "<p>사용 기준은 '<strong>페인트 전에 DOM을 측정하고 그 결과로 다시 그려야 하는가</strong>'입니다. 대표 사례는 툴팁·팝오버 위치 계산입니다 — 일단 렌더링한 뒤 <code>getBoundingClientRect()</code>로 크기를 측정하고, 화면을 벗어나면 위치를 보정해야 하는데, 이 과정이 페인트 후에 일어나면 툴팁이 잘못된 위치에 나타났다 이동하는 것이 보입니다. 반면 데이터 페칭, 구독 등록, 로깅 등 대부분의 사이드 이펙트는 화면과 무관하므로 useEffect가 맞습니다. useLayoutEffect는 <strong>동기 실행이라 완료될 때까지 페인트를 차단</strong>하므로, 무거운 연산을 넣으면 그만큼 화면 갱신이 지연되어 성능이 저하됩니다. 기본은 useEffect, 깜빡임이 실제로 관찰될 때만 useLayoutEffect로 전환하는 것이 원칙입니다.</p>" +
+      "<br/>" +
+      "<p><strong>Q2. SSR 환경에서 useLayoutEffect 경고가 발생하는 이유와 해결 방법은?</strong></p>" +
+      "<p>서버에는 DOM도 페인트도 없으므로 useLayoutEffect는 서버 렌더링 중 실행될 수 없고, React는 '서버에서 useLayoutEffect는 아무것도 하지 않는다'는 경고를 출력합니다. 문제는 hydration 시 클라이언트 첫 렌더 결과가 서버 HTML과 달라질 수 있다는 점입니다. 해결 패턴: ① 해당 로직이 마운트 후에만 필요하다면 useEffect로 전환 ② 서버에서는 useEffect, 클라이언트에서는 useLayoutEffect를 쓰는 <code>useIsomorphicLayoutEffect</code> 패턴(<code>typeof window</code> 분기로 훅 자체를 스왑) ③ 측정이 필요한 컴포넌트를 마운트 후에만 렌더링(mounted 플래그). 근본적으로는 '서버 HTML과 클라이언트 첫 렌더는 동일해야 한다'는 hydration 원칙에서 파생되는 문제입니다.</p>" +
+      "<br/>" +
+      "<p><strong>Q3. useInsertionEffect는 무엇이며 왜 별도로 존재하나요?</strong></p>" +
+      "<p><code>useInsertionEffect</code>는 React 18에서 추가된 훅으로, <strong>DOM 변경보다도 먼저</strong> 실행됩니다(useInsertionEffect → DOM 변경 → useLayoutEffect → 페인트 → useEffect). 이는 <strong>CSS-in-JS 라이브러리 전용</strong>으로 설계되었습니다. 동적으로 생성한 <code>&lt;style&gt;</code> 태그를 useLayoutEffect에서 주입하면, 이미 완료된 DOM 변경에 새 스타일이 적용되면서 브라우저가 모든 요소의 스타일을 다시 계산해야 하는 비용이 발생합니다. useInsertionEffect는 DOM 변경 전에 스타일을 먼저 주입하여 스타일 계산이 한 번만 일어나게 합니다. 실행 시점상 아직 DOM이 갱신되지 않았으므로 ref 접근이나 레이아웃 측정은 불가능하며, 애플리케이션 코드에서 쓸 일은 없습니다 — styled-components, Emotion 같은 라이브러리 제작자를 위한 훅입니다.</p>",
+  },
+  {
+    id: 127,
+    question: "useSyncExternalStore는 어떤 문제를 해결하며, 어떻게 사용하나요?",
+    answer:
+      "<p><code>useSyncExternalStore</code>는 React 외부의 스토어(Redux/Zustand 스토어, 브라우저 API 등)를 <strong>동시성 렌더링과 안전하게 동기화하며 구독</strong>하기 위한 훅입니다. <code>useSyncExternalStore(subscribe, getSnapshot, getServerSnapshot)</code> 형태로, subscribe는 스토어 변경 시 호출될 콜백을 등록하고 해제 함수를 반환하며, getSnapshot은 현재 값을 반환합니다. React는 렌더링 중 getSnapshot을 호출해 값을 읽고, 커밋 직전에 다시 확인하여 값이 바뀌었으면 동기적으로 재렌더링해 일관성을 보장합니다.</p>" +
+      "<br/>" +
+      "<p><strong>Q1. Tearing 문제란 구체적으로 무엇이며, 왜 useState에서는 발생하지 않나요?</strong></p>" +
+      "<p>동시성 렌더링에서 React는 렌더 도중 메인 스레드에 제어권을 양보합니다. 그 틈에 외부 스토어의 값이 변경되면, <strong>양보 전에 렌더링된 컴포넌트는 이전 값을, 이후에 렌더링된 컴포넌트는 새 값을 읽는</strong> 화면 불일치가 발생합니다 — 이것이 tearing(찢어짐)입니다. 예를 들어 같은 장바구니 개수를 표시하는 두 컴포넌트가 각각 3과 4를 보여줄 수 있습니다. useState/useReducer는 이 문제가 없습니다 — 상태가 React 내부(fiber)에 있어서 React가 <strong>렌더링 시작 시점의 스냅샷을 고정</strong>하고 전체 트리가 그 스냅샷을 일관되게 사용하기 때문입니다. 외부 스토어는 React의 통제 밖에 있으므로, useSyncExternalStore가 커밋 전 검증과 동기 재렌더링으로 이 간극을 메웁니다.</p>" +
+      "<br/>" +
+      "<p><strong>Q2. getSnapshot이 매번 새로운 객체를 반환하면 어떤 문제가 생기나요?</strong></p>" +
+      "<p>React는 getSnapshot의 반환값을 <code>Object.is</code>로 이전 값과 비교하여 변경 여부를 판단합니다. <code>() =&gt; ({ ...store.state })</code>처럼 호출마다 새 객체를 만들면 항상 '변경됨'으로 판정되어 <strong>무한 재렌더링 루프</strong>에 빠집니다(React가 이를 감지하면 'getSnapshot should be cached' 에러를 던집니다). 스냅샷은 <strong>불변 데이터의 캐시된 참조</strong>여야 합니다 — 스토어가 변경될 때만 새 객체를 만들고, 변경이 없으면 같은 참조를 반환해야 합니다. 파생 값이나 selector가 필요하면 결과를 메모이제이션하거나, 이를 대신 처리해주는 <code>use-sync-external-store/with-selector</code>의 <code>useSyncExternalStoreWithSelector</code>를 사용합니다. Zustand의 selector 기반 구독이 내부적으로 바로 이것을 사용합니다.</p>" +
+      "<br/>" +
+      "<p><strong>Q3. 실무에서 직접 사용하는 사례에는 어떤 것이 있나요?</strong></p>" +
+      "<p>브라우저 API를 React 상태처럼 구독하는 커스텀 훅이 대표적입니다. ① <strong>온라인 상태</strong>: subscribe에서 online/offline 이벤트를 등록하고 getSnapshot이 <code>navigator.onLine</code>을 반환 ② <strong>미디어 쿼리</strong>: <code>matchMedia</code>의 change 이벤트 구독으로 useMediaQuery 구현 ③ <strong>localStorage 동기화</strong>: storage 이벤트 구독으로 탭 간 상태 동기화. 이 패턴의 장점은 useEffect + useState 조합과 달리 <strong>구독 시작 전 변경을 놓치지 않고</strong>, 이벤트 발생 시에만 정확히 재렌더링된다는 점입니다. 또한 <code>getServerSnapshot</code>으로 SSR 시의 초기값을 명시할 수 있어 hydration 불일치를 방지합니다. 한 가지 특성으로, 외부 스토어 업데이트는 transition 중이어도 동기 처리로 강등(de-opt)되므로 시간 분할의 이점을 받지 못합니다 — 가능하면 상태를 React 내부에 두라고 권장되는 이유입니다.</p>",
+  },
+  {
+    id: 128,
+    question: "React Hooks는 내부적으로 어떻게 구현되어 있나요?",
+    answer:
+      "<p>각 컴포넌트의 fiber 노드에는 <code>memoizedState</code> 필드가 있고, 훅들은 이곳에 <strong>호출 순서대로 연결 리스트</strong>로 저장됩니다. 첫 렌더(mount)에서 useState, useEffect 등이 호출될 때마다 훅 객체가 하나씩 생성되어 리스트에 연결되고, 리렌더(update)에서는 훅이 호출될 때마다 리스트의 <strong>다음 노드를 순서대로 꺼내</strong> 기존 상태와 대응시킵니다. 즉 훅에는 이름이나 키가 없고, 오직 '몇 번째 호출인가'로 자신의 상태를 찾습니다. 이것이 훅의 모든 규칙의 근원입니다.</p>" +
+      "<br/>" +
+      "<p><strong>Q1. 훅을 조건문이나 반복문 안에서 호출하면 안 되는 이유가 이 구조와 어떻게 연결되나요?</strong></p>" +
+      "<p>훅과 상태의 대응이 <strong>호출 순서에만 의존</strong>하기 때문입니다. 예를 들어 첫 렌더에서 [useState(A), useState(B), useEffect]가 호출되었는데, 다음 렌더에서 조건문 때문에 useState(A)가 건너뛰어지면, React는 두 번째로 호출된 useState(B)에게 리스트의 첫 번째 노드(A의 상태)를 건네줍니다 — <strong>상태가 한 칸씩 밀려 엉뚱한 값을 읽게 됩니다</strong>. React는 훅 개수가 달라지면 'Rendered fewer hooks than expected' 에러를 던지지만, 개수가 우연히 같고 순서만 바뀐 경우는 감지하지 못해 조용한 버그가 됩니다. 그래서 ESLint의 <code>rules-of-hooks</code>가 정적 분석으로 이를 차단하며, '최상위에서만 호출'이라는 규칙은 스타일 가이드가 아니라 자료구조적 제약입니다.</p>" +
+      "<br/>" +
+      "<p><strong>Q2. useState의 setState 호출은 내부적으로 어떻게 처리되나요?</strong></p>" +
+      "<p>각 useState 훅 객체는 자신만의 <strong>업데이트 큐(pending 업데이트들의 순환 연결 리스트)</strong>를 가집니다. setState를 호출하면 즉시 상태를 바꾸는 것이 아니라, 업데이트 객체(새 값 또는 업데이터 함수)를 큐에 추가하고 리렌더링을 스케줄합니다. 다음 렌더에서 useState가 호출되는 시점에 큐의 업데이트들을 <strong>순서대로 reduce하듯 적용</strong>하여 새 상태를 계산합니다. <code>setCount(c =&gt; c + 1)</code>을 세 번 호출하면 3이 되지만 <code>setCount(count + 1)</code> 세 번은 1이 되는 이유가 여기 있습니다 — 전자는 큐에서 이전 결과를 이어받고, 후자는 세 업데이트가 모두 같은 렌더의 스냅샷 값(0)을 캡처했기 때문입니다. React 18의 자동 배칭도 이 큐 구조 덕분에 여러 setState를 한 번의 렌더로 합칠 수 있습니다.</p>" +
+      "<br/>" +
+      "<p><strong>Q3. 훅을 컴포넌트 밖에서 호출하면 에러가 나는 메커니즘은 무엇인가요?</strong></p>" +
+      "<p>useState 같은 훅 함수는 실제 구현체가 아니라 <strong>현재 dispatcher에 위임하는 얇은 래퍼</strong>입니다. React는 렌더링 직전에 상황에 맞는 dispatcher를 전역 변수에 설정합니다 — mount 시에는 훅 리스트를 생성하는 구현(HooksDispatcherOnMount), update 시에는 리스트를 소비하는 구현(HooksDispatcherOnUpdate), 그리고 <strong>렌더링 중이 아닐 때는 호출 즉시 'Invalid hook call' 에러를 던지는 구현</strong>이 설정됩니다. 컴포넌트 밖이나 이벤트 핸들러에서 훅을 호출하면 이 에러 dispatcher에 도달하는 것입니다. 같은 에러가 React 사본이 두 개 설치되었을 때도 발생하는데, 라이브러리가 자체 React를 번들에 포함하면 dispatcher 전역 변수가 서로 다른 사본에 존재하기 때문입니다 — peerDependencies로 React를 선언하는 이유입니다.</p>",
+  },
+  {
+    id: 129,
+    question:
+      "Stale Closure(오래된 클로저) 문제란 무엇이며, 어떻게 해결하나요?",
+    answer:
+      "<p>Stale Closure는 콜백 함수가 <strong>생성 당시 렌더의 오래된 state나 props를 캡처한 채</strong> 나중에 실행되어 최신 값을 보지 못하는 문제입니다. 함수 컴포넌트의 각 렌더는 자신만의 props와 state를 가지며, 그 렌더에서 정의된 함수는 클로저로 그 시점의 값을 기억합니다. 대표 사례: <code>useEffect(() =&gt; { const id = setInterval(() =&gt; setCount(count + 1), 1000); return () =&gt; clearInterval(id); }, [])</code> — 빈 의존성 배열로 인해 인터벌 콜백은 최초 렌더의 count(0)만 영원히 참조하여, 카운터가 1에서 멈춥니다.</p>" +
+      "<br/>" +
+      "<p><strong>Q1. 해결 방법에는 어떤 것들이 있으며 각각 언제 적합한가요?</strong></p>" +
+      "<p>① <strong>의존성 배열을 정직하게 작성</strong>: <code>[count]</code>를 넣으면 값이 바뀔 때마다 이펙트가 재실행되어 항상 최신 클로저를 갖습니다. 단 인터벌이 매번 재생성되는 부작용이 있습니다 ② <strong>함수형 업데이트</strong>: <code>setCount(c =&gt; c + 1)</code>은 React가 항상 최신 상태를 인자로 주므로 클로저가 상태를 캡처할 필요 자체가 사라집니다 — 이 사례의 정답입니다 ③ <strong>useRef 최신값 패턴</strong>: 상태 변경마다 <code>ref.current</code>에 최신 값을 기록하고 콜백에서는 ref를 읽습니다. ref는 렌더 간에 동일한 객체이므로 클로저에 잡혀도 항상 최신을 가리킵니다 — 읽기만 필요하고 재구독은 원치 않는 경우에 적합합니다. 우선순위는 ② → ① → ③ 순이며, ESLint의 <code>exhaustive-deps</code> 경고를 끄는 것은 해결이 아니라 은폐입니다.</p>" +
+      "<br/>" +
+      "<p><strong>Q2. useEffectEvent는 이 문제를 어떻게 해결하나요?</strong></p>" +
+      "<p><code>useEffectEvent</code>(실험적 API)는 '이펙트에서 호출되지만 <strong>항상 최신 props/state를 읽으면서도 의존성에는 포함되지 않는</strong>' 함수를 만듭니다. 예를 들어 채팅방 연결 이펙트가 연결 성공 시 현재 테마로 알림을 띄워야 할 때, theme을 의존성에 넣으면 테마 변경마다 재연결되는 문제가 생깁니다. <code>const onConnected = useEffectEvent(() =&gt; showToast(theme))</code>로 감싸면 이펙트는 roomId에만 의존하면서 onConnected는 항상 최신 theme을 읽습니다. 내부적으로는 useRef 최신값 패턴의 공식화입니다. 핵심 개념은 이펙트의 <strong>반응형 로직(의존성 변화에 재실행)</strong>과 <strong>비반응형 로직(최신 값을 읽기만 함)</strong>의 분리입니다. 정식 릴리스 전까지는 useRef 패턴으로 동일한 효과를 구현합니다.</p>" +
+      "<br/>" +
+      "<p><strong>Q3. React는 왜 클래스의 this처럼 항상 최신 값을 주는 설계를 하지 않았나요?</strong></p>" +
+      "<p>의도된 설계입니다. 클래스 컴포넌트의 <code>this.props</code>는 항상 최신을 가리키는 가변 참조라서, 비동기 콜백이 실행되는 시점에 '요청을 보냈을 때의 값'이 아닌 '지금의 값'을 읽는 버그가 흔했습니다(예: A 사용자 프로필에서 팔로우를 눌렀는데 응답 시점에 B 프로필로 이동해 있으면 B에게 알림이 가는 문제). 함수 컴포넌트에서 <strong>각 렌더의 props/state는 불변 스냅샷</strong>이므로, 이벤트 핸들러와 이펙트는 자신이 속한 렌더의 일관된 값을 봅니다 — stale closure는 이 일관성 보장의 이면입니다. 이 불변 스냅샷 모델은 동시성 렌더링의 전제이기도 합니다. 렌더를 폐기하고 재시작해도 안전한 것은 각 렌더가 자기 완결적 스냅샷이기 때문입니다. 즉 React는 '기본은 스냅샷, 최신 값이 필요한 예외만 ref/함수형 업데이트로 opt-in'하는 방향을 선택한 것입니다.</p>",
+  },
+  {
+    id: 130,
+    question:
+      "useImperativeHandle은 언제 사용하며, ref 전달 방식은 어떻게 발전해왔나요?",
+    answer:
+      "<p><code>useImperativeHandle</code>은 부모가 자식의 ref를 통해 접근할 수 있는 값을 <strong>커스터마이징</strong>하는 훅입니다. DOM 노드를 그대로 노출하는 대신, <code>useImperativeHandle(ref, () =&gt; ({ focus: () =&gt; inputRef.current.focus(), clear: () =&gt; ... }), [])</code>처럼 필요한 메서드만 담은 객체를 노출합니다. 자식 내부 DOM 구조를 캡슐화하면서 최소한의 명령형 API만 공개하는 것이 목적으로, React 18까지는 함수 컴포넌트가 ref를 받으려면 <code>forwardRef</code>로 감싸야 했습니다.</p>" +
+      "<br/>" +
+      "<p><strong>Q1. 어떤 경우에 명령형 API가 정당화되나요?</strong></p>" +
+      "<p>React의 기본 원칙은 선언형입니다 — 상태를 바꾸면 UI가 따라오는 구조로 대부분의 요구를 해결해야 합니다. 명령형 API가 정당한 경우는 <strong>본질적으로 '시점'이 중요한 일회성 동작</strong>입니다: focus, 스크롤 이동, 텍스트 선택, 미디어 재생/정지, 애니메이션 트리거 등은 '상태'로 표현하면 오히려 부자연스럽습니다(isFocused: true를 상태로 두면 다시 false로 되돌리는 관리가 필요해집니다). 반면 데이터를 ref 메서드로 주고받거나(<code>ref.current.getValue()</code>), 자식의 렌더링을 ref로 제어하는 것은 안티패턴입니다 — 데이터 흐름이 props에서 벗어나 추적이 어려워지고 React DevTools에서도 보이지 않습니다. '상태 끌어올리기로 해결되는가'를 먼저 검토하고, 안 될 때만 최소한의 메서드를 노출하는 것이 원칙입니다.</p>" +
+      "<br/>" +
+      "<p><strong>Q2. React 19에서 ref 전달은 어떻게 바뀌었나요?</strong></p>" +
+      "<p>React 19부터 함수 컴포넌트에서 <strong>ref가 일반 prop으로 전달</strong>됩니다. <code>function MyInput({ ref, ...props })</code>처럼 구조 분해로 받으면 되고, forwardRef 래핑이 불필요해졌습니다(forwardRef는 향후 deprecated 예정). 이전에는 ref가 key처럼 특수 예약어라 props에서 제외되었기 때문에 forwardRef라는 우회 API가 필요했던 것입니다. 또한 <strong>ref 콜백이 클린업 함수를 반환</strong>할 수 있게 되어, <code>ref={node =&gt; { observer.observe(node); return () =&gt; observer.disconnect(); }}</code>처럼 attach/detach를 한 곳에서 관리할 수 있습니다. 기존에는 언마운트 시 ref 콜백이 null로 한 번 더 호출되는 방식이어서 null 체크 분기가 필요했습니다.</p>" +
+      "<br/>" +
+      "<p><strong>Q3. ref는 언제 연결(attach)되며, 렌더링 중에 읽으면 안 되는 이유는?</strong></p>" +
+      "<p>ref는 <strong>커밋 단계</strong>에서 연결됩니다 — React가 DOM을 실제로 변경한 후 ref.current에 노드를 할당합니다(useLayoutEffect 실행 전). 따라서 렌더 단계에서 <code>ref.current</code>는 이전 커밋의 값이거나 null이며, 렌더링 로직이 이를 읽으면 결과가 비결정적이 됩니다. 렌더가 폐기·재시작될 수 있는 동시성 모드에서는 더욱 위험합니다 — 렌더 중 ref에 쓰는 것 역시 재시작 시 중복 실행되어 순수성을 깨뜨립니다. 원칙: <strong>ref 읽기/쓰기는 이벤트 핸들러나 이펙트에서만</strong> 합니다. 렌더링에 필요한 값이라면 그것은 ref가 아니라 state여야 한다는 신호입니다. 예외적으로 <code>if (ref.current === null)</code> 가드 하에 최초 1회만 초기화하는 지연 초기화 패턴은 허용됩니다.</p>",
+  },
+  {
+    id: 131,
+    question:
+      "useId는 어떤 문제를 해결하며, 왜 Math.random으로 ID를 만들면 안 되나요?",
+    answer:
+      "<p><code>useId</code>는 <strong>서버와 클라이언트에서 일치하는 고유 ID</strong>를 생성하는 훅입니다. 주 용도는 접근성 속성 연결입니다 — <code>&lt;label htmlFor={id}&gt;</code>와 <code>&lt;input id={id}&gt;</code>, 또는 <code>aria-describedby</code>처럼 서로를 ID로 참조해야 하는 요소 쌍에서, 컴포넌트가 한 페이지에 여러 번 렌더링되어도 각 인스턴스가 고유한 ID를 갖도록 보장합니다. 하나의 useId에 접미사를 붙여(<code>id + '-email'</code>, <code>id + '-password'</code>) 여러 요소에 파생시키는 패턴이 권장됩니다.</p>" +
+      "<br/>" +
+      "<p><strong>Q1. Math.random이나 전역 카운터로 ID를 만들면 어떤 문제가 생기나요?</strong></p>" +
+      "<p>SSR 환경에서 컴포넌트는 <strong>서버에서 한 번, 클라이언트 hydration에서 또 한 번</strong> 실행됩니다. <code>Math.random()</code>은 두 실행에서 다른 값을 내므로 서버 HTML의 id와 클라이언트가 기대하는 id가 달라져 <strong>hydration mismatch</strong> 에러가 발생하고, aria 참조가 끊어져 접근성도 깨집니다. 전역 증가 카운터는 언뜻 결정적으로 보이지만, 서버에서는 여러 요청이 하나의 모듈 스코프를 공유해 카운터가 계속 증가하고, React 18의 스트리밍 SSR과 선택적 hydration에서는 <strong>컴포넌트 실행 순서 자체가 서버와 클라이언트에서 다를 수 있어</strong> 역시 어긋납니다. 근본 원인은 '실행 시점·순서에 의존하는 값'이라는 점입니다.</p>" +
+      "<br/>" +
+      "<p><strong>Q2. useId는 어떻게 서버·클라이언트에서 같은 값을 보장하나요?</strong></p>" +
+      "<p>useId는 난수나 카운터가 아니라 <strong>컴포넌트의 트리 내 위치(fiber 경로)</strong>에서 ID를 파생합니다. 트리 구조는 서버와 클라이언트에서 동일하므로, 실행 순서와 무관하게 같은 위치의 컴포넌트는 같은 ID를 얻습니다. 이 설계 덕분에 스트리밍 SSR에서 뒤쪽 청크가 먼저 hydrate되어도 안전합니다. 생성된 ID는 <code>:r0:</code> 같은 특수문자 포함 형식이라(고유성 보장과 다른 ID 체계와의 충돌 방지 목적) <code>querySelector('#:r0:')</code> 같은 CSS 선택자에 그대로 쓸 수 없습니다 — 필요하면 <code>CSS.escape()</code>를 사용해야 합니다. 여러 React 앱이 한 페이지에 공존하면 <code>identifierPrefix</code> 옵션으로 앱 간 충돌을 방지할 수 있습니다.</p>" +
+      "<br/>" +
+      "<p><strong>Q3. useId를 리스트의 key로 사용하면 안 되는 이유는?</strong></p>" +
+      "<p>key의 목적은 <strong>데이터 항목의 동일성</strong>을 렌더 간에 추적하는 것입니다. useId는 '컴포넌트 인스턴스의 위치'에서 나온 값이므로 데이터와 무관하며, 애초에 리스트를 map으로 렌더링할 때는 각 항목이 컴포넌트가 되기 전이라 훅을 호출할 수도 없습니다. 렌더링 중 <code>crypto.randomUUID()</code>로 key를 만드는 것도 마찬가지로 잘못입니다 — 매 렌더마다 key가 바뀌어 React가 모든 항목을 언마운트·재마운트하므로, key가 없는 것보다도 성능이 나쁘고 입력 상태·포커스가 전부 초기화됩니다. key는 데이터 자체의 안정적인 식별자(DB id 등)여야 하고, 정 없다면 데이터 생성 시점에 ID를 부여해 데이터에 저장해야 합니다. useId는 '같은 렌더 안에서 요소 간 참조'용, key는 '렌더 간 데이터 추적'용으로 목적이 다릅니다.</p>",
+  },
+  {
+    id: 132,
+    question:
+      "React 19의 새로운 훅(use, useOptimistic, useActionState)에 대해 설명해주세요.",
+    answer:
+      "<p>React 19는 폼과 비동기 처리를 일급 개념으로 끌어올렸습니다. ① <strong>use()</strong>: Promise나 Context를 렌더링 중에 읽는 API ② <strong>useActionState</strong>: 폼 액션의 결과 상태와 pending 여부를 관리 ③ <strong>useOptimistic</strong>: 비동기 작업 완료 전에 예상 결과를 미리 보여주는 낙관적 UI ④ <strong>useFormStatus</strong>(react-dom): 부모 폼의 제출 상태를 자식에서 읽기. 이들은 모두 'Action'(transition 안에서 실행되는 비동기 함수) 개념 위에 구축되어 pending·에러·낙관적 업데이트를 일관되게 처리합니다.</p>" +
+      "<br/>" +
+      "<p><strong>Q1. use()는 기존 훅과 어떻게 다르며, 어떻게 동작하나요?</strong></p>" +
+      "<p><code>use()</code>는 훅 명명 규칙을 따르지만 <strong>조건문·반복문 안에서 호출할 수 있는 유일한 예외</strong>입니다 — 내부적으로 호출 순서 기반 훅 리스트에 의존하지 않기 때문입니다. <code>use(promise)</code>는 Promise가 pending이면 렌더를 <strong>일시 중단(suspend)</strong>시켜 가장 가까운 Suspense fallback을 보여주고, resolve되면 그 값으로 렌더를 재개합니다. 거부되면 가장 가까운 Error Boundary로 전파됩니다. 중요한 제약은 <strong>렌더링 중에 Promise를 생성하면 안 된다</strong>는 것입니다 — 렌더마다 새 Promise가 만들어져 무한 suspend에 빠집니다. Promise는 서버 컴포넌트에서 만들어 props로 내려주거나(스트리밍과 결합되는 핵심 패턴), TanStack Query 같은 캐시 계층에서 가져와야 합니다. <code>use(Context)</code>는 useContext와 같지만 조건부 호출이 가능하다는 차이가 있습니다.</p>" +
+      "<br/>" +
+      "<p><strong>Q2. useOptimistic은 어떻게 동작하며 수동 낙관적 업데이트와 무엇이 다른가요?</strong></p>" +
+      "<p><code>const [optimisticState, addOptimistic] = useOptimistic(state, reducer)</code>는 실제 상태 위에 <strong>임시 낙관적 상태를 겹쳐 보여주는</strong> 훅입니다. 액션(transition) 안에서 <code>addOptimistic(value)</code>를 호출하면 즉시 optimisticState에 반영되어 UI가 먼저 갱신되고, 액션이 완료되어 실제 상태가 업데이트되면 낙관적 상태는 <strong>자동으로 실제 상태로 대체</strong>됩니다. 액션이 실패하면 낙관적 상태가 폐기되어 자동으로 원래 상태로 돌아갑니다. 수동 구현(setState로 미리 반영 → 실패 시 catch에서 롤백)과의 차이는 롤백 로직을 직접 작성할 필요가 없고, 연속된 여러 액션의 낙관적 상태가 쌓였다가 각각의 완료에 맞춰 정리되는 경합 상황을 React가 관리해준다는 점입니다. 채팅 전송(보내는 중 표시), 좋아요 토글이 전형적인 사례입니다.</p>" +
+      "<br/>" +
+      "<p><strong>Q3. useActionState는 폼 처리를 어떻게 바꾸나요?</strong></p>" +
+      "<p><code>const [state, formAction, isPending] = useActionState(fn, initialState)</code>는 액션 함수와 상태를 묶습니다. formAction을 <code>&lt;form action={formAction}&gt;</code>에 연결하면, 제출 시 fn이 <code>(이전 상태, FormData)</code>를 받아 실행되고 반환값이 새 state가 됩니다. 기존에 폼마다 반복하던 <code>isSubmitting</code>·<code>error</code> useState 보일러플레이트와 preventDefault 처리가 사라지고, 검증 에러를 state로 반환해 표시하는 흐름이 표준화됩니다. Next.js 등 프레임워크에서 서버 액션과 결합하면 <strong>JavaScript 로드 전 제출도 동작하는 프로그레시브 인핸스먼트</strong>를 얻습니다. 자식 컴포넌트(제출 버튼)에서는 <code>useFormStatus()</code>의 pending으로 상위 폼의 제출 상태를 props 없이 읽어 버튼을 비활성화할 수 있습니다. 이 조합이 React 19이 제시하는 폼 아키텍처의 기본형입니다.</p>",
+  },
+  {
+    id: 133,
+    question: "React Suspense는 내부적으로 어떻게 동작하나요?",
+    answer:
+      "<p>Suspense는 '이 하위 트리는 아직 준비되지 않았을 수 있다'를 선언하는 경계입니다. 자식 렌더링 중 데이터가 준비되지 않았으면 컴포넌트가 렌더를 <strong>중단(suspend)</strong>하고, 가장 가까운 <code>&lt;Suspense fallback={...}&gt;</code>이 이를 감지해 fallback을 대신 보여줍니다. 데이터가 준비되면 React가 해당 트리의 렌더를 재시도하여 실제 콘텐츠로 교체합니다. lazy 로딩(<code>React.lazy</code>), <code>use()</code>를 통한 데이터 페칭, 스트리밍 SSR이 모두 이 메커니즘 위에서 동작합니다.</p>" +
+      "<br/>" +
+      "<p><strong>Q1. 컴포넌트가 '중단'된다는 것은 구현 수준에서 무엇을 의미하나요?</strong></p>" +
+      "<p>준비되지 않은 컴포넌트는 렌더링 중 <strong>pending 상태의 Promise를 throw</strong>합니다(현재는 use()가 이를 공식화). throw는 원래 예외 전파 메커니즘이지만, React는 잡은 것이 Error면 Error Boundary로, <strong>Promise(thenable)면 Suspense 경계로</strong> 라우팅합니다. Suspense 경계는 fallback을 커밋하고 그 Promise에 <code>.then()</code>으로 콜백을 등록해두었다가, resolve되면 해당 트리의 재렌더를 스케줄합니다. 재시도 렌더에서 use()는 완료된 Promise에서 값을 동기적으로 꺼내 렌더가 정상 진행됩니다. Error Boundary와 구조적으로 대칭인 설계입니다 — 하나는 '실패', 하나는 '아직'을 경계에서 처리합니다. 이 메커니즘이 렌더 함수의 순수성을 요구하는 또 하나의 이유입니다: suspend된 렌더는 통째로 버려지고 재시도되기 때문입니다.</p>" +
+      "<br/>" +
+      "<p><strong>Q2. 스트리밍 SSR과 선택적 하이드레이션에서 Suspense는 어떤 역할을 하나요?</strong></p>" +
+      "<p>React 18의 <code>renderToPipeableStream</code>은 Suspense 경계를 <strong>스트리밍 단위</strong>로 사용합니다. 서버는 준비된 부분과 fallback을 포함한 HTML을 먼저 전송하고, 느린 데이터 영역이 준비되면 해당 콘텐츠 HTML과 fallback을 교체하는 인라인 스크립트를 같은 스트림에 이어 보냅니다 — 느린 API 하나가 전체 TTFB를 붙잡는 기존 SSR의 문제를 해결합니다. 클라이언트에서는 <strong>선택적 하이드레이션(selective hydration)</strong>이 동작합니다: 경계 단위로 나눠 하이드레이션하되, 사용자가 아직 하이드레이션되지 않은 영역을 클릭하면 React가 <strong>그 경계를 우선 하이드레이션</strong>하고 이벤트를 재현(replay)합니다. 즉 Suspense 경계를 어디에 두느냐가 스트리밍 청크와 하이드레이션 우선순위의 단위를 결정하는 아키텍처 결정이 됩니다.</p>" +
+      "<br/>" +
+      "<p><strong>Q3. Suspense와 transition이 결합하면 어떤 UX 개선이 가능한가요?</strong></p>" +
+      "<p>기본 동작에는 함정이 있습니다 — 이미 표시된 콘텐츠라도 리렌더 중 suspend가 발생하면 <strong>기존 콘텐츠가 fallback으로 교체</strong>되어, 페이지 이동 시마다 화면 전체가 스피너로 바뀌는 UX가 됩니다. 상태 업데이트를 <code>startTransition</code>으로 감싸면 React는 <strong>이미 커밋된 콘텐츠를 fallback으로 숨기지 않고</strong>, 백그라운드에서 새 트리의 데이터가 준비될 때까지 이전 화면을 유지합니다(isPending으로 진행 표시). 라우터 라이브러리들이 페이지 전환을 transition으로 감싸는 이유입니다. 반대로 '처음 나타나는' 경계의 fallback은 transition과 무관하게 표시됩니다. 데이터 페칭 관점에서는 각 컴포넌트가 렌더 시점에 fetch를 시작하면 부모→자식 순차 <strong>워터폴</strong>이 생기므로, 렌더 전에 로딩을 시작하는 render-as-you-fetch 패턴(라우트 로더, 서버 컴포넌트에서 Promise를 내려주는 방식)이 권장됩니다.</p>",
+  },
 ];

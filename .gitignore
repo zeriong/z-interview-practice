@@ -24,3 +24,6 @@ docs
 *.njsproj
 *.sln
 *.sw?
+
+# Claude Code 로컬 아티팩트 (이 폴더에 넣으면 일괄 git 제외)
+.claude/ignore/
